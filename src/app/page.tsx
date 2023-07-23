@@ -1,4 +1,5 @@
 "use client";
+import { Hero } from "@/components/hero";
 import {
   Box,
   Image,
@@ -8,14 +9,20 @@ import {
   Stack,
   Link,
   Container,
+  HStack,
+  Text,
+  Heading,
 } from "@chakra-ui/react";
 
 const Home = () => {
   return (
-    <Box height="200vh">
-      {/* Hero Section */}
-      hi
-    </Box>
+    <Container maxW="container.xl">
+      <Hero>
+        <Heading as="h1" size="4xl">
+          Heading example
+        </Heading>
+      </Hero>
+    </Container>
   );
 };
 

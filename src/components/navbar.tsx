@@ -31,7 +31,10 @@ const links: Array<Link> = [
 ];
 
 export const Navbar = () => {
+  // state for mobile nav
   const { isOpen, onToggle } = useDisclosure();
+
+  // on scroll, border will appear
   const [scrollPosition, setScrollPosition] = useState(0);
 
   const handleScroll = () => {
