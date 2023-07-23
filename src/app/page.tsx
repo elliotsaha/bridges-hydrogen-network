@@ -11,7 +11,12 @@ import {
 } from "@chakra-ui/react";
 
 const Home = () => {
-  return <Box height="300vh"></Box>;
+  return (
+    <Box height="200vh">
+      {/* Hero Section */}
+      hi
+    </Box>
+  );
 };
 
 export default Home;

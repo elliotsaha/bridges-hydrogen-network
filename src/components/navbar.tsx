@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import {
   Box,
   Img,
@@ -31,9 +32,27 @@ const links: Array<Link> = [
 
 export const Navbar = () => {
   const { isOpen, onToggle } = useDisclosure();
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  const handleScroll = () => {
+    const position = window.pageYOffset;
+    setScrollPosition(position);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <Box as="nav" bg="white" w="100%" position="fixed" zIndex="500">
-      <Box w="100%" borderBottomWidth="2px">
+      <Box
+        w="100%"
+        borderBottomWidth={scrollPosition > 0 ? "2px" : "0px"}
+        transition="ease-in-out border 0.1s"
+      >
         <Container maxW="container.xl" ml="auto" mr="auto">
           <Flex w="100%" p="5" flexDirection="row">
             <Img src="/static/images/Logo.svg" alt="Bridges" width="120px" />
@@ -132,8 +151,10 @@ const MobileNav = () => (
             {i.name}
           </Link>
         ))}
-        <Button>Login</Button>
-        <Button colorScheme="brand">Sign up</Button>
+        <Button w={{ base: "auto", sm: "xs" }}>Login</Button>
+        <Button w={{ base: "auto", sm: "xs" }} colorScheme="brand">
+          Sign up
+        </Button>
       </VStack>
     </Box>
   </Container>
