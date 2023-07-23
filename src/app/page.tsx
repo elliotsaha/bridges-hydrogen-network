@@ -23,6 +23,8 @@ import {
   CardFooter,
   Icon,
   Divider,
+  HStack,
+  Badge,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { Subheader } from "@/components/subheader";
@@ -89,7 +91,10 @@ const Home = () => {
             pt="14"
           >
             <VStack alignItems="flex-start">
-              <Subheader>A CHA Project</Subheader>
+              <HStack>
+                <Subheader>A CHA Project</Subheader>
+                <Badge colorScheme="orange">Beta</Badge>
+              </HStack>
               <Heading as="h1" size="3xl" mb="3">
                 Do you know what companies you should be working with?
               </Heading>
