@@ -26,7 +26,7 @@ interface Link {
 const links: Array<Link> = [
   { name: "Home", href: "/" },
   { name: "Search", href: "/search" },
-  { name: "Company Profile", href: "/company-profile" },
+  { name: "My Company", href: "/company-profile" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -58,7 +58,7 @@ export const Navbar = () => {
       >
         <Container maxW="container.xl" ml="auto" mr="auto">
           <Flex w="100%" p="5" flexDirection="row">
-            <Img src="/static/images/Logo.svg" alt="Bridges" width="120px" />
+            <Img src="/static/images/logo.svg" alt="Bridges" width="120px" />
             <Spacer />
             <Flex display={{ base: "flex", lg: "none" }}>
               <IconButton
