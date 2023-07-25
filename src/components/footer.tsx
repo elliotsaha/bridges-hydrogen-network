@@ -21,6 +21,7 @@ export const Footer = () => {
       borderTopRightRadius="lg"
       borderTopLeftRadius="lg"
       p="12"
+      minH="220px"
     >
       <Stack
         spacing={{ base: "12", md: "16" }}

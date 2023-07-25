@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { RootWrapper } from "@/components/rootWrapper";
 
 export const metadata: Metadata = {
   title: "Bridges by CHA",
@@ -19,7 +20,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <Navbar />
-          {children}
+          <RootWrapper>{children}</RootWrapper>
           <Footer />
         </Providers>
       </body>

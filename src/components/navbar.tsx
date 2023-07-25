@@ -30,6 +30,11 @@ const links: Array<Link> = [
   { name: "Contact", href: "/contact" },
 ];
 
+const authButtonHrefs = {
+  login: "/login",
+  signup: "/signup",
+};
+
 export const Navbar = () => {
   // state for mobile nav
   const { isOpen, onToggle } = useDisclosure();
@@ -109,8 +114,16 @@ export const Navbar = () => {
               align="center"
               display={{ base: "none", lg: "flex" }}
             >
-              <Button>Login</Button>
-              <Button colorScheme="brand">Sign up</Button>
+              <Button as={NextLink} href={authButtonHrefs.login}>
+                Login
+              </Button>
+              <Button
+                colorScheme="brand"
+                as={NextLink}
+                href={authButtonHrefs.signup}
+              >
+                Sign up
+              </Button>
             </Stack>
           </Flex>
         </Container>
@@ -154,8 +167,19 @@ const MobileNav = () => (
             {i.name}
           </Link>
         ))}
-        <Button w={{ base: "auto", sm: "xs" }}>Login</Button>
-        <Button w={{ base: "auto", sm: "xs" }} colorScheme="brand">
+        <Button
+          w={{ base: "auto", sm: "xs" }}
+          as={NextLink}
+          href={authButtonHrefs.login}
+        >
+          Login
+        </Button>
+        <Button
+          w={{ base: "auto", sm: "xs" }}
+          colorScheme="brand"
+          as={NextLink}
+          href={authButtonHrefs.signup}
+        >
           Sign up
         </Button>
       </VStack>

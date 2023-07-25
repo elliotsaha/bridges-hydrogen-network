@@ -1,5 +1,4 @@
 "use client";
-import { Hero } from "@/components/hero";
 import {
   Box,
   Image,
@@ -82,47 +81,45 @@ const Home = () => {
   return (
     <>
       <Container maxW="container.xl">
-        <Hero>
-          <SimpleGrid
-            columns={{ base: 1, lg: 2 }}
-            spacing="12"
-            px="4"
-            alignItems="center"
-            pt="14"
-          >
-            <VStack alignItems="flex-start">
-              <HStack>
-                <Subheader>A CHA Project</Subheader>
-                <Badge colorScheme="orange">Beta</Badge>
-              </HStack>
-              <Heading as="h1" size="3xl" mb="3">
-                Do you know what companies you should be working with?
-              </Heading>
-              <Text color="gray.600" fontSize="lg" mr="9">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga
-                excepturi magnam, aperiam ipsam incidunt at sunt asperiores
-                molestiae nobis nisi.
-              </Text>
-              <Button
-                colorScheme="brand"
-                size="lg"
-                mt="6"
-                as={NextLink}
-                href="/"
-                rightIcon={<Icon as={FiArrowRight} />}
-              >
-                Get Started
-              </Button>
-            </VStack>
-            <Img
-              src="/static/images/handshake_glow.png"
-              alt="Hand Shake"
-              borderRadius="lg"
-              width="xl"
-              display={{ base: "none", lg: "block" }}
-            />
-          </SimpleGrid>
-        </Hero>
+        <SimpleGrid
+          columns={{ base: 1, lg: 2 }}
+          spacing="12"
+          px="4"
+          alignItems="center"
+          pt="14"
+        >
+          <VStack alignItems="flex-start">
+            <HStack>
+              <Subheader>A CHA Project</Subheader>
+              <Badge colorScheme="orange">Beta</Badge>
+            </HStack>
+            <Heading as="h1" size="3xl" mb="3">
+              Do you know what companies you should be working with?
+            </Heading>
+            <Text color="gray.600" fontSize="lg" mr="9">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga
+              excepturi magnam, aperiam ipsam incidunt at sunt asperiores
+              molestiae nobis nisi.
+            </Text>
+            <Button
+              colorScheme="brand"
+              size="lg"
+              mt="6"
+              as={NextLink}
+              href="/"
+              rightIcon={<Icon as={FiArrowRight} />}
+            >
+              Get Started
+            </Button>
+          </VStack>
+          <Img
+            src="/static/images/handshake_glow.png"
+            alt="Hand Shake"
+            borderRadius="lg"
+            width="xl"
+            display={{ base: "none", lg: "block" }}
+          />
+        </SimpleGrid>
       </Container>
 
       <Flex

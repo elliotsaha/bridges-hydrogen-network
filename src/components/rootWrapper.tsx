@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { Box } from "@chakra-ui/react";
 
 interface RootWrapperProps {
@@ -7,5 +6,10 @@ interface RootWrapperProps {
 }
 
 export const RootWrapper = ({ children }: RootWrapperProps) => {
-  return <Box pt="20">{children}</Box>;
+  // 220px is min height of footer
+  return (
+    <Box pt="20" minH="calc(100vh - 220px)">
+      {children}
+    </Box>
+  );
 };
