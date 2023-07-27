@@ -8,7 +8,6 @@ import {
   Input,
   useToast,
   SimpleGrid,
-  Flex,
   Icon,
   Img,
   Box,
@@ -16,11 +15,10 @@ import {
 import { FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { supabase } from "@db/client";
-import NextLink from "next/link";
 import { Subheader } from "@/components/subheader";
 import { useFormik } from "formik";
 
-interface SubmitForm {
+interface FormParams {
   email: string;
   password: string;
 }
@@ -31,10 +29,10 @@ const Login = () => {
   const statusToast = useToast();
   const router = useRouter();
 
-  const submitForm = async ({ email, password }: SubmitForm) => {
+  const submitForm = async ({ email, password }: FormParams) => {
     setLoading(true);
 
-    let { data, error } = await supabase.auth.signInWithPassword({
+    let { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
