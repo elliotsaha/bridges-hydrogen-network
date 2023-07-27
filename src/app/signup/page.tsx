@@ -93,13 +93,13 @@ const Signup = () => {
                 position="relative"
               >
                 <Img
-                  src="/static/images/windmills.jpg"
-                  alt="Windmills"
+                  src="/static/images/cliffs.jpg"
+                  alt="Nature"
                   borderRadius="lg"
                   width="100%"
                   h="2xl"
                   objectFit="cover"
-                  filter="brightness(70%)"
+                  filter="brightness(50%)"
                 />
                 <Heading
                   as="h3"
@@ -111,7 +111,7 @@ const Signup = () => {
                   mr="20"
                   color="white"
                 >
-                  Back to join the fight for clean energy?
+                  Join us in the fight for achieving net zero
                 </Heading>
               </Box>
               <form onSubmit={handleSubmit}>

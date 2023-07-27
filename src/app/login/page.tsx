@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   VStack,
@@ -13,7 +13,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@db/client";
 import { Subheader } from "@/components/subheader";
 import { useFormik } from "formik";
@@ -26,8 +26,21 @@ interface FormParams {
 const Login = () => {
   const [loading, setLoading] = useState(false);
 
+  const searchParams = useSearchParams();
   const statusToast = useToast();
   const router = useRouter();
+
+  const query = searchParams.get("status");
+
+  useEffect(() => {
+    if (query === "confirmed") {
+      statusToast({
+        title: "Account confirmation successful",
+        description: "Please login now",
+        status: "success",
+      });
+    }
+  }, [query, statusToast]);
 
   const submitForm = async ({ email, password }: FormParams) => {
     setLoading(true);
@@ -79,8 +92,8 @@ const Login = () => {
             position="relative"
           >
             <Img
-              src="/static/images/windmills.jpg"
-              alt="Windmills"
+              src="/static/images/windmill.jpg"
+              alt="Windmill"
               borderRadius="lg"
               width="100%"
               h="2xl"
