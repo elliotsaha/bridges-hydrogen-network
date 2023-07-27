@@ -13,11 +13,10 @@ import {
   Img,
   Box,
 } from "@chakra-ui/react";
-import { FiArrowRight, FiExternalLink } from "react-icons/fi";
+import { FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { supabase } from "@db/client";
 import NextLink from "next/link";
-import { ExternalLink } from "@/components/externalLink";
 import { Subheader } from "@/components/subheader";
 import { useFormik } from "formik";
 
@@ -136,9 +135,6 @@ const Login = () => {
                 w={{ base: "100%", sm: "sm" }}
                 size="lg"
               />
-              <ExternalLink href="/forgot-password">
-                Forgot Password?
-              </ExternalLink>
               <Button
                 mt="2"
                 colorScheme="brand"

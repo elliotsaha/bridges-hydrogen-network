@@ -34,9 +34,6 @@ export const Footer = () => {
             Get Started
           </Link>
           <Link as={NextLink} href="/">
-            Forgot Password
-          </Link>
-          <Link as={NextLink} href="/">
             Login
           </Link>
         </VStack>
