@@ -129,13 +129,13 @@ export const Navbar = () => {
         </Container>
       </Box>
       <Collapse in={isOpen} animateOpacity>
-        <MobileNav />
+        <MobileNav onToggle={onToggle} />
       </Collapse>
     </Box>
   );
 };
 
-const MobileNav = () => (
+const MobileNav = ({ onToggle }: { onToggle: () => void }) => (
   <Container
     maxW="container.xl"
     ml="auto"
@@ -151,6 +151,7 @@ const MobileNav = () => (
             as={NextLink}
             href={i.href}
             key={i.href}
+            onClick={onToggle}
             fontWeight="bold"
             color="gray.500"
             py="2"
@@ -171,6 +172,7 @@ const MobileNav = () => (
           w={{ base: "auto", sm: "xs" }}
           as={NextLink}
           href={authButtonHrefs.login}
+          onClick={onToggle}
         >
           Login
         </Button>
@@ -179,6 +181,7 @@ const MobileNav = () => (
           colorScheme="brand"
           as={NextLink}
           href={authButtonHrefs.signup}
+          onClick={onToggle}
         >
           Sign up
         </Button>

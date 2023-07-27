@@ -28,7 +28,18 @@ const theme = extendTheme({
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <CacheProvider>
-      <ChakraProvider theme={theme}>{children}</ChakraProvider>
+      <ChakraProvider
+        theme={theme}
+        toastOptions={{
+          defaultOptions: {
+            position: "bottom-right",
+            duration: 5000,
+            isClosable: true,
+          },
+        }}
+      >
+        {children}
+      </ChakraProvider>
     </CacheProvider>
   );
 };

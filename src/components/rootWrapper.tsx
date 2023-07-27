@@ -8,7 +8,7 @@ interface RootWrapperProps {
 export const RootWrapper = ({ children }: RootWrapperProps) => {
   // 220px is min height of footer
   return (
-    <Box pt="20" minH="calc(100vh - 220px)">
+    <Box pt="20" minH="max(calc(100vh - 220px), 750px)">
       {children}
     </Box>
   );
