@@ -13,10 +13,10 @@ import {
   IconButton,
   VStack,
   Collapse,
-  Icon,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
+import { useAuthContext } from "@/app/auth/context";
 
 interface Link {
   name: string;
@@ -54,8 +54,12 @@ export const Navbar = () => {
     };
   }, []);
 
+  const { loading, user } = useAuthContext();
+
+  console.log(loading, user);
   return (
     <Box as="nav" bg="white" w="100%" position="fixed" zIndex="500">
+      {loading ? "LOADING...." : "LOADED"}
       <Box
         w="100%"
         borderBottomWidth={scrollPosition > 0 ? "2px" : "0px"}

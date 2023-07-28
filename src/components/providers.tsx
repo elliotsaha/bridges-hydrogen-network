@@ -1,11 +1,8 @@
 "use client";
 import { CacheProvider } from "@chakra-ui/next-js";
-import {
-  ChakraProvider,
-  defineStyleConfig,
-  extendTheme,
-} from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import chakraTheme from "@chakra-ui/theme";
+import { AuthContextProvider } from "@/app/auth/context";
 
 const theme = extendTheme({
   colors: {
@@ -38,7 +35,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           },
         }}
       >
-        {children}
+        <AuthContextProvider>{children}</AuthContextProvider>
       </ChakraProvider>
     </CacheProvider>
   );
