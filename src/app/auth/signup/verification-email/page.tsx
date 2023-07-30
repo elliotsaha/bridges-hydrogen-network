@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { Container, Heading, VStack, Text, Button } from "@chakra-ui/react";
 import { Subheader } from "@/components/subheader";
 import NextLink from "next/link";

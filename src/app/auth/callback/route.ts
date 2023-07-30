@@ -11,5 +11,5 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  return NextResponse.redirect(`${requestUrl.origin}/login?status=confirmed`);
+  return NextResponse.redirect(`${requestUrl.origin}/?status=confirmedAuth`);
 }

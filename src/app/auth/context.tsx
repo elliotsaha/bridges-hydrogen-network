@@ -42,7 +42,7 @@ export const AuthContextProvider = ({
   const value = useMemo(() => {
     return {
       user,
-      signOut: () => supabase.auth.signOut(),
+      signOut: async () => await supabase.auth.signOut(),
       loading,
     };
   }, [user, loading]);

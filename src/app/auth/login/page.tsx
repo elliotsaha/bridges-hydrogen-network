@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Container,
   VStack,
@@ -13,7 +13,6 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
-import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@db/client";
 import { Subheader } from "@/components/subheader";
 import { useFormik } from "formik";
@@ -25,22 +24,7 @@ interface FormParams {
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-
-  const searchParams = useSearchParams();
   const statusToast = useToast();
-  const router = useRouter();
-
-  const query = searchParams.get("status");
-
-  useEffect(() => {
-    if (query === "confirmed") {
-      statusToast({
-        title: "Account confirmation successful",
-        description: "Please login now",
-        status: "success",
-      });
-    }
-  }, [query, statusToast]);
 
   const submitForm = async ({ email, password }: FormParams) => {
     setLoading(true);
@@ -62,7 +46,9 @@ const Login = () => {
         description: "You are now authenticated",
         status: "success",
       });
-      router.push("/");
+
+      // need full page reload to account for auth state change
+      window.location.href = "/";
     }
 
     setLoading(false);

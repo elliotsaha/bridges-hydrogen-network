@@ -62,7 +62,7 @@ const Signup = () => {
         description: "Thank you for registering",
         status: "success",
       });
-      router.push("/signup/verification-email");
+      router.push("/auth/signup/verification-email");
     }
 
     setLoading(false);

@@ -1,9 +1,8 @@
 "use client";
+import { useEffect } from "react";
 import {
   Box,
-  Image,
   Flex,
-  Spacer,
   Button,
   Stack,
   Link,
@@ -19,11 +18,10 @@ import {
   Card,
   CardHeader,
   CardBody,
-  CardFooter,
   Icon,
-  Divider,
   HStack,
   Badge,
+  useToast,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { Subheader } from "@/components/subheader";
@@ -40,6 +38,7 @@ import {
   FiSend,
   FiArrowRight,
 } from "react-icons/fi";
+import { useSearchParams } from "next/navigation";
 
 const showcaseCompanies = [
   { name: "Suncor", url: "suncor.png" },
@@ -78,6 +77,20 @@ const companyPotentialCards = [
 ];
 
 const Home = () => {
+  const searchParams = useSearchParams();
+  const statusToast = useToast();
+
+  const query = searchParams.get("status");
+
+  useEffect(() => {
+    if (query === "confirmedAuth") {
+      statusToast({
+        title: "Account confirmation successful",
+        status: "success",
+      });
+    }
+  }, [query, statusToast]);
+
   return (
     <>
       <Container maxW="container.xl">

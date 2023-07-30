@@ -13,10 +13,12 @@ import {
   IconButton,
   VStack,
   Collapse,
+  Skeleton,
+  HStack,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
-import { useAuthContext } from "@/app/auth/context";
+import { AuthComponent } from "./authComponent";
 
 interface Link {
   name: string;
@@ -31,8 +33,10 @@ const links: Array<Link> = [
 ];
 
 const authButtonHrefs = {
-  login: "/login",
-  signup: "/signup",
+  login: "/auth/login",
+  signup: "/auth/signup",
+  myAccount: "/auth/my-account",
+  logout: "/auth/logout",
 };
 
 export const Navbar = () => {
@@ -54,12 +58,8 @@ export const Navbar = () => {
     };
   }, []);
 
-  const { loading, user } = useAuthContext();
-
-  console.log(loading, user);
   return (
     <Box as="nav" bg="white" w="100%" position="fixed" zIndex="500">
-      {loading ? "LOADING...." : "LOADED"}
       <Box
         w="100%"
         borderBottomWidth={scrollPosition > 0 ? "2px" : "0px"}
@@ -112,23 +112,48 @@ export const Navbar = () => {
               ))}
             </Stack>
             <Spacer display={{ base: "none", lg: "flex" }} />
-            <Stack
-              spacing="4"
-              direction="row"
-              align="center"
-              display={{ base: "none", lg: "flex" }}
-            >
-              <Button as={NextLink} href={authButtonHrefs.login}>
-                Login
-              </Button>
-              <Button
-                colorScheme="brand"
-                as={NextLink}
-                href={authButtonHrefs.signup}
-              >
-                Sign up
-              </Button>
-            </Stack>
+            <Box display={{ base: "none", lg: "block" }}>
+              <AuthComponent
+                unauthenticated={
+                  <HStack spacing="4">
+                    <Button as={NextLink} href={authButtonHrefs.login}>
+                      Login
+                    </Button>
+                    <Button
+                      colorScheme="brand"
+                      as={NextLink}
+                      href={authButtonHrefs.signup}
+                    >
+                      Sign up
+                    </Button>
+                  </HStack>
+                }
+                loading={
+                  <HStack spacing="4">
+                    <Skeleton>
+                      <Button>My Account</Button>
+                    </Skeleton>
+                    <Skeleton>
+                      <Button>Sign Out</Button>
+                    </Skeleton>
+                  </HStack>
+                }
+                authenticated={
+                  <HStack spacing="4">
+                    <Button
+                      colorScheme="brand"
+                      as={NextLink}
+                      href={authButtonHrefs.myAccount}
+                    >
+                      My Account
+                    </Button>
+                    <Button as={NextLink} href={authButtonHrefs.logout}>
+                      Sign Out
+                    </Button>
+                  </HStack>
+                }
+              />
+            </Box>
           </Flex>
         </Container>
       </Box>
@@ -172,23 +197,56 @@ const MobileNav = ({ onToggle }: { onToggle: () => void }) => (
             {i.name}
           </Link>
         ))}
-        <Button
-          w={{ base: "auto", sm: "xs" }}
-          as={NextLink}
-          href={authButtonHrefs.login}
-          onClick={onToggle}
-        >
-          Login
-        </Button>
-        <Button
-          w={{ base: "auto", sm: "xs" }}
-          colorScheme="brand"
-          as={NextLink}
-          href={authButtonHrefs.signup}
-          onClick={onToggle}
-        >
-          Sign up
-        </Button>
+        <AuthComponent
+          loading={
+            <VStack align="flex-start">
+              <Button w={{ base: "auto", sm: "xs" }}>My Account</Button>
+              <Button w={{ base: "auto", sm: "xs" }}>Sign Out</Button>
+            </VStack>
+          }
+          unauthenticated={
+            <VStack align="flex-start">
+              <Button
+                w={{ base: "auto", sm: "xs" }}
+                as={NextLink}
+                href={authButtonHrefs.login}
+                onClick={onToggle}
+              >
+                Login
+              </Button>
+              <Button
+                w={{ base: "auto", sm: "xs" }}
+                colorScheme="brand"
+                as={NextLink}
+                href={authButtonHrefs.signup}
+                onClick={onToggle}
+              >
+                Sign up
+              </Button>
+            </VStack>
+          }
+          authenticated={
+            <VStack align="flex-start">
+              <Button
+                w={{ base: "auto", sm: "xs" }}
+                as={NextLink}
+                href={authButtonHrefs.login}
+                onClick={onToggle}
+                colorScheme="brand"
+              >
+                My Account
+              </Button>
+              <Button
+                w={{ base: "auto", sm: "xs" }}
+                as={NextLink}
+                href={authButtonHrefs.logout}
+                onClick={onToggle}
+              >
+                Sign Out
+              </Button>
+            </VStack>
+          }
+        />
       </VStack>
     </Box>
   </Container>
