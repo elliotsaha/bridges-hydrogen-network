@@ -28,7 +28,7 @@ interface Link {
 const links: Array<Link> = [
   { name: "Home", href: "/" },
   { name: "Search", href: "/search" },
-  { name: "My Company", href: "/company-profile" },
+  { name: "My Company", href: "/protected/company-profile" },
   { name: "Contact", href: "/contact" },
 ];
 

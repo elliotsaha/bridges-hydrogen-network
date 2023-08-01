@@ -7,6 +7,8 @@ interface AuthComponentProps {
   unauthenticated: JSX.Element;
 }
 
+// use this component if you need a loading state, an authenticated state, and an unauthenticated state.
+// Do not use this component for protected routes (that is taken care of by middleware)
 export const AuthComponent = (props: AuthComponentProps): JSX.Element => {
   const { loading, user } = useAuthContext();
 

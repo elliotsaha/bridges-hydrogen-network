@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   VStack,
@@ -16,6 +16,7 @@ import { FiArrowRight } from "react-icons/fi";
 import { supabase } from "@db/client";
 import { Subheader } from "@/components/subheader";
 import { useFormik } from "formik";
+import { useSearchParams } from "next/navigation";
 
 interface FormParams {
   email: string;
@@ -25,6 +26,28 @@ interface FormParams {
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const statusToast = useToast();
+  const params = useSearchParams();
+  const redirectURL = params.get("redirect");
+
+  useEffect(() => {
+    if (redirectURL) {
+      statusToast({
+        title: "Sign in first",
+        description: "Please sign in before proceeding",
+        status: "info",
+      });
+    }
+  }, [redirectURL, statusToast]);
+
+  const redirect = () => {
+    if (redirectURL) {
+      // need full page reload to account for auth state change
+      window.location.href = redirectURL;
+    } else {
+      // redirect home if no redirect url is specified
+      window.location.href = "/";
+    }
+  };
 
   const submitForm = async ({ email, password }: FormParams) => {
     setLoading(true);
@@ -47,8 +70,7 @@ const Login = () => {
         status: "success",
       });
 
-      // need full page reload to account for auth state change
-      window.location.href = "/";
+      redirect();
     }
 
     setLoading(false);
