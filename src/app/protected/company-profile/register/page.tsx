@@ -33,6 +33,7 @@ import {
   Wrap,
   Flex,
   SimpleGrid,
+  Stack,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
 import {
@@ -53,19 +54,19 @@ const steps = [
   },
   {
     title: "Type of Business",
-    description: "What type of business do you operate",
+    description: "What type of business do you operate?",
   },
   {
     title: "Provided Services",
-    description: "What services / products do you provide",
+    description: "What services / products do you provide?",
   },
   {
     title: "Technologies Used",
-    description: "What technologies does your company use",
+    description: "What technologies does your company use?",
   },
   {
     title: "Market Segment Focus",
-    description: "What market does your company cater towards",
+    description: "What market does your company cater towards?",
   },
 ];
 
@@ -75,9 +76,16 @@ const Register = () => {
     count: steps.length,
   });
 
+  const activeStepText = steps[activeStep].description;
+
   return (
-    <Container maxW="container.xl" py={{ base: "32", lg: "20" }}>
-      <HStack spacing="92" align="flex-start">
+    <Container maxW="container.xl" py={{ base: "32", lg: "20" }} px="8">
+      <Stack
+        spacing="92"
+        align="flex-start"
+        direction="row"
+        display={{ base: "none", lg: "flex" }}
+      >
         <Stepper
           index={activeStep}
           orientation="vertical"
@@ -105,7 +113,12 @@ const Register = () => {
           ))}
         </Stepper>
         <StepperScreen activeStep={activeStep} setActiveStep={setActiveStep} />
-      </HStack>
+      </Stack>
+
+      <Stack display={{ base: "flex", lg: "none" }} spacing="16">
+        <MobileStepper activeStep={activeStep} />
+        <StepperScreen activeStep={activeStep} setActiveStep={setActiveStep} />
+      </Stack>
     </Container>
   );
 };
@@ -144,16 +157,42 @@ const BackButton = ({ activeStep, setActiveStep }: ProgressButtonProps) => (
   </Button>
 );
 
+const MobileStepper = ({ activeStep }: { activeStep: number }) => {
+  const activeStepText = steps[activeStep].description;
+
+  return (
+    <Stack spacing="4">
+      <Stepper size="sm" index={activeStep} gap="0" colorScheme="brand">
+        {steps.map((step, index) => (
+          <Step key={index}>
+            <StepIndicator>
+              <StepStatus complete={<StepIcon />} />
+            </StepIndicator>
+            <StepSeparator />
+          </Step>
+        ))}
+      </Stepper>
+      <Text>
+        Step {activeStep + 1}: <b>{activeStepText}</b>
+      </Text>
+    </Stack>
+  );
+};
+
 const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
   switch (activeStep) {
     case 0:
       return (
-        <Box>
-          <VStack align="flex-start" minH="lg" mb="6" w="2xl">
+        <Box w="100%" ml={{ base: "0", lg: "24" }}>
+          <VStack align="flex-start" minH="lg" mb="6">
             <Heading as="h1" mb="2">
               Let&apos;s get to know your company
             </Heading>
-            <HStack w="100%" spacing="42" align="flex-start">
+            <Stack
+              spacing="42"
+              align="flex-start"
+              direction={{ base: "column", lg: "row" }}
+            >
               <VStack w="100%" align="flex-start">
                 <Text color="gray.500">Headquarters Location</Text>
                 <Input w="64" placeholder="e.g. Edmonton, AB" />
@@ -171,7 +210,7 @@ const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
                   Less than 2 years
                 </Checkbox>
               </VStack>
-            </HStack>
+            </Stack>
 
             <Heading as="h3" size="md" mt="8">
               Where does your company operate
@@ -189,12 +228,12 @@ const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
       );
     case 1:
       return (
-        <Box>
-          <VStack align="flex-start" minH="lg" mb="6" w="2xl">
+        <Box w="100%" ml={{ base: "0", lg: "24" }}>
+          <VStack align="flex-start" minH="lg" mb="6">
             <Heading as="h1">What type of business do you run?</Heading>
 
             <Text color="gray.500">Select all that apply</Text>
-            <Flex flexDir="column" wrap="wrap" h="sm">
+            <Flex flexDir="column" wrap="wrap" h={{ base: "100%", lg: "sm" }}>
               <CheckboxGroup colorScheme="brand">
                 {typeOfBusinesses.map((i) => (
                   <Checkbox key={i.name} mb="2" mr="12">
@@ -214,15 +253,15 @@ const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
       );
     case 2:
       return (
-        <Box>
-          <VStack align="flex-start" minH="lg" mb="6" w="2xl">
+        <Box w="100%" ml={{ base: "0", lg: "24" }}>
+          <VStack align="flex-start" minH="lg" mb="6">
             <Heading as="h1" mb="2">
               What services / products does your business provide?
             </Heading>
 
             <Text color="gray.500">Select all that apply</Text>
 
-            <Flex flexDir="column" wrap="wrap" h="sm">
+            <Flex flexDir="column" wrap="wrap" h={{ base: "100%", xl: "sm" }}>
               <CheckboxGroup colorScheme="brand">
                 {services.map((i) => (
                   <Checkbox key={i.name} mb="2" mr="12">
@@ -242,8 +281,8 @@ const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
       );
     case 3:
       return (
-        <Box>
-          <VStack align="flex-start" minH="lg" mb="6" w="3xl">
+        <Box w="100%" ml={{ base: "0", lg: "24" }}>
+          <VStack align="flex-start" minH="lg" mb="6">
             <Heading as="h1" mb="2">
               What technologies does your business use?
             </Heading>
@@ -251,7 +290,7 @@ const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
               Select all that apply
             </Text>
 
-            <SimpleGrid columns={2} mt="-4">
+            <SimpleGrid columns={{ base: 1, xl: 2 }} mt="-4">
               {technologiesUsed.map((section) => (
                 <Box key={section.sectionTitle} mr="12">
                   <Heading as="h3" size="md" mt="8" mb="4">
@@ -283,12 +322,7 @@ const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
               ))}
             </SimpleGrid>
           </VStack>
-          <HStack
-            spacing="2"
-            alignSelf="flex-end"
-            justifyContent="flex-end"
-            mr="16"
-          >
+          <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton activeStep={activeStep} setActiveStep={setActiveStep} />
             <NextButton activeStep={activeStep} setActiveStep={setActiveStep} />
           </HStack>
@@ -296,8 +330,8 @@ const StepperScreen = ({ activeStep, setActiveStep }: StepperScreenProps) => {
       );
     case 4:
       return (
-        <Box>
-          <VStack align="flex-start" minH="lg" mb="6" w="2xl">
+        <Box w="100%" ml={{ base: "0", lg: "24" }}>
+          <VStack align="flex-start" minH="lg" mb="6">
             <Heading as="h1">
               What market does your company cater towards?
             </Heading>
