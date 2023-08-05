@@ -38,7 +38,8 @@ import {
   FiSend,
   FiArrowRight,
 } from "react-icons/fi";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
+import { authBroadcast } from "./auth/context";
 
 const showcaseCompanies = [
   { name: "Suncor", url: "suncor.png" },
@@ -80,16 +81,20 @@ const Home = () => {
   const searchParams = useSearchParams();
   const statusToast = useToast();
 
-  const query = searchParams.get("status");
-
+  const statusQuery = searchParams.get("status");
+  const reloadSession = searchParams.get("reloadSession");
   useEffect(() => {
-    if (query === "confirmedAuth") {
+    if (statusQuery === "confirmedAuth") {
       statusToast({
         title: "Account confirmation successful",
         status: "success",
       });
     }
-  }, [query, statusToast]);
+    if (reloadSession === "true") {
+      authBroadcast.postMessage("reload-auth");
+      redirect("/");
+    }
+  }, [reloadSession, statusQuery, statusToast]);
 
   return (
     <>

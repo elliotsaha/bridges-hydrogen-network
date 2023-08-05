@@ -17,6 +17,7 @@ import { supabase } from "@db/client";
 import { Subheader } from "@/components/subheader";
 import { useFormik } from "formik";
 import { useSearchParams } from "next/navigation";
+import { authBroadcast } from "../context";
 
 interface FormParams {
   email: string;
@@ -69,6 +70,8 @@ const Login = () => {
         description: "You are now authenticated",
         status: "success",
       });
+
+      authBroadcast.postMessage("reload-auth");
 
       redirect();
     }

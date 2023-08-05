@@ -1,43 +1,66 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 import { supabase } from "@db/client";
 import { User } from "@supabase/supabase-js";
+import { useSearchParams } from "next/navigation";
 
 interface AuthContextObject {
-  user?: User;
+  user?: User | null;
   signOut?: () => void;
   loading?: boolean;
 }
 
 const AuthContext = createContext<AuthContextObject>({});
 
+export const authBroadcast = new BroadcastChannel("authentication");
+
 export const AuthContextProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const getSession = async () => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const getSession = useCallback(async () => {
+    setUser(null);
+    setLoading(true);
 
-      if (user) {
-        setUser(user);
-      }
-    } catch (error) {
+    const { data, error } = await supabase.auth.getSession();
+
+    console.log(data);
+
+    if (error) {
       console.error(error);
     }
+
+    if (data?.session?.user) {
+      setUser(data.session.user);
+    }
+
     setLoading(false);
-  };
+  }, []);
+
+  authBroadcast.addEventListener("message", (e: MessageEvent<string>) => {
+    if (e.data === "reload-auth") {
+      getSession();
+    }
+  });
+
+  const searchParams = useSearchParams();
+  const reloadSession = searchParams.get("reloadSession");
 
   useEffect(() => {
     getSession();
-  }, []);
+  }, [getSession, reloadSession]);
 
   const value = useMemo(() => {
     return {

@@ -22,6 +22,8 @@ const theme = extendTheme({
   },
 });
 
+export const authBroadcast = new BroadcastChannel("authentication");
+
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <CacheProvider>

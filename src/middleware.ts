@@ -11,12 +11,15 @@ export async function middleware(req: NextRequest) {
   // logout
   if (req.nextUrl.pathname === "/auth/logout") {
     const cookies = req.cookies.getAll();
-
     if (cookies.length > 0) {
       for (let i = 0; i < cookies.length; i++) {
         if (cookies[i].name.slice(-10) === "auth-token") {
+          const res = NextResponse.redirect(
+            new URL("/?reloadSession=true", req.url)
+          );
           // delete authentication cookie
           res.cookies.delete(cookies[i].name);
+
           return res;
         }
       }
@@ -46,7 +49,9 @@ export async function middleware(req: NextRequest) {
 
       // redirect to company profile page if company is already registered
       if (company.data && !company.error) {
-        return NextResponse.redirect(new URL(`/protected/company-profile`));
+        return NextResponse.redirect(
+          new URL("/protected/company-profile", req.url)
+        );
       }
     }
   }
