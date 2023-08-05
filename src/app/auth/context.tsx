@@ -1,5 +1,4 @@
 "use client";
-
 import {
   createContext,
   useContext,
@@ -10,7 +9,7 @@ import {
 } from "react";
 import { supabase } from "@db/client";
 import { User } from "@supabase/supabase-js";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface AuthContextObject {
   user?: User | null;
@@ -49,9 +48,12 @@ export const AuthContextProvider = ({
     setLoading(false);
   }, []);
 
+  const router = useRouter();
+
   authBroadcast.addEventListener("message", (e: MessageEvent<string>) => {
     if (e.data === "reload-auth") {
       getSession();
+      router.push("/");
     }
   });
 
