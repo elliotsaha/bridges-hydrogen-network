@@ -35,8 +35,6 @@ export const AuthContextProvider = ({
 
     const { data, error } = await supabase.auth.getSession();
 
-    console.log(data);
-
     if (error) {
       console.error(error);
     }

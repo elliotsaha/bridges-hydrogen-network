@@ -3,6 +3,7 @@ import { CacheProvider } from "@chakra-ui/next-js";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import chakraTheme from "@chakra-ui/theme";
 import { AuthContextProvider } from "@/app/auth/context";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const theme = extendTheme({
   colors: {
@@ -22,9 +23,8 @@ const theme = extendTheme({
   },
 });
 
-export const authBroadcast = new BroadcastChannel("authentication");
-
 export const Providers = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = new QueryClient();
   return (
     <CacheProvider>
       <ChakraProvider
@@ -37,7 +37,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           },
         }}
       >
-        <AuthContextProvider>{children}</AuthContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthContextProvider>{children}</AuthContextProvider>
+        </QueryClientProvider>
       </ChakraProvider>
     </CacheProvider>
   );
