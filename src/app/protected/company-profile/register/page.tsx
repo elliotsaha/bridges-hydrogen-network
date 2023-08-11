@@ -27,11 +27,7 @@ import {
   HStack,
   Input,
   VStack,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
+  useNumberInput,
   CheckboxGroup,
   Checkbox,
   Text,
@@ -42,9 +38,18 @@ import {
   Flex,
   SimpleGrid,
   Stack,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
-import { Formik, Field } from "formik";
+import {
+  Formik,
+  Field,
+  FormikErrors,
+  FormikTouched,
+  useFormikContext,
+  FormikProps,
+} from "formik";
 import { scrollToTop } from "@/utils/scrollToTop";
 import { truncateText } from "@/utils/truncateText";
 import { steps } from "./formSteps";
@@ -61,6 +66,18 @@ import { useQuery } from "@tanstack/react-query";
 import { useOnClickOutside } from "usehooks-ts";
 import { FiAlertCircle, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
 
+interface Form {
+  headquarters_location: string;
+  years_in_business: string;
+  less_than_2_years: boolean;
+  operating_regions: string[];
+  company_headquarters: string[];
+  type_of_business: string[];
+  services_or_products: string[];
+  technologies_used: string[];
+  market_segment_focus: string[];
+}
+
 interface StepperScreenContextProps {
   activeStep: number;
   setActiveStep: Dispatch<SetStateAction<number>>;
@@ -69,7 +86,6 @@ interface StepperScreenContextProps {
   updateHeadquartersLocation: Dispatch<SetStateAction<string>>;
   locationResponse: axios.AxiosResponse<any, any> | undefined;
   locationIsLoading: boolean;
-  locationIsError: boolean;
   locationQuery: string;
   updateLocationQuery: Dispatch<SetStateAction<string>>;
 }
@@ -98,67 +114,86 @@ const Register = () => {
     return axios.post("/maps/query/cities", { input: query });
   };
 
-  const {
-    data: locationResponse,
-    isLoading: locationIsLoading,
-    isError: locationIsError,
-  } = useQuery(
+  const { data: locationResponse, isLoading: locationIsLoading } = useQuery(
     ["headquarters", debouncedHeadquartersQuery],
     () => fetchCities(debouncedHeadquartersQuery),
     { enabled: Boolean(debouncedHeadquartersQuery) }
   );
 
+  const submitForm = (values: Form) => {
+    console.log(values);
+  };
+
   return (
     <Container maxW="container.xl" py={{ base: "32", lg: "20" }} px="8">
-      <Stack
-        spacing={{ base: "16", lg: "92" }}
-        align={{ base: "center", lg: "flex-start" }}
-        direction={{ base: "column", lg: "row" }}
+      <Formik
+        enableReinitialize
+        initialValues={{
+          headquarters_location: "",
+          years_in_business: "",
+          less_than_2_years: false,
+          operating_regions: [],
+          company_headquarters: [],
+          type_of_business: [],
+          services_or_products: [],
+          technologies_used: [],
+          market_segment_focus: [],
+        }}
+        onSubmit={submitForm}
       >
-        <Stepper
-          index={activeStep}
-          orientation="vertical"
-          h="xl"
-          gap="0"
-          colorScheme="brand"
-          display={{ base: "none", lg: "flex" }}
-        >
-          {steps.map((step, index) => (
-            <Step key={index}>
-              <StepIndicator>
-                <StepStatus
-                  complete={<StepIcon />}
-                  incomplete={<StepNumber />}
-                  active={<StepNumber />}
-                />
-              </StepIndicator>
+        {({ handleSubmit }) => (
+          <form onSubmit={handleSubmit}>
+            <Stack
+              spacing={{ base: "16", lg: "92" }}
+              align={{ base: "center", lg: "flex-start" }}
+              direction={{ base: "column", lg: "row" }}
+            >
+              <Stepper
+                index={activeStep}
+                orientation="vertical"
+                h="xl"
+                gap="0"
+                colorScheme="brand"
+                display={{ base: "none", lg: "flex" }}
+              >
+                {steps.map((step, index) => (
+                  <Step key={index}>
+                    <StepIndicator>
+                      <StepStatus
+                        complete={<StepIcon />}
+                        incomplete={<StepNumber />}
+                        active={<StepNumber />}
+                      />
+                    </StepIndicator>
 
-              <Box flexShrink="0">
-                <StepTitle>{step.title}</StepTitle>
-                <StepDescription>{step.description}</StepDescription>
-              </Box>
+                    <Box flexShrink="0">
+                      <StepTitle>{step.title}</StepTitle>
+                      <StepDescription>{step.description}</StepDescription>
+                    </Box>
 
-              <StepSeparator />
-            </Step>
-          ))}
-        </Stepper>
-        <StepperScreenContext.Provider
-          value={{
-            activeStep,
-            setActiveStep,
-            headquartersLocation,
-            updateHeadquartersLocation: setHeadquartersLocation,
-            locationResponse,
-            locationIsLoading,
-            locationIsError,
-            locationQuery: headquartersQuery,
-            updateLocationQuery: setHeadquartersQuery,
-          }}
-        >
-          <MobileStepper display={{ base: "flex", lg: "none" }} />
-          <StepperScreen />
-        </StepperScreenContext.Provider>
-      </Stack>
+                    <StepSeparator />
+                  </Step>
+                ))}
+              </Stepper>
+              <StepperScreenContext.Provider
+                value={{
+                  activeStep,
+                  setActiveStep,
+                  headquartersLocation,
+                  updateHeadquartersLocation: setHeadquartersLocation,
+                  locationResponse,
+                  locationIsLoading,
+                  locationQuery: headquartersQuery,
+                  updateLocationQuery: setHeadquartersQuery,
+                }}
+              >
+                <MobileStepper display={{ base: "flex", lg: "none" }} />
+                <StepperScreen />
+              </StepperScreenContext.Provider>
+            </Stack>
+          </form>
+        )}
+      </Formik>
     </Container>
   );
 };
@@ -167,6 +202,10 @@ const NextButton = () => {
   const { activeStep, setActiveStep } = useContext(
     StepperScreenContext
   ) as StepperScreenContextProps;
+
+  const { values: formValues } = useFormikContext<Form>();
+  console.log(formValues);
+
   return (
     <Button
       colorScheme="brand"
@@ -231,7 +270,6 @@ const LocationSelect = () => {
     updateHeadquartersLocation,
     locationResponse,
     locationIsLoading,
-    locationIsError,
     locationQuery,
     updateLocationQuery,
   } = useContext(StepperScreenContext) as StepperScreenContextProps;
@@ -323,12 +361,15 @@ const LocationSelect = () => {
   }
 
   if (locationResponse?.data.status === "OK") {
-    const onLocationClick = (location: Record<string, string>) => {
+    const onLocationClick = (
+      e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+      location: Record<string, string>
+    ) => {
+      e.persist();
       updateLocationQuery(location.description);
       updateHeadquartersLocation(location.description);
       setRender(false);
     };
-
     return (
       <Wrapper>
         <UnorderedList listStyleType="none" display="contents">
@@ -341,11 +382,12 @@ const LocationSelect = () => {
                     size="sm"
                     variant="ghost"
                     justifyContent="flex-start"
-                    onClick={() => onLocationClick(i)}
+                    onClick={(e) => onLocationClick(e, i)}
+                    onMouseDown={(e) => e.preventDefault()}
                     w="100%"
                     colorScheme="brand"
                   >
-                    {truncateText(i.description, 30)}
+                    {truncateText(i.description, 28)}
                   </Button>
                 </ListItem>
               ))}
@@ -372,6 +414,19 @@ const StepperScreen = () => {
     locationQuery,
     updateLocationQuery,
   } = useContext(StepperScreenContext) as StepperScreenContextProps;
+
+  const {
+    values: formValues,
+    setFieldValue,
+    errors: formErrors,
+    touched: formTouched,
+    handleBlur: formHandleBlur,
+  } = useFormikContext<Form>();
+
+  const hasError = (key: keyof Form): boolean => {
+    return Boolean(formErrors[key] && formTouched[key]);
+  };
+
   switch (activeStep) {
     case 0:
       return (
@@ -385,63 +440,195 @@ const StepperScreen = () => {
               align="flex-start"
               direction={{ base: "column", lg: "row" }}
             >
-              <VStack w="100%" align="flex-start">
-                <Text color="gray.500">Headquarters Location</Text>
-                <Box w="64" position="relative">
-                  <Input
-                    w="64"
-                    placeholder="e.g. Edmonton, AB"
-                    onChange={(e) => updateLocationQuery(e.target.value)}
-                    value={locationQuery}
-                    name="headquarters_location"
-                    autoComplete="off"
-                  />
-                  <LocationSelect />
-                  <Flex
-                    mt="2"
-                    justifyContent="flex-start"
-                    alignItems="flex-start"
-                    gap="2"
+              <FormControl
+                isInvalid={
+                  !!formErrors.headquarters_location &&
+                  formTouched.headquarters_location
+                }
+              >
+                <VStack w="100%" align="flex-start">
+                  <FormLabel
+                    color="gray.500"
+                    htmlFor="headquarters_location"
+                    mb="0"
                   >
-                    {headquartersLocation ? (
-                      <>
-                        <Icon
-                          as={FiCheckCircle}
-                          fontSize="18"
-                          color="green.500"
-                          mt="1"
-                        />
-                        <Text color="gray.600">
-                          Location set to: {headquartersLocation}
-                        </Text>
-                      </>
-                    ) : (
-                      <>
-                        <Icon
-                          as={FiAlertTriangle}
-                          fontSize="18"
-                          color="orange.300"
-                          mt="1"
-                        />
-                        <Text color="gray.500">Location not set</Text>
-                      </>
-                    )}
-                  </Flex>
-                </Box>
-              </VStack>
-              <VStack w="100%" align="flex-start">
-                <Text color="gray.500">Years in Business</Text>
-                <NumberInput step={1} min={2} w="36">
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-                <Checkbox colorScheme="brand" color="gray.600">
-                  Less than 2 years
-                </Checkbox>
-              </VStack>
+                    Headquarters Location
+                  </FormLabel>
+                  <Box w="64" position="relative">
+                    <Field
+                      as={Input}
+                      w="64"
+                      placeholder="e.g. Edmonton, AB"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        updateLocationQuery(e?.target?.value)
+                      }
+                      value={locationQuery}
+                      name="headquarters_location"
+                      id="headquarters_location"
+                      autoComplete="off"
+                      validate={() => {
+                        let error;
+
+                        if (headquartersLocation === "") {
+                          error = "Location not set";
+                        }
+
+                        return error;
+                      }}
+                    />
+                    <LocationSelect />
+                    <Flex
+                      mt="2"
+                      justifyContent="flex-start"
+                      alignItems="flex-start"
+                      gap="2"
+                    >
+                      {headquartersLocation ? (
+                        <>
+                          <Icon
+                            as={FiCheckCircle}
+                            fontSize="18"
+                            color="green.500"
+                            mt="1"
+                          />
+                          <Box color="gray.600">
+                            Location set to:{" "}
+                            <Text color="gray.900" fontWeight="bold">
+                              {headquartersLocation}
+                            </Text>
+                          </Box>
+                        </>
+                      ) : (
+                        <>
+                          <Icon
+                            as={
+                              hasError("headquarters_location")
+                                ? FiAlertCircle
+                                : FiAlertTriangle
+                            }
+                            fontSize="18"
+                            color={
+                              hasError("headquarters_location")
+                                ? "red.500"
+                                : "orange.300"
+                            }
+                            mt="1"
+                          />
+                          <Text
+                            color={
+                              hasError("headquarters_location")
+                                ? "red.500"
+                                : "gray.500"
+                            }
+                          >
+                            Location not set
+                          </Text>
+                        </>
+                      )}
+                    </Flex>
+                  </Box>
+                </VStack>
+              </FormControl>
+
+              <FormControl
+                isInvalid={
+                  (!!formErrors.years_in_business &&
+                    formTouched.years_in_business) ||
+                  (!!formErrors.less_than_2_years &&
+                    formTouched.less_than_2_years)
+                }
+              >
+                <VStack w="100%" align="flex-start">
+                  <FormLabel
+                    htmlFor="years_in_business"
+                    color="gray.500"
+                    mb="0"
+                  >
+                    Years in Business
+                  </FormLabel>
+                  <HStack>
+                    <Button
+                      onClick={() => {
+                        if (parseInt(formValues.years_in_business)) {
+                          setFieldValue(
+                            "years_in_business",
+                            (
+                              parseInt(formValues.years_in_business) + 1
+                            ).toString()
+                          );
+                        } else {
+                          setFieldValue("years_in_business", "2");
+                        }
+                      }}
+                      isDisabled={formValues.less_than_2_years}
+                    >
+                      +
+                    </Button>
+                    <Field
+                      as={Input}
+                      id="years_in_business"
+                      name="years_in_business"
+                      type="number"
+                      pattern="[0-9]"
+                      onBlur={(e: FocusEvent) => {
+                        const formattedValue = Math.max(
+                          2,
+                          parseInt(formValues.years_in_business)
+                        ).toString();
+
+                        setFieldValue("years_in_business", formattedValue);
+                        formHandleBlur(e);
+                      }}
+                      validate={() => {
+                        let error;
+
+                        if (
+                          !formValues.less_than_2_years &&
+                          !formValues.years_in_business
+                        ) {
+                          error = "This field is required";
+                        }
+
+                        return error;
+                      }}
+                      isDisabled={formValues.less_than_2_years}
+                    />
+                    <Button
+                      onClick={() => {
+                        if (parseInt(formValues.years_in_business) > 2) {
+                          setFieldValue(
+                            "years_in_business",
+                            (
+                              parseInt(formValues.years_in_business) - 1
+                            ).toString()
+                          );
+                        } else {
+                          setFieldValue("years_in_business", "2");
+                        }
+                      }}
+                      isDisabled={
+                        parseInt(formValues.years_in_business) <= 2 ||
+                        formValues.less_than_2_years
+                      }
+                    >
+                      -
+                    </Button>
+                  </HStack>
+                  <Field
+                    as={Checkbox}
+                    colorScheme="brand"
+                    color="gray.600"
+                    id="less_than_2_years"
+                    name="less_than_2_years"
+                    onChange={(e: any) => {
+                      setFieldValue("less_than_2_years", e.target.checked);
+                      setFieldValue("years_in_business", "");
+                    }}
+                  >
+                    Less than 2 years
+                  </Field>
+                </VStack>
+              </FormControl>
             </Stack>
 
             <Heading as="h3" size="md" mt="6">
@@ -452,7 +639,15 @@ const StepperScreen = () => {
             </Text>
             <CheckboxGroup colorScheme="brand">
               {operatingRegions.map((i) => (
-                <Checkbox key={i}>{i}</Checkbox>
+                <Field
+                  as={Checkbox}
+                  key={i}
+                  id={i}
+                  name="operating_regions"
+                  value={i}
+                >
+                  {i}
+                </Field>
               ))}
             </CheckboxGroup>
           </VStack>
