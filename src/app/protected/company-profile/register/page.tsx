@@ -1,13 +1,5 @@
 "use client";
-import {
-  useState,
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-  useMemo,
-  useRef,
-} from "react";
+import { useState, createContext, useContext, useEffect, useRef } from "react";
 import {
   Icon,
   Spinner,
@@ -27,7 +19,6 @@ import {
   HStack,
   Input,
   VStack,
-  useNumberInput,
   CheckboxGroup,
   Checkbox,
   Text,
@@ -40,16 +31,10 @@ import {
   Stack,
   FormControl,
   FormLabel,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
-import {
-  Formik,
-  Field,
-  FormikErrors,
-  FormikTouched,
-  useFormikContext,
-  FormikProps,
-} from "formik";
+import { Formik, Field, useFormikContext } from "formik";
 import { scrollToTop } from "@/utils/scrollToTop";
 import { truncateText } from "@/utils/truncateText";
 import { steps } from "./formSteps";
@@ -65,6 +50,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useOnClickOutside } from "usehooks-ts";
 import { FiAlertCircle, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
+import * as Yup from "yup";
 
 interface Form {
   headquarters_location: string;
@@ -139,6 +125,28 @@ const Register = () => {
           technologies_used: [],
           market_segment_focus: [],
         }}
+        validationSchema={Yup.object().shape({
+          operating_regions: Yup.array().min(
+            1,
+            "Please select at least one operating region"
+          ),
+          type_of_business: Yup.array().min(
+            1,
+            "Please select one type of business"
+          ),
+          services_or_products: Yup.array().min(
+            1,
+            "Please select at least one service / product your business provides"
+          ),
+          technologies_used: Yup.array().min(
+            1,
+            "Please select at least one technology your business uses"
+          ),
+          market_segment_focus: Yup.array().min(
+            1,
+            "Please select at least one market your business caters towards"
+          ),
+        })}
         onSubmit={submitForm}
       >
         {({ handleSubmit }) => (
@@ -240,7 +248,7 @@ const BackButton = () => {
 };
 
 const MobileStepper = ({ display }: { display: Record<string, string> }) => {
-  const { activeStep, setActiveStep } = useContext(
+  const { activeStep } = useContext(
     StepperScreenContext
   ) as StepperScreenContextProps;
   const activeStepText = steps[activeStep].description;
@@ -273,6 +281,8 @@ const LocationSelect = () => {
     locationQuery,
     updateLocationQuery,
   } = useContext(StepperScreenContext) as StepperScreenContextProps;
+
+  const { setFieldTouched, setFieldValue } = useFormikContext();
 
   const [render, setRender] = useState(false);
 
@@ -319,6 +329,7 @@ const LocationSelect = () => {
   useEffect(() => {
     if (locationQuery !== headquartersLocation) {
       updateHeadquartersLocation("");
+      setFieldValue("headquarters_location", "");
     }
 
     if (locationQuery !== "" && headquartersLocation === "") {
@@ -339,7 +350,12 @@ const LocationSelect = () => {
     window.addEventListener("click", handleInputClick);
 
     return () => window.removeEventListener("click", handleInputClick);
-  }, [locationQuery, headquartersLocation, updateHeadquartersLocation]);
+  }, [
+    locationQuery,
+    headquartersLocation,
+    updateHeadquartersLocation,
+    setFieldValue,
+  ]);
 
   if (locationIsLoading) {
     return (
@@ -368,6 +384,8 @@ const LocationSelect = () => {
       e.persist();
       updateLocationQuery(location.description);
       updateHeadquartersLocation(location.description);
+      setFieldValue("headquarters_location", location.description);
+      setFieldTouched("headquarters_location", true, true);
       setRender(false);
     };
     return (
@@ -634,22 +652,33 @@ const StepperScreen = () => {
             <Heading as="h3" size="md" mt="6">
               Where does your company operate
             </Heading>
-            <Text color="gray.500">
-              Select all regions that your company operates in
-            </Text>
-            <CheckboxGroup colorScheme="brand">
-              {operatingRegions.map((i) => (
-                <Field
-                  as={Checkbox}
-                  key={i}
-                  id={i}
-                  name="operating_regions"
-                  value={i}
-                >
-                  {i}
-                </Field>
-              ))}
-            </CheckboxGroup>
+            <FormControl
+              isInvalid={
+                !!formErrors.operating_regions && formTouched.operating_regions
+              }
+            >
+              <Text color="gray.500">
+                Select all regions that your company operates in
+              </Text>
+              <FormErrorMessage>
+                {formErrors.operating_regions}
+              </FormErrorMessage>
+              <VStack align="flex-start" mt="2">
+                <CheckboxGroup colorScheme="brand">
+                  {operatingRegions.map((i) => (
+                    <Field
+                      as={Checkbox}
+                      key={i}
+                      id={i}
+                      name="operating_regions"
+                      value={i}
+                    >
+                      {i}
+                    </Field>
+                  ))}
+                </CheckboxGroup>
+              </VStack>
+            </FormControl>
           </VStack>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
@@ -660,22 +689,38 @@ const StepperScreen = () => {
     case 1:
       return (
         <Box w="100%" ml={{ base: "0", lg: "24" }}>
-          <VStack align="flex-start" minH="lg" mb="6">
-            <Heading as="h1">What type of business do you run?</Heading>
-
-            <Text color="gray.500">Select all that apply</Text>
-            <Flex flexDir="column" wrap="wrap" h={{ base: "100%", lg: "sm" }}>
-              <CheckboxGroup colorScheme="brand">
-                {typeOfBusinesses.map((i) => (
-                  <Checkbox key={i.name} mb="2" mr="12">
-                    <Tooltip label={i.description} p="3" borderRadius="lg">
-                      {i.name}
-                    </Tooltip>
-                  </Checkbox>
-                ))}
-              </CheckboxGroup>
-            </Flex>
-          </VStack>
+          <FormControl
+            isInvalid={
+              !!formErrors.type_of_business && formTouched.type_of_business
+            }
+          >
+            <VStack align="flex-start" minH="lg" mb="6">
+              <Heading as="h1">What type of business do you run?</Heading>
+              <Text color="gray.500">Select all that apply</Text>
+              <FormErrorMessage m="0">
+                {formErrors.type_of_business}
+              </FormErrorMessage>
+              <Flex flexDir="column" wrap="wrap" h={{ base: "100%", lg: "sm" }}>
+                <CheckboxGroup colorScheme="brand">
+                  {typeOfBusinesses.map((i) => (
+                    <Field
+                      as={Checkbox}
+                      key={i.name}
+                      mb="2"
+                      mr="12"
+                      id={i.name}
+                      value={i.name}
+                      name="type_of_business"
+                    >
+                      <Tooltip label={i.description} p="3" borderRadius="lg">
+                        {i.name}
+                      </Tooltip>
+                    </Field>
+                  ))}
+                </CheckboxGroup>
+              </Flex>
+            </VStack>
+          </FormControl>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
             <NextButton />
@@ -685,25 +730,42 @@ const StepperScreen = () => {
     case 2:
       return (
         <Box w="100%" ml={{ base: "0", lg: "24" }}>
-          <VStack align="flex-start" minH="lg" mb="6">
-            <Heading as="h1" mb="2">
-              What services / products does your business provide?
-            </Heading>
+          <FormControl
+            isInvalid={
+              !!formErrors.services_or_products &&
+              formTouched.services_or_products
+            }
+          >
+            <VStack align="flex-start" minH="lg" mb="6">
+              <Heading as="h1" mb="2">
+                What services / products does your business provide?
+              </Heading>
 
-            <Text color="gray.500">Select all that apply</Text>
-
-            <Flex flexDir="column" wrap="wrap" h={{ base: "100%", xl: "sm" }}>
-              <CheckboxGroup colorScheme="brand">
-                {services.map((i) => (
-                  <Checkbox key={i.name} mb="2" mr="12">
-                    <Tooltip label={i.description} p="3" borderRadius="lg">
-                      {i.name}
-                    </Tooltip>
-                  </Checkbox>
-                ))}
-              </CheckboxGroup>
-            </Flex>
-          </VStack>
+              <Text color="gray.500">Select all that apply</Text>
+              <FormErrorMessage m="0">
+                {formErrors.services_or_products}
+              </FormErrorMessage>
+              <Flex flexDir="column" wrap="wrap" h={{ base: "100%", xl: "sm" }}>
+                <CheckboxGroup colorScheme="brand">
+                  {services.map((i) => (
+                    <Field
+                      as={Checkbox}
+                      key={i.name}
+                      mb="2"
+                      mr="12"
+                      id={i.name}
+                      value={i.name}
+                      name="services_or_products"
+                    >
+                      <Tooltip label={i.description} p="3" borderRadius="lg">
+                        {i.name}
+                      </Tooltip>
+                    </Field>
+                  ))}
+                </CheckboxGroup>
+              </Flex>
+            </VStack>
+          </FormControl>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
             <NextButton />
@@ -717,41 +779,66 @@ const StepperScreen = () => {
             <Heading as="h1" mb="2">
               What technologies does your business use?
             </Heading>
-            <Text color="gray.500" mt="-2">
-              Select all that apply
-            </Text>
 
-            <SimpleGrid columns={{ base: 1, xl: 2 }} mt="-4">
-              {technologiesUsed.map((section) => (
-                <Box key={section.sectionTitle} mr="12">
-                  <Heading as="h3" size="md" mt="8" mb="4">
-                    {section.sectionTitle}
-                  </Heading>
+            <FormControl
+              isInvalid={
+                !!formErrors.technologies_used && formTouched.technologies_used
+              }
+            >
+              <Text color="gray.500" mt="-2">
+                Select all that apply
+              </Text>
+              <FormErrorMessage m="0">
+                {formErrors.technologies_used}
+              </FormErrorMessage>
+              <SimpleGrid columns={{ base: 1, xl: 2 }} mt="-4">
+                <CheckboxGroup colorScheme="brand">
+                  {technologiesUsed.map((section) => (
+                    <Box key={section.sectionTitle} mr="12">
+                      <Heading as="h3" size="md" mt="8" mb="4">
+                        {section.sectionTitle}
+                      </Heading>
 
-                  <Flex flexDir="column" wrap="wrap">
-                    <CheckboxGroup colorScheme="brand">
-                      {section.technologies.map((tech) =>
-                        typeof tech === "string" ? (
-                          <Checkbox key={tech} mb="2" mr="12">
-                            {tech}
-                          </Checkbox>
-                        ) : (
-                          <Checkbox key={tech.name} mb="2" mr="12">
-                            <Tooltip
-                              label={tech.tooltip}
-                              p="3"
-                              borderRadius="lg"
+                      <Flex flexDir="column" wrap="wrap">
+                        {section.technologies.map((tech) =>
+                          typeof tech === "string" ? (
+                            <Field
+                              as={Checkbox}
+                              key={tech}
+                              mb="2"
+                              mr="12"
+                              id={tech}
+                              value={tech}
+                              name="technologies_used"
                             >
-                              {tech.name}
-                            </Tooltip>
-                          </Checkbox>
-                        )
-                      )}
-                    </CheckboxGroup>
-                  </Flex>
-                </Box>
-              ))}
-            </SimpleGrid>
+                              {tech}
+                            </Field>
+                          ) : (
+                            <Field
+                              as={Checkbox}
+                              key={tech.name}
+                              mb="2"
+                              mr="12"
+                              id={tech.name}
+                              value={tech.name}
+                              name="technologies_used"
+                            >
+                              <Tooltip
+                                label={tech.tooltip}
+                                p="3"
+                                borderRadius="lg"
+                              >
+                                {tech.name}
+                              </Tooltip>
+                            </Field>
+                          )
+                        )}
+                      </Flex>
+                    </Box>
+                  ))}
+                </CheckboxGroup>
+              </SimpleGrid>
+            </FormControl>
           </VStack>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
@@ -762,23 +849,41 @@ const StepperScreen = () => {
     case 4:
       return (
         <Box w="100%" ml={{ base: "0", lg: "24" }}>
-          <VStack align="flex-start" minH="lg" mb="6">
-            <Heading as="h1">
-              What market does your company cater towards?
-            </Heading>
-            <Text color="gray.500">Select all that apply</Text>
-            <Flex flexDir="column" wrap="wrap" h="sm">
-              <CheckboxGroup colorScheme="brand">
-                {marketSegmentFocus.map((i) => (
-                  <Checkbox key={i.name} mb="2" mr="12">
-                    <Tooltip label={i.description} p="3" borderRadius="lg">
-                      {i.name}
-                    </Tooltip>
-                  </Checkbox>
-                ))}
-              </CheckboxGroup>
-            </Flex>
-          </VStack>
+          <FormControl
+            isInvalid={
+              !!formErrors.market_segment_focus &&
+              formTouched.market_segment_focus
+            }
+          >
+            <VStack align="flex-start" minH="lg" mb="6">
+              <Heading as="h1">
+                What market does your company cater towards?
+              </Heading>
+              <Text color="gray.500">Select all that apply</Text>
+              <FormErrorMessage m="0">
+                {formErrors.market_segment_focus}
+              </FormErrorMessage>
+              <Flex flexDir="column" wrap="wrap" h="sm">
+                <CheckboxGroup colorScheme="brand">
+                  {marketSegmentFocus.map((i) => (
+                    <Field
+                      as={Checkbox}
+                      key={i.name}
+                      mb="2"
+                      mr="12"
+                      id={i.name}
+                      value={i.name}
+                      name="market_segment_focus"
+                    >
+                      <Tooltip label={i.description} p="3" borderRadius="lg">
+                        {i.name}
+                      </Tooltip>
+                    </Field>
+                  ))}
+                </CheckboxGroup>
+              </Flex>
+            </VStack>
+          </FormControl>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
             <Button colorScheme="brand" size="lg">
