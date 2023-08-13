@@ -34,7 +34,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
-import { Formik, Field, useFormikContext } from "formik";
+import { Formik, Field, useFormikContext, useFormik } from "formik";
 import { scrollToTop } from "@/utils/scrollToTop";
 import { truncateText } from "@/utils/truncateText";
 import { steps } from "./formSteps";
@@ -57,7 +57,6 @@ interface Form {
   years_in_business: string;
   less_than_2_years: boolean;
   operating_regions: string[];
-  company_headquarters: string[];
   type_of_business: string[];
   services_or_products: string[];
   technologies_used: string[];
@@ -107,7 +106,7 @@ const Register = () => {
   );
 
   const submitForm = (values: Form) => {
-    console.log(values);
+    console.log("SUBMITTED", values);
   };
 
   return (
@@ -119,7 +118,6 @@ const Register = () => {
           years_in_business: "",
           less_than_2_years: false,
           operating_regions: [],
-          company_headquarters: [],
           type_of_business: [],
           services_or_products: [],
           technologies_used: [],
@@ -206,25 +204,70 @@ const Register = () => {
   );
 };
 
-const NextButton = () => {
-  const { activeStep, setActiveStep } = useContext(
+const NextButton = ({
+  validateBefore,
+}: {
+  validateBefore: Array<keyof Form>;
+}) => {
+  const { setActiveStep } = useContext(
     StepperScreenContext
   ) as StepperScreenContextProps;
 
-  const { values: formValues } = useFormikContext<Form>();
-  console.log(formValues);
+  const {
+    setFieldTouched,
+    errors: formErrors,
+    isValidating,
+    validateForm,
+    dirty,
+  } = useFormikContext<Form>();
+
+  const [rendered, setRendered] = useState(false);
+
+  useEffect(() => {
+    setRendered(true);
+  }, []);
+
+  const clickHandler = () => {
+    validateBefore.map((formKey) => {
+      setFieldTouched(formKey, true, true);
+    });
+    if (dirty) {
+      let continueStep = true;
+      for (let i = 0; i < validateBefore.length; i++) {
+        if (formErrors.hasOwnProperty(validateBefore[i])) {
+          continueStep = false;
+        }
+      }
+      if (continueStep) {
+        setActiveStep((prev) => prev + 1);
+        scrollToTop();
+      }
+    }
+  };
 
   return (
     <Button
       colorScheme="brand"
       size="lg"
-      onClick={() => {
-        setActiveStep((prev) => prev + 1);
-        scrollToTop();
-      }}
-      isDisabled={activeStep === steps.length}
+      onClick={clickHandler}
+      isDisabled={!rendered}
     >
       Next
+    </Button>
+  );
+};
+
+const SubmitButton = () => {
+  const { isSubmitting } = useFormikContext();
+  return (
+    <Button
+      colorScheme="brand"
+      size="lg"
+      type="submit"
+      loadingText="Submitting"
+      isLoading={isSubmitting}
+    >
+      Submit
     </Button>
   );
 };
@@ -439,12 +482,15 @@ const StepperScreen = () => {
     errors: formErrors,
     touched: formTouched,
     handleBlur: formHandleBlur,
+    setFieldTouched,
+    validateField,
   } = useFormikContext<Form>();
 
   const hasError = (key: keyof Form): boolean => {
     return Boolean(formErrors[key] && formTouched[key]);
   };
 
+  console.log(formValues);
   switch (activeStep) {
     case 0:
       return (
@@ -550,10 +596,10 @@ const StepperScreen = () => {
 
               <FormControl
                 isInvalid={
-                  (!!formErrors.years_in_business &&
-                    formTouched.years_in_business) ||
                   (!!formErrors.less_than_2_years &&
-                    formTouched.less_than_2_years)
+                    formTouched.less_than_2_years) ||
+                  (!!formErrors.years_in_business &&
+                    formTouched.years_in_business)
                 }
               >
                 <VStack w="100%" align="flex-start">
@@ -567,7 +613,10 @@ const StepperScreen = () => {
                   <HStack>
                     <Button
                       onClick={() => {
-                        if (parseInt(formValues.years_in_business)) {
+                        if (
+                          formValues.years_in_business &&
+                          parseInt(formValues.years_in_business)
+                        ) {
                           setFieldValue(
                             "years_in_business",
                             (
@@ -575,7 +624,11 @@ const StepperScreen = () => {
                             ).toString()
                           );
                         } else {
-                          setFieldValue("years_in_business", "2");
+                          setFieldValue("years_in_business", "2", true);
+                          // work around for setFieldValue not validating input when updated
+                          setTimeout(() =>
+                            setFieldTouched("years_in_business", true)
+                          );
                         }
                       }}
                       isDisabled={formValues.less_than_2_years}
@@ -589,10 +642,12 @@ const StepperScreen = () => {
                       type="number"
                       pattern="[0-9]"
                       onBlur={(e: FocusEvent) => {
-                        const formattedValue = Math.max(
-                          2,
-                          parseInt(formValues.years_in_business)
-                        ).toString();
+                        const formattedValue = formValues.years_in_business
+                          ? Math.max(
+                              2,
+                              parseInt(formValues.years_in_business)
+                            ).toString()
+                          : "";
 
                         setFieldValue("years_in_business", formattedValue);
                         formHandleBlur(e);
@@ -602,7 +657,7 @@ const StepperScreen = () => {
 
                         if (
                           !formValues.less_than_2_years &&
-                          !formValues.years_in_business
+                          !parseInt(formValues.years_in_business)
                         ) {
                           error = "This field is required";
                         }
@@ -613,7 +668,10 @@ const StepperScreen = () => {
                     />
                     <Button
                       onClick={() => {
-                        if (parseInt(formValues.years_in_business) > 2) {
+                        if (
+                          formValues.years_in_business &&
+                          parseInt(formValues.years_in_business) > 2
+                        ) {
                           setFieldValue(
                             "years_in_business",
                             (
@@ -621,7 +679,10 @@ const StepperScreen = () => {
                             ).toString()
                           );
                         } else {
-                          setFieldValue("years_in_business", "2");
+                          setFieldValue("years_in_business", "2", true);
+                          setTimeout(() =>
+                            setFieldTouched("years_in_business", true)
+                          );
                         }
                       }}
                       isDisabled={
@@ -641,6 +702,10 @@ const StepperScreen = () => {
                     onChange={(e: any) => {
                       setFieldValue("less_than_2_years", e.target.checked);
                       setFieldValue("years_in_business", "");
+                      setTimeout(() => {
+                        setFieldTouched("years_in_business", true);
+                        setFieldTouched("less_than_2_years", true);
+                      });
                     }}
                   >
                     Less than 2 years
@@ -664,7 +729,10 @@ const StepperScreen = () => {
                 {formErrors.operating_regions}
               </FormErrorMessage>
               <VStack align="flex-start" mt="2">
-                <CheckboxGroup colorScheme="brand">
+                <CheckboxGroup
+                  colorScheme="brand"
+                  value={formValues.operating_regions}
+                >
                   {operatingRegions.map((i) => (
                     <Field
                       as={Checkbox}
@@ -682,7 +750,13 @@ const StepperScreen = () => {
           </VStack>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
-            <NextButton />
+            <NextButton
+              validateBefore={[
+                "headquarters_location",
+                "years_in_business",
+                "operating_regions",
+              ]}
+            />
           </HStack>
         </Box>
       );
@@ -701,7 +775,10 @@ const StepperScreen = () => {
                 {formErrors.type_of_business}
               </FormErrorMessage>
               <Flex flexDir="column" wrap="wrap" h={{ base: "100%", lg: "sm" }}>
-                <CheckboxGroup colorScheme="brand">
+                <CheckboxGroup
+                  colorScheme="brand"
+                  value={formValues.type_of_business}
+                >
                   {typeOfBusinesses.map((i) => (
                     <Field
                       as={Checkbox}
@@ -723,7 +800,7 @@ const StepperScreen = () => {
           </FormControl>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
-            <NextButton />
+            <NextButton validateBefore={["type_of_business"]} />
           </HStack>
         </Box>
       );
@@ -746,7 +823,10 @@ const StepperScreen = () => {
                 {formErrors.services_or_products}
               </FormErrorMessage>
               <Flex flexDir="column" wrap="wrap" h={{ base: "100%", xl: "sm" }}>
-                <CheckboxGroup colorScheme="brand">
+                <CheckboxGroup
+                  colorScheme="brand"
+                  value={formValues.services_or_products}
+                >
                   {services.map((i) => (
                     <Field
                       as={Checkbox}
@@ -768,7 +848,7 @@ const StepperScreen = () => {
           </FormControl>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
-            <NextButton />
+            <NextButton validateBefore={["services_or_products"]} />
           </HStack>
         </Box>
       );
@@ -792,7 +872,10 @@ const StepperScreen = () => {
                 {formErrors.technologies_used}
               </FormErrorMessage>
               <SimpleGrid columns={{ base: 1, xl: 2 }} mt="-4">
-                <CheckboxGroup colorScheme="brand">
+                <CheckboxGroup
+                  colorScheme="brand"
+                  value={formValues.technologies_used}
+                >
                   {technologiesUsed.map((section) => (
                     <Box key={section.sectionTitle} mr="12">
                       <Heading as="h3" size="md" mt="8" mb="4">
@@ -842,7 +925,7 @@ const StepperScreen = () => {
           </VStack>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
-            <NextButton />
+            <NextButton validateBefore={["technologies_used"]} />
           </HStack>
         </Box>
       );
@@ -864,7 +947,10 @@ const StepperScreen = () => {
                 {formErrors.market_segment_focus}
               </FormErrorMessage>
               <Flex flexDir="column" wrap="wrap" h="sm">
-                <CheckboxGroup colorScheme="brand">
+                <CheckboxGroup
+                  colorScheme="brand"
+                  value={formValues.market_segment_focus}
+                >
                   {marketSegmentFocus.map((i) => (
                     <Field
                       as={Checkbox}
@@ -886,9 +972,7 @@ const StepperScreen = () => {
           </FormControl>
           <HStack spacing="2" alignSelf="flex-end" justifyContent="flex-end">
             <BackButton />
-            <Button colorScheme="brand" size="lg">
-              Submit
-            </Button>
+            <SubmitButton />
           </HStack>
         </Box>
       );
