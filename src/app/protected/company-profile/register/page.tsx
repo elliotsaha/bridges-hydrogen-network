@@ -34,7 +34,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
-import { Formik, Field, useFormikContext, useFormik } from "formik";
+import { Formik, Field, useFormikContext } from "formik";
 import { scrollToTop } from "@/utils/scrollToTop";
 import { truncateText } from "@/utils/truncateText";
 import { steps } from "./formSteps";
