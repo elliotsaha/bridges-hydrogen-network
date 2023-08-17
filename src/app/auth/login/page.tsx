@@ -13,14 +13,14 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
-import { supabase } from "@db/client";
 import { Subheader } from "@/components/subheader";
 import { useFormik } from "formik";
 import { useSearchParams } from "next/navigation";
 import { authBroadcast } from "../context";
+import axios from "axios";
 
 interface FormParams {
-  email: string;
+  email_address: string;
   password: string;
 }
 
@@ -50,38 +50,23 @@ const Login = () => {
     }
   };
 
-  const submitForm = async ({ email, password }: FormParams) => {
+  const submitForm = async ({ email_address, password }: FormParams) => {
     setLoading(true);
 
-    let { error } = await supabase.auth.signInWithPassword({
-      email,
+    const res = await axios.post("/api/auth/login", {
+      email_address,
       password,
     });
 
-    if (error) {
-      statusToast({
-        title: "Login failed",
-        description: error.message,
-        status: "error",
-      });
-    } else {
-      statusToast({
-        title: "Signed in",
-        description: "You are now authenticated",
-        status: "success",
-      });
+    authBroadcast.postMessage("reload-auth");
 
-      authBroadcast.postMessage("reload-auth");
-
-      redirect();
-    }
-
+    redirect();
     setLoading(false);
   };
 
   const formik = useFormik({
     initialValues: {
-      email: "",
+      email_address: "",
       password: "",
     },
     onSubmit: submitForm,
@@ -138,11 +123,11 @@ const Login = () => {
                 Welcome Back
               </Subheader>
               <Input
-                id="email"
+                id="email_address"
                 type="email"
                 placeholder="Email Address"
                 onChange={formik.handleChange}
-                value={formik.values.email}
+                value={formik.values.email_address}
                 disabled={loading}
                 w={{ base: "100%", sm: "sm" }}
                 size="lg"

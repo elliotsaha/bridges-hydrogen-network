@@ -19,6 +19,9 @@ import {
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 import { AuthComponent } from "./authComponent";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { authBroadcast } from "@/app/auth/context";
 
 interface Link {
   name: string;
@@ -36,7 +39,6 @@ const authButtonHrefs = {
   login: "/auth/login",
   signup: "/auth/signup",
   myAccount: "/auth/my-account",
-  logout: "/auth/logout",
 };
 
 export const Navbar = () => {
@@ -51,12 +53,26 @@ export const Navbar = () => {
     setScrollPosition(position);
   };
 
+  const router = useRouter();
+
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const logout = async () => {
+    try {
+      await axios.post("/api/auth/logout");
+
+      authBroadcast.postMessage("reload-auth");
+
+      window.location.href = "/";
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <Box as="nav" bg="white" w="100%" position="fixed" zIndex="500">
@@ -147,9 +163,7 @@ export const Navbar = () => {
                     >
                       My Account
                     </Button>
-                    <Button as={NextLink} href={authButtonHrefs.logout}>
-                      Sign Out
-                    </Button>
+                    <Button onClick={logout}>Sign Out</Button>
                   </HStack>
                 }
               />
@@ -158,13 +172,19 @@ export const Navbar = () => {
         </Container>
       </Box>
       <Collapse in={isOpen} animateOpacity>
-        <MobileNav onToggle={onToggle} />
+        <MobileNav onToggle={onToggle} logout={logout} />
       </Collapse>
     </Box>
   );
 };
 
-const MobileNav = ({ onToggle }: { onToggle: () => void }) => (
+const MobileNav = ({
+  onToggle,
+  logout,
+}: {
+  onToggle: () => void;
+  logout: () => void;
+}) => (
   <Container
     maxW="container.xl"
     ml="auto"
@@ -238,9 +258,10 @@ const MobileNav = ({ onToggle }: { onToggle: () => void }) => (
               </Button>
               <Button
                 w={{ base: "auto", sm: "xs" }}
-                as={NextLink}
-                href={authButtonHrefs.logout}
-                onClick={onToggle}
+                onClick={() => {
+                  onToggle();
+                  logout();
+                }}
               >
                 Sign Out
               </Button>

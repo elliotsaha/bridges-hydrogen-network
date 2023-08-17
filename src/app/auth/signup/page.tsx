@@ -16,16 +16,29 @@ import {
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
-import { supabase } from "@db/client";
 import { Subheader } from "@/components/subheader";
 import { Formik, Field } from "formik";
-import isEmail from "validator/es/lib/isEmail";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import z from "zod";
+import axios from "axios";
 
-interface FormParams {
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+// zod form validation
+const formSchema = z
+  .object({
+    first_name: z.string(),
+    last_name: z.string(),
+    email_address: z.string().email({ message: "Invalid email address" }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" }),
+    confirm_password: z.string(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Does not match password field",
+    path: ["confirm_password"],
+  });
+
+type Form = z.infer<typeof formSchema>;
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
@@ -33,38 +46,26 @@ const Signup = () => {
   const statusToast = useToast();
   const router = useRouter();
 
-  const submitForm = async ({ email, password }: FormParams) => {
+  const submitForm = async ({
+    first_name,
+    last_name,
+    email_address,
+    password,
+  }: Form) => {
     setLoading(true);
 
-    let { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${location.origin}/auth/callback`,
-      },
-    });
+    try {
+      await axios.post("/api/auth/signup", {
+        first_name,
+        last_name,
+        email_address,
+        password,
+      });
 
-    if (error) {
-      statusToast({
-        title: "Account creation failed",
-        description: error.message,
-        status: "error",
-      });
-    } else if (data?.user?.identities?.length === 0) {
-      statusToast({
-        title: "Account creation failed",
-        description: "Email Address already in use",
-        status: "error",
-      });
-    } else {
-      statusToast({
-        title: "Account created",
-        description: "Thank you for registering",
-        status: "success",
-      });
-      router.push("/auth/signup/verification-email");
+      window.location.href = "/";
+    } catch (err) {
+      console.log(err);
     }
-
     setLoading(false);
   };
 
@@ -73,10 +74,13 @@ const Signup = () => {
       <Container maxW="container.xl" py={{ base: "32", lg: "20" }}>
         <Formik
           initialValues={{
-            email: "",
+            first_name: "",
+            last_name: "",
+            email_address: "",
             password: "",
-            confirmPassword: "",
+            confirm_password: "",
           }}
+          validationSchema={toFormikValidationSchema(formSchema)}
           onSubmit={submitForm}
         >
           {({ values, handleSubmit, errors, touched }) => (
@@ -127,27 +131,54 @@ const Signup = () => {
                   <Subheader mt="-2" mb="1">
                     Register With Bridges
                   </Subheader>
-                  <FormControl isInvalid={!!errors.email && touched.email}>
+                  <SimpleGrid
+                    w={{ base: "100%", sm: "sm" }}
+                    columns={2}
+                    spacing="4"
+                  >
+                    <FormControl
+                      isInvalid={!!errors.first_name && touched.first_name}
+                    >
+                      <Field
+                        as={Input}
+                        id="first_name"
+                        name="first_name"
+                        placeholder="First Name"
+                        disabled={loading}
+                        w="100%"
+                        size="lg"
+                      />
+                      <FormErrorMessage>{errors.first_name}</FormErrorMessage>
+                    </FormControl>
+                    <FormControl
+                      isInvalid={!!errors.last_name && touched.last_name}
+                    >
+                      <Field
+                        as={Input}
+                        id="last_name"
+                        name="last_name"
+                        placeholder="Last Name"
+                        disabled={loading}
+                        w="100%"
+                        size="lg"
+                      />
+                      <FormErrorMessage>{errors.last_name}</FormErrorMessage>
+                    </FormControl>
+                  </SimpleGrid>
+                  <FormControl
+                    isInvalid={!!errors.email_address && touched.email_address}
+                  >
                     <Field
                       as={Input}
-                      id="email"
-                      name="email"
+                      id="email_address"
+                      name="email_address"
                       type="email"
                       placeholder="Email Address"
                       disabled={loading}
                       w={{ base: "100%", sm: "sm" }}
                       size="lg"
-                      validate={(value: string) => {
-                        let error;
-
-                        if (!isEmail(value)) {
-                          error = "Email Address is invalid";
-                        }
-
-                        return error;
-                      }}
                     />
-                    <FormErrorMessage>{errors.email}</FormErrorMessage>
+                    <FormErrorMessage>{errors.email_address}</FormErrorMessage>
                   </FormControl>
                   <FormControl
                     isInvalid={!!errors.password && touched.password}
@@ -161,44 +192,26 @@ const Signup = () => {
                       disabled={loading}
                       w={{ base: "100%", sm: "sm" }}
                       size="lg"
-                      validate={(value: string) => {
-                        let error;
-
-                        if (value.length < 8) {
-                          error = "Password must be at least 8 characters long";
-                        }
-
-                        return error;
-                      }}
                     />
                     <FormErrorMessage>{errors.password}</FormErrorMessage>
                   </FormControl>
                   <FormControl
                     isInvalid={
-                      !!errors.confirmPassword && touched.confirmPassword
+                      !!errors.confirm_password && touched.confirm_password
                     }
                   >
                     <Field
                       as={Input}
-                      id="confirmPassword"
-                      name="confirmPassword"
+                      id="confirm_password"
+                      name="confirm_password"
                       type="password"
                       placeholder="Confirm Password"
                       disabled={loading}
                       w={{ base: "100%", sm: "sm" }}
                       size="lg"
-                      validate={(value: string) => {
-                        let error;
-
-                        if (value !== values.password) {
-                          error = "Passwords do not match";
-                        }
-
-                        return error;
-                      }}
                     />
                     <FormErrorMessage>
-                      {errors.confirmPassword}
+                      {errors.confirm_password}
                     </FormErrorMessage>
                   </FormControl>
                   <Button

@@ -1,4 +1,3 @@
-"use client";
 import {
   createContext,
   useContext,
@@ -7,13 +6,12 @@ import {
   useState,
   useCallback,
 } from "react";
-import { supabase } from "@db/client";
-import { User } from "@supabase/supabase-js";
 import { useRouter, useSearchParams } from "next/navigation";
+import { User } from "lucia";
+import { validateClientSession } from "@/utils/validateClientSession";
 
 interface AuthContextObject {
   user?: User | null;
-  signOut?: () => void;
   loading?: boolean;
 }
 
@@ -33,14 +31,10 @@ export const AuthContextProvider = ({
     setUser(null);
     setLoading(true);
 
-    const { data, error } = await supabase.auth.getSession();
+    const session = await validateClientSession();
 
-    if (error) {
-      console.error(error);
-    }
-
-    if (data?.session?.user) {
-      setUser(data.session.user);
+    if (session) {
+      setUser(session.user);
     }
 
     setLoading(false);
@@ -55,17 +49,13 @@ export const AuthContextProvider = ({
     }
   });
 
-  const searchParams = useSearchParams();
-  const reloadSession = searchParams.get("reloadSession");
-
   useEffect(() => {
     getSession();
-  }, [getSession, reloadSession]);
+  }, [getSession]);
 
   const value = useMemo(() => {
     return {
       user,
-      signOut: async () => await supabase.auth.signOut(),
       loading,
     };
   }, [user, loading]);
@@ -74,6 +64,6 @@ export const AuthContextProvider = ({
 };
 
 export const useAuthContext = () => {
-  const { user, signOut, loading } = useContext(AuthContext);
-  return { user, signOut, loading };
+  const { user, loading } = useContext(AuthContext);
+  return { user, loading };
 };
