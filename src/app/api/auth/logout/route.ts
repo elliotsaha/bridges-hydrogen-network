@@ -1,8 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { auth } from "@lib";
+import { auth, connectToDatabase } from "@lib";
 
 export const POST = async (request: NextRequest) => {
+  await connectToDatabase();
   const authRequest = auth.handleRequest({ request, cookies });
   // check if user is authenticated
   const session = await authRequest.validate();
