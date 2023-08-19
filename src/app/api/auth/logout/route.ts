@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { auth } from "@/lib/auth";
+import { auth } from "@lib";
 
 export const POST = async (request: NextRequest) => {
   const authRequest = auth.handleRequest({ request, cookies });
@@ -19,7 +19,7 @@ export const POST = async (request: NextRequest) => {
   return new NextResponse(null, {
     status: 302,
     headers: {
-      Location: "/", // redirect to login page
+      Location: "/", // redirect to homepage
     },
   });
 };

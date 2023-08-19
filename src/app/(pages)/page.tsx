@@ -24,7 +24,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { Subheader } from "@/components/subheader";
+import { Subheader } from "@components";
 import {
   FiDollarSign,
   FiUsers,
@@ -39,7 +39,7 @@ import {
   FiArrowRight,
 } from "react-icons/fi";
 import { redirect, useSearchParams } from "next/navigation";
-import { authBroadcast } from "./auth/context";
+import { authBroadcast } from "@broadcasts";
 
 const showcaseCompanies = [
   { name: "Suncor", url: "suncor.png" },

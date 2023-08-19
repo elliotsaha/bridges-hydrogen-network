@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-export interface IKey {
+export interface Key {
   _id: string;
   user_id: string;
   hashed_password?: string;
@@ -8,7 +8,7 @@ export interface IKey {
 
 mongoose.Promise = global.Promise;
 
-const keySchema = new Schema<IKey>(
+const schema = new Schema<Key>(
   {
     _id: { type: String, required: true },
     user_id: { type: String, required: true },
@@ -17,5 +17,4 @@ const keySchema = new Schema<IKey>(
   { _id: false }
 );
 
-export const Key =
-  mongoose.models?.Key || mongoose.model<IKey>("Key", keySchema);
+export const Key = mongoose.models?.Key || mongoose.model<Key>("Key", schema);

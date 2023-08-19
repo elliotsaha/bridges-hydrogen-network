@@ -20,10 +20,25 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@db/*": ["./db/*"],
       "@lib/*": ["./src/lib/*"],
-      "@models/*": ["./src/models/*"]
+      "@models/*": ["./src/models/*"],
+      "@components/*": ["./src/components/*"],
+      "@contexts/*": ["./src/contexts/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@broadcasts/*": ["./src/broadcasts/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@providers/*": ["./src/providers/*"],
+
+      "@lib": ["./src/lib"],
+      "@models": ["./src/models"],
+      "@components": ["./src/components"],
+      "@utils": ["./src/utils"],
+      "@contexts": ["./src/contexts"],
+      "@broadcasts": ["./src/broadcasts"],
+      "@hooks": ["./src/hooks"],
+      "@providers": ["./src/providers"],
+
+      "@/*": ["./src/*"]
     }
   },
   "include": [
@@ -31,7 +46,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "./types/*.d.ts"
+    "./src/types/*.d.ts"
   ],
   "exclude": ["node_modules"]
 }

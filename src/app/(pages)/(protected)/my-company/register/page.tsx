@@ -35,8 +35,7 @@ import {
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
 import { Formik, Field, useFormikContext } from "formik";
-import { scrollToTop } from "@/utils/scrollToTop";
-import { truncateText } from "@/utils/truncateText";
+import { scrollToTop, truncateText } from "@utils";
 import { steps } from "./formSteps";
 import {
   typeOfBusinesses,
@@ -46,7 +45,7 @@ import {
   operatingRegions,
 } from "./formOptions";
 import { useDebounce } from "usehooks-ts";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useOnClickOutside } from "usehooks-ts";
 import { FiAlertCircle, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
@@ -63,20 +62,20 @@ interface Form {
   market_segment_focus: string[];
 }
 
-interface StepperScreenContextProps {
+interface StepperScreenContext {
   activeStep: number;
   setActiveStep: Dispatch<SetStateAction<number>>;
   // company headquarters
   headquartersLocation: string;
   updateHeadquartersLocation: Dispatch<SetStateAction<string>>;
-  locationResponse: axios.AxiosResponse<any, any> | undefined;
+  locationResponse: AxiosResponse<any, any> | undefined;
   locationIsLoading: boolean;
   locationQuery: string;
   updateLocationQuery: Dispatch<SetStateAction<string>>;
 }
 
-const StepperScreenContext = createContext<StepperScreenContextProps | null>(
-  null
+const StepperScreenContext = createContext<StepperScreenContext>(
+  {} as StepperScreenContext
 );
 
 const Register = () => {
@@ -96,7 +95,7 @@ const Register = () => {
   );
 
   const fetchCities = (query: string) => {
-    return axios.post("/maps/query/cities", { input: query });
+    return axios.post("/api/maps/query/cities", { input: query });
   };
 
   const { data: locationResponse, isLoading: locationIsLoading } = useQuery(
@@ -209,9 +208,7 @@ const NextButton = ({
 }: {
   validateBefore: Array<keyof Form>;
 }) => {
-  const { setActiveStep } = useContext(
-    StepperScreenContext
-  ) as StepperScreenContextProps;
+  const { setActiveStep } = useContext(StepperScreenContext);
 
   const {
     setFieldTouched,
@@ -273,9 +270,7 @@ const SubmitButton = () => {
 };
 
 const BackButton = () => {
-  const { activeStep, setActiveStep } = useContext(
-    StepperScreenContext
-  ) as StepperScreenContextProps;
+  const { activeStep, setActiveStep } = useContext(StepperScreenContext);
   return (
     <Button
       onClick={() => {
@@ -291,9 +286,7 @@ const BackButton = () => {
 };
 
 const MobileStepper = ({ display }: { display: Record<string, string> }) => {
-  const { activeStep } = useContext(
-    StepperScreenContext
-  ) as StepperScreenContextProps;
+  const { activeStep } = useContext(StepperScreenContext);
   const activeStepText = steps[activeStep].description;
 
   return (
@@ -323,7 +316,7 @@ const LocationSelect = () => {
     locationIsLoading,
     locationQuery,
     updateLocationQuery,
-  } = useContext(StepperScreenContext) as StepperScreenContextProps;
+  } = useContext(StepperScreenContext);
 
   const { setFieldTouched, setFieldValue } = useFormikContext();
 
@@ -474,7 +467,7 @@ const StepperScreen = () => {
     headquartersLocation,
     locationQuery,
     updateLocationQuery,
-  } = useContext(StepperScreenContext) as StepperScreenContextProps;
+  } = useContext(StepperScreenContext);
 
   const {
     values: formValues,

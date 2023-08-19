@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-export interface ISession {
+export interface Session {
   _id: string;
   user_id: string;
   active_expires: number;
@@ -9,7 +9,7 @@ export interface ISession {
 
 mongoose.Promise = global.Promise;
 
-const sessionSchema = new Schema<ISession>(
+const schema = new Schema<Session>(
   {
     _id: { type: String, required: true },
     user_id: { type: String, required: true },
@@ -20,5 +20,4 @@ const sessionSchema = new Schema<ISession>(
 );
 
 export const Session =
-  mongoose.models?.Session ||
-  mongoose.model<ISession>("Session", sessionSchema);
+  mongoose.models?.Session || mongoose.model<Session>("Session", schema);

@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
-import { Subheader } from "@/components/subheader";
+import { Subheader } from "@components";
 import { Formik, Field } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import z from "zod";

@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-export interface IUser {
+export interface User {
   _id: string;
   first_name: string;
   last_name: string;
@@ -9,7 +9,7 @@ export interface IUser {
 
 mongoose.Promise = global.Promise;
 
-const userSchema = new Schema<IUser>(
+const schema = new Schema<User>(
   {
     _id: { type: String, required: true },
     first_name: { type: String, required: true },
@@ -20,4 +20,4 @@ const userSchema = new Schema<IUser>(
 );
 
 export const User =
-  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+  mongoose.models.User || mongoose.model<User>("User", schema);

@@ -1,18 +1,10 @@
 "use client";
-import {
-  Container,
-  Box,
-  Text,
-  Heading,
-  VStack,
-  Stack,
-  Flex,
-  Img,
-  Link,
-} from "@chakra-ui/react";
-import { Subheader } from "./subheader";
+import { Container, VStack, Stack, Img, Link } from "@chakra-ui/react";
+import { Subheader } from "./Subheader";
 import NextLink from "next/link";
 
+// Footer that is used for all pages
+// TODO: Replace hrefs with real hrefs
 export const Footer = () => {
   return (
     <Container

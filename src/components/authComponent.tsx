@@ -1,5 +1,5 @@
 "use client";
-import { useAuthContext } from "@/app/auth/context";
+import { useAuth } from "@hooks";
 
 interface AuthComponentProps {
   loading: JSX.Element;
@@ -7,10 +7,10 @@ interface AuthComponentProps {
   unauthenticated: JSX.Element;
 }
 
-// use this component if you need a loading state, an authenticated state, and an unauthenticated state.
-// Do not use this component for protected routes (that is taken care of by middleware)
+// use this component if you need a loading state, an authenticated state, and an unauthenticated state
+// do not use this component for protected routes (that is taken care of by the (protected)/ layout)
 export const AuthComponent = (props: AuthComponentProps): JSX.Element => {
-  const { loading, user } = useAuthContext();
+  const { loading, user } = useAuth();
 
   if (loading) {
     return props.loading;

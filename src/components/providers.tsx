@@ -1,46 +1,13 @@
 "use client";
-import { CacheProvider } from "@chakra-ui/next-js";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import chakraTheme from "@chakra-ui/theme";
-import { AuthContextProvider } from "@/app/auth/context";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider, ChakraUIProvider, ReactQueryProvider } from "@providers";
 
-const theme = extendTheme({
-  colors: {
-    brand: {
-      50: "#F2F3FA",
-      100: "#DBDEF0",
-      200: "#B6BCDB",
-      300: "#4F598C",
-      400: "#39447D",
-      500: "#232F6F",
-      600: "#202A64",
-      700: "#1C2659",
-      800: "#19214E",
-      900: "#151C43",
-    },
-    accent: chakraTheme.colors.orange,
-  },
-});
-
+// Combines all providers into one wrapper component
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient();
   return (
-    <CacheProvider>
-      <ChakraProvider
-        theme={theme}
-        toastOptions={{
-          defaultOptions: {
-            position: "bottom-right",
-            duration: 5000,
-            isClosable: true,
-          },
-        }}
-      >
-        <QueryClientProvider client={queryClient}>
-          <AuthContextProvider>{children}</AuthContextProvider>
-        </QueryClientProvider>
-      </ChakraProvider>
-    </CacheProvider>
+    <ChakraUIProvider>
+      <ReactQueryProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </ReactQueryProvider>
+    </ChakraUIProvider>
   );
 };

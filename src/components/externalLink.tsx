@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Flex, Icon, Link as ChakraLink } from "@chakra-ui/react";
 import NextLink from "next/link";
@@ -8,6 +9,7 @@ interface LinkProps {
   children: React.ReactNode;
 }
 
+// link that redirects user to a seperate page (has arrow that indicates it is clearly a link)
 export const ExternalLink = ({ href, children }: LinkProps) => {
   return (
     <ChakraLink as={NextLink} href={href}>

@@ -1,3 +1,4 @@
+"use client";
 import { Text, TextProps } from "@chakra-ui/react";
 
 interface SubheaderProps extends TextProps {

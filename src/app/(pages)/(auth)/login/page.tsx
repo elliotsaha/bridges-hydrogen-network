@@ -13,10 +13,10 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
-import { Subheader } from "@/components/subheader";
+import { Subheader } from "@components";
 import { useFormik } from "formik";
 import { useSearchParams } from "next/navigation";
-import { authBroadcast } from "../context";
+import { authBroadcast } from "@broadcasts";
 import axios from "axios";
 
 interface FormParams {

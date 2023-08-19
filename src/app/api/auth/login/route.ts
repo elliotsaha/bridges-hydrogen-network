@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
-import { auth } from "@/lib/auth";
+import { auth, connectToDatabase } from "@lib";
 import { cookies } from "next/headers";
 import { LuciaError } from "lucia";
-import { connectToDatabase } from "@/lib/db";
 
 const UserLoginSchema = z.object({
   email_address: z.string({ required_error: "Email address is required" }),

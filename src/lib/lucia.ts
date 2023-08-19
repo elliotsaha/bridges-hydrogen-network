@@ -1,9 +1,7 @@
 import { lucia } from "lucia";
 import { nextjs } from "lucia/middleware";
 import { mongoose } from "@lucia-auth/adapter-mongoose";
-import { User } from "@models/User";
-import { Key } from "@models/Key";
-import { Session } from "@models/Session";
+import { User, Key, Session } from "@models";
 
 export const auth = lucia({
   adapter: mongoose({

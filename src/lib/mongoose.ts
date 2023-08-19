@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
+import { logger } from "@lib/winston";
 
 export const connectToDatabase = async () => {
   try {
     await mongoose.connect(process.env.NEXT_ATLAS_URI as string);
-    console.log("Connected to MongoDB");
+    logger.info("Connected to MongoDB");
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     throw err;
   }
 };

@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { Providers } from "@/components/providers";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { RootWrapper } from "@/components/rootWrapper";
+import { Providers, Navbar, Footer, PageWrapper } from "@components";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -21,9 +18,10 @@ export default function RootLayout({
       <body>
         <Providers>
           <Navbar />
-          <RootWrapper>{children}</RootWrapper>
+          <PageWrapper>{children}</PageWrapper>
           <Footer />
         </Providers>
+        {/* Google Maps API Setup */}
         <Script
           async
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&libraries=places&callback=Function.prototype`}

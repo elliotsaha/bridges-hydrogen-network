@@ -1,8 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import z from "zod";
-import { auth } from "@lib/auth";
+import { auth, connectToDatabase } from "@lib";
 import { LuciaError } from "lucia";
-import { connectToDatabase } from "@/lib/db";
 import { cookies } from "next/headers";
 
 const UserCreationSchema = z.object({
