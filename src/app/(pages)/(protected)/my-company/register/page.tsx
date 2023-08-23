@@ -52,6 +52,7 @@ import { FiAlertCircle, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
 import * as Yup from "yup";
 
 interface Form {
+  company_name: string;
   headquarters_location: string;
   years_in_business: string;
   less_than_2_years: boolean;
@@ -113,6 +114,7 @@ const Register = () => {
       <Formik
         enableReinitialize
         initialValues={{
+          company_name: "",
           headquarters_location: "",
           years_in_business: "",
           less_than_2_years: false,
@@ -123,6 +125,7 @@ const Register = () => {
           market_segment_focus: [],
         }}
         validationSchema={Yup.object().shape({
+          company_name: Yup.string().required("Company name required"),
           operating_regions: Yup.array().min(
             1,
             "Please select at least one operating region"
@@ -490,6 +493,40 @@ const StepperScreen = () => {
             <Heading as="h1" mb="2">
               Let&apos;s get to know your company
             </Heading>
+            <FormControl
+              isInvalid={!!formErrors.company_name && formTouched.company_name}
+            >
+              <VStack w="100%" align="flex-start" mb="4" mt="2">
+                <FormLabel color="gray.500" htmlFor="company_name" mb="0">
+                  Company name
+                </FormLabel>
+                <Box w="64" position="relative">
+                  <Field
+                    as={Input}
+                    w="64"
+                    placeholder="e.g. Acme Corporation"
+                    name="company_name"
+                    id="company_name"
+                    autoComplete="off"
+                  />
+                </Box>
+                {!!formErrors.company_name && (
+                  <Flex
+                    justifyContent="flex-start"
+                    alignItems="flex-start"
+                    gap="2"
+                  >
+                    <Icon
+                      as={FiAlertCircle}
+                      fontSize="18"
+                      color="red.500"
+                      mt="1"
+                    />
+                    <Text color="red.500">{formErrors.company_name}</Text>
+                  </Flex>
+                )}
+              </VStack>
+            </FormControl>
             <Stack
               spacing="42"
               align="flex-start"
@@ -743,6 +780,7 @@ const StepperScreen = () => {
             <BackButton />
             <NextButton
               validateBefore={[
+                "company_name",
                 "headquarters_location",
                 "years_in_business",
                 "operating_regions",
