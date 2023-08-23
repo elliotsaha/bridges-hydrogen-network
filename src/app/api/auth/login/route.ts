@@ -1,15 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import z from "zod";
-import { auth, connectToDatabase } from "@lib";
+import { auth, connectToDatabase, logger } from "@lib";
 import { cookies } from "next/headers";
 import { LuciaError } from "lucia";
+import { ServerResponse } from "@helpers";
+import { User } from "@models";
 
 const UserLoginSchema = z.object({
   email_address: z.string({ required_error: "Email address is required" }),
   password: z.string({ required_error: "Password is required" }),
 });
 
-export async function POST(request: NextRequest) {
+export const POST = async (request: NextRequest) => {
+  await connectToDatabase();
+
   const { email_address, password } = await request.json();
 
   const validation = UserLoginSchema.safeParse({
@@ -19,17 +23,21 @@ export async function POST(request: NextRequest) {
 
   if (validation.success) {
     try {
-      await connectToDatabase();
-      // find user by key
-      // and validate password
-      const user = await auth.useKey(
+      const luciaUser = await auth.useKey(
         "email_address",
         email_address.toLowerCase(),
         password
       );
 
+      // user query from mongodb
+      const user = await User.findOne({ email_address });
+
+      if (!user.email_verified) {
+        return ServerResponse.userError("Verify your email before logging in");
+      }
+
       const session = await auth.createSession({
-        userId: user.userId,
+        userId: luciaUser.userId,
         attributes: {},
       });
 
@@ -40,36 +48,22 @@ export async function POST(request: NextRequest) {
 
       authRequest.setSession(session);
 
-      return NextResponse.json({ data: user }, { status: 200 });
+      return ServerResponse.success(luciaUser);
     } catch (e) {
+      logger.error(e);
+
       if (
         e instanceof LuciaError &&
         (e.message === "AUTH_INVALID_KEY_ID" ||
           e.message === "AUTH_INVALID_PASSWORD")
       ) {
         // user does not exist or invalid password
-        return NextResponse.json(
-          {
-            error: "Invalid email or password",
-          },
-          {
-            status: 400,
-          }
-        );
+        return ServerResponse.userError("Invalid email or password");
       }
-      return NextResponse.json(
-        {
-          error: "Server Error: something went wrong",
-        },
-        {
-          status: 500,
-        }
-      );
+
+      return ServerResponse.serverError();
     }
   } else {
-    return NextResponse.json(
-      { data: validation.error.issues },
-      { status: 422 }
-    );
+    return ServerResponse.validationError(validation);
   }
-}
+};

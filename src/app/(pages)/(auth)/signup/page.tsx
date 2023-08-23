@@ -22,7 +22,6 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import z from "zod";
 import axios from "axios";
 
-// zod form validation
 const formSchema = z
   .object({
     first_name: z.string(),
@@ -62,10 +61,14 @@ const Signup = () => {
         password,
       });
 
-      window.location.href = "/";
-    } catch (err) {
-      console.log(err);
+      window.location.href = "/signup/verify-email";
+    } catch (e) {
+      statusToast({
+        title: (e as any).response.data.message,
+        status: "error",
+      });
     }
+
     setLoading(false);
   };
 
@@ -97,7 +100,7 @@ const Signup = () => {
                 position="relative"
               >
                 <Img
-                  src="/static/images/cliffs.jpg"
+                  src="/static/images/stock/cliffs.jpg"
                   alt="Nature"
                   borderRadius="lg"
                   width="100%"
@@ -219,7 +222,7 @@ const Signup = () => {
                     colorScheme="brand"
                     type="submit"
                     isLoading={loading}
-                    loadingText="Signing in..."
+                    loadingText="Signing up..."
                     size="lg"
                     rightIcon={<Icon as={FiArrowRight} />}
                   >

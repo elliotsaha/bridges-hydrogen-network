@@ -1,8 +1,12 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import z from "zod";
 import { auth, connectToDatabase } from "@lib";
 import { LuciaError } from "lucia";
-import { cookies } from "next/headers";
+import { generateRandomString } from "lucia/utils";
+import { logger, sendMail } from "@lib";
+import { ServerResponse } from "@helpers";
+import { ConfirmEmail } from "@emails";
+import { User } from "@models";
 
 const UserCreationSchema = z.object({
   first_name: z.string({ required_error: "First name is required" }),
@@ -15,7 +19,9 @@ const UserCreationSchema = z.object({
     .min(8, { message: "Password must be at least 8 characters" }),
 });
 
-export async function POST(request: NextRequest) {
+export const POST = async (request: NextRequest) => {
+  await connectToDatabase();
+
   let { first_name, last_name, email_address, password } = await request.json();
 
   email_address = email_address.toLowerCase();
@@ -29,8 +35,6 @@ export async function POST(request: NextRequest) {
 
   if (validation.success) {
     try {
-      await connectToDatabase();
-
       const user = await auth.createUser({
         key: {
           providerId: "email_address",
@@ -41,44 +45,47 @@ export async function POST(request: NextRequest) {
           first_name,
           last_name,
           email_address,
+          email_verified: false,
         },
       });
 
-      const session = await auth.createSession({
-        userId: user.userId,
-        attributes: {},
-      });
-      const authRequest = auth.handleRequest({
-        request,
-        cookies,
+      const emailConfirmationToken = generateRandomString(64);
+
+      await User.findOneAndUpdate(
+        { email_address },
+        {
+          $set: {
+            "email_verification_token.id": emailConfirmationToken,
+          },
+        }
+      );
+
+      const emailConfirmationURL = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/email-verification/${emailConfirmationToken}`;
+
+      const email = await sendMail({
+        to: email_address,
+        subject: "Confirm your email address",
+        emailComponent: ConfirmEmail({
+          first_name,
+          last_name,
+          url: emailConfirmationURL,
+        }),
       });
 
-      authRequest.setSession(session);
+      logger.info(`Verification email sent (Msg Id: ${email.messageId})`);
 
-      return NextResponse.json({ data: user }, { status: 200 });
+      return ServerResponse.success(user);
     } catch (e) {
+      logger.error(e);
+
       if (e instanceof LuciaError && e.message === `AUTH_DUPLICATE_KEY_ID`) {
-        return NextResponse.json(
-          {
-            data: "A user with this email address already exists",
-          },
-          { status: 400 }
-        );
-      } else {
-        return NextResponse.json(
-          {
-            data: "Server Error: something went wrong",
-          },
-          { status: 500 }
+        return ServerResponse.userError(
+          "A user with this email address already exists"
         );
       }
+      return ServerResponse.serverError();
     }
   } else {
-    return NextResponse.json(
-      {
-        data: validation.error.issues,
-      },
-      { status: 422 }
-    );
+    return ServerResponse.validationError(validation);
   }
-}
+};

@@ -1,0 +1,29 @@
+{"detail":"","level":"error","service":"user-service"}
+{"code":"EAUTH","command":"AUTH PLAIN","level":"error","response":"535 Domain is missing TXT verification record, go to https://forwardemail.net/my-account/domains/gmail.com and click \"Verify\"","responseCode":535,"service":"user-service"}
+{"code":"EAUTH","command":"AUTH PLAIN","level":"error","response":"535-5.7.8 Username and Password not accepted. Learn more at\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials l15-20020a170902f68f00b001bd41b70b60sm3323426plg.45 - gsmtp","responseCode":535,"service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=success","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"level":"error","service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=success","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=success","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=success","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=failed","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"detail":"","level":"error","service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=failed","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=true","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"digest":"NEXT_REDIRECT;replace;/login?confirmation-status=failed","level":"error","mutableCookies":{"_headers":{},"_parsed":{}},"service":"user-service"}
+{"level":"error","service":"user-service"}

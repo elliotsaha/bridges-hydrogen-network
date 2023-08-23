@@ -213,8 +213,6 @@ const NextButton = ({
   const {
     setFieldTouched,
     errors: formErrors,
-    isValidating,
-    validateForm,
     dirty,
   } = useFormikContext<Form>();
 

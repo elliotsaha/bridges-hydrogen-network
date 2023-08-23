@@ -11,24 +11,51 @@ import {
   Icon,
   Img,
   Box,
+  FormControl,
+  FormErrorMessage,
 } from "@chakra-ui/react";
+import { Field, Formik } from "formik";
 import { FiArrowRight } from "react-icons/fi";
 import { Subheader } from "@components";
-import { useFormik } from "formik";
 import { useSearchParams } from "next/navigation";
 import { authBroadcast } from "@broadcasts";
+import z from "zod";
 import axios from "axios";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 interface FormParams {
   email_address: string;
   password: string;
 }
 
+const formSchema = z.object({
+  email_address: z.string().email({ message: "Invalid email address" }),
+  password: z.string(),
+});
+
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const statusToast = useToast();
   const params = useSearchParams();
   const redirectURL = params.get("redirect");
+  const confirmationStatus = params.get("confirmation-status");
+
+  useEffect(() => {
+    // only render statusToast if param is actually set in url
+    if (confirmationStatus) {
+      if (confirmationStatus === "true") {
+        statusToast({
+          title: "Email address successfully confirmed",
+          status: "success",
+        });
+      } else {
+        statusToast({
+          title: "Invalid email address confirmation token",
+          status: "error",
+        });
+      }
+    }
+  }, [confirmationStatus, statusToast]);
 
   useEffect(() => {
     if (redirectURL) {
@@ -53,24 +80,23 @@ const Login = () => {
   const submitForm = async ({ email_address, password }: FormParams) => {
     setLoading(true);
 
-    const res = await axios.post("/api/auth/login", {
-      email_address,
-      password,
-    });
+    try {
+      await axios.post("/api/auth/login", {
+        email_address,
+        password,
+      });
 
-    authBroadcast.postMessage("reload-auth");
+      authBroadcast.postMessage("reload-auth");
+      redirect();
+    } catch (e) {
+      statusToast({
+        title: (e as any).response.data.message,
+        status: "error",
+      });
+    }
 
-    redirect();
     setLoading(false);
   };
-
-  const formik = useFormik({
-    initialValues: {
-      email_address: "",
-      password: "",
-    },
-    onSubmit: submitForm,
-  });
 
   return (
     <>
@@ -88,7 +114,7 @@ const Login = () => {
             position="relative"
           >
             <Img
-              src="/static/images/windmill.jpg"
+              src="/static/images/stock/windmill.jpg"
               alt="Windmill"
               borderRadius="lg"
               width="100%"
@@ -109,52 +135,73 @@ const Login = () => {
               Back to join the fight for clean energy?
             </Heading>
           </Box>
-          <form onSubmit={formik.handleSubmit}>
-            <VStack
-              align="flex-start"
-              spacing="19"
-              w={{ base: "100%", sm: "max-content" }}
-              mx="auto"
-            >
-              <Heading as="h1" size="2xl">
-                Login
-              </Heading>
-              <Subheader mt="-2" mb="1">
-                Welcome Back
-              </Subheader>
-              <Input
-                id="email_address"
-                type="email"
-                placeholder="Email Address"
-                onChange={formik.handleChange}
-                value={formik.values.email_address}
-                disabled={loading}
-                w={{ base: "100%", sm: "sm" }}
-                size="lg"
-              />
-              <Input
-                id="password"
-                type="password"
-                placeholder="Password"
-                onChange={formik.handleChange}
-                value={formik.values.password}
-                disabled={loading}
-                w={{ base: "100%", sm: "sm" }}
-                size="lg"
-              />
-              <Button
-                mt="2"
-                colorScheme="brand"
-                type="submit"
-                isLoading={loading}
-                loadingText="Signing in..."
-                size="lg"
-                rightIcon={<Icon as={FiArrowRight} />}
-              >
-                Continue
-              </Button>
-            </VStack>
-          </form>
+          <Formik
+            initialValues={{
+              email_address: "",
+              password: "",
+            }}
+            validationSchema={toFormikValidationSchema(formSchema)}
+            onSubmit={submitForm}
+          >
+            {({ handleSubmit, errors, touched }) => (
+              <form onSubmit={handleSubmit}>
+                <VStack
+                  align="flex-start"
+                  spacing="19"
+                  w={{ base: "100%", sm: "max-content" }}
+                  mx="auto"
+                >
+                  <Heading as="h1" size="2xl">
+                    Login
+                  </Heading>
+                  <Subheader mt="-2" mb="1">
+                    Welcome Back
+                  </Subheader>
+                  <FormControl
+                    isInvalid={!!errors.email_address && touched.email_address}
+                  >
+                    <Field
+                      as={Input}
+                      id="email_address"
+                      name="email_address"
+                      type="email"
+                      placeholder="Email Address"
+                      disabled={loading}
+                      w={{ base: "100%", sm: "sm" }}
+                      size="lg"
+                    />
+                    <FormErrorMessage>{errors.email_address}</FormErrorMessage>
+                  </FormControl>
+                  <FormControl
+                    isInvalid={!!errors.password && touched.password}
+                  >
+                    <Field
+                      as={Input}
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="Password"
+                      disabled={loading}
+                      w={{ base: "100%", sm: "sm" }}
+                      size="lg"
+                    />
+                    <FormErrorMessage>{errors.password}</FormErrorMessage>
+                  </FormControl>
+                  <Button
+                    mt="2"
+                    colorScheme="brand"
+                    type="submit"
+                    isLoading={loading}
+                    loadingText="Signing in..."
+                    size="lg"
+                    rightIcon={<Icon as={FiArrowRight} />}
+                  >
+                    Continue
+                  </Button>
+                </VStack>
+              </form>
+            )}
+          </Formik>
         </SimpleGrid>
       </Container>
     </>

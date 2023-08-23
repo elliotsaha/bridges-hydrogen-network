@@ -19,7 +19,7 @@ export const Footer = () => {
         spacing={{ base: "12", md: "16" }}
         direction={{ base: "column", md: "row" }}
       >
-        <Img src="/static/images/logo_white.svg" w="36" />
+        <Img src="/static/images/brand/logo_white.svg" w="36" />
         <VStack color="white" align="flex-start">
           <Subheader color="white">Account</Subheader>
           <Link as={NextLink} href="/">

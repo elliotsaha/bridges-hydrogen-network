@@ -131,7 +131,7 @@ const Home = () => {
             </Button>
           </VStack>
           <Img
-            src="/static/images/handshake_glow.png"
+            src="/static/images/stock/handshake_glow.png"
             alt="Hand Shake"
             borderRadius="lg"
             width="xl"
@@ -193,7 +193,7 @@ const Home = () => {
         >
           <Card overflow="hidden" variant="outline" p="6">
             <CardHeader>
-              <Img src="/static/images/cha.png" w="16" mb="4" />
+              <Img src="/static/images/brand/cha.png" w="16" mb="4" />
               <Heading as="h4" mb="4" size="xl">
                 Canadian Hydrogen Association
               </Heading>

@@ -92,7 +92,11 @@ export const Navbar = () => {
         >
           <Container maxW="container.xl" ml="auto" mr="auto">
             <Flex w="100%" p="5" flexDirection="row">
-              <Img src="/static/images/logo.svg" alt="Bridges" width="120px" />
+              <Img
+                src="/static/images/brand/logo.svg"
+                alt="Bridges"
+                width="120px"
+              />
               <Spacer />
               <Flex display={{ base: "flex", lg: "none" }}>
                 <IconButton
