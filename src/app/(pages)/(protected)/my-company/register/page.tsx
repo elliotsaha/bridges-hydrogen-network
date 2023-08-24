@@ -49,7 +49,8 @@ import axios, { AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useOnClickOutside } from "usehooks-ts";
 import { FiAlertCircle, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
-import * as Yup from "yup";
+import z from "zod";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 interface Form {
   company_name: string;
@@ -105,9 +106,40 @@ const Register = () => {
     { enabled: Boolean(debouncedHeadquartersQuery) }
   );
 
-  const submitForm = (values: Form) => {
-    console.log("SUBMITTED", values);
+  const submitForm = async (values: Form) => {
+    const res = await axios.post("/api/my-company/register", values);
+    console.log(res);
   };
+
+  const formSchema = z.object({
+    company_name: z.string({ required_error: "Company name required" }),
+    operating_regions: z
+      .string()
+      .array()
+      .nonempty("Please select at least one operating region"),
+
+    type_of_business: z
+      .string()
+      .array()
+      .nonempty("Please select one type of business"),
+    services_or_products: z
+      .string()
+      .array()
+      .min(
+        1,
+        "Please select at least one service / product your business provides"
+      ),
+    technologies_used: z
+      .string()
+      .array()
+      .nonempty("Please select at least one technology your business uses"),
+    market_segment_focus: z
+      .string()
+      .array()
+      .nonempty(
+        "Please select at least one market your business caters towards"
+      ),
+  });
 
   return (
     <Container maxW="container.xl" py={{ base: "32", lg: "20" }} px="8">
@@ -124,29 +156,7 @@ const Register = () => {
           technologies_used: [],
           market_segment_focus: [],
         }}
-        validationSchema={Yup.object().shape({
-          company_name: Yup.string().required("Company name required"),
-          operating_regions: Yup.array().min(
-            1,
-            "Please select at least one operating region"
-          ),
-          type_of_business: Yup.array().min(
-            1,
-            "Please select one type of business"
-          ),
-          services_or_products: Yup.array().min(
-            1,
-            "Please select at least one service / product your business provides"
-          ),
-          technologies_used: Yup.array().min(
-            1,
-            "Please select at least one technology your business uses"
-          ),
-          market_segment_focus: Yup.array().min(
-            1,
-            "Please select at least one market your business caters towards"
-          ),
-        })}
+        validationSchema={toFormikValidationSchema(formSchema)}
         onSubmit={submitForm}
       >
         {({ handleSubmit }) => (
@@ -271,14 +281,16 @@ const SubmitButton = () => {
 };
 
 const BackButton = () => {
+  const { isSubmitting } = useFormikContext();
   const { activeStep, setActiveStep } = useContext(StepperScreenContext);
+
   return (
     <Button
       onClick={() => {
         setActiveStep((prev) => prev - 1);
         scrollToTop();
       }}
-      isDisabled={activeStep === 0}
+      isDisabled={activeStep === 0 || isSubmitting}
       size="lg"
     >
       Back
@@ -477,14 +489,13 @@ const StepperScreen = () => {
     touched: formTouched,
     handleBlur: formHandleBlur,
     setFieldTouched,
-    validateField,
+    isSubmitting,
   } = useFormikContext<Form>();
 
   const hasError = (key: keyof Form): boolean => {
     return Boolean(formErrors[key] && formTouched[key]);
   };
 
-  console.log(formValues);
   switch (activeStep) {
     case 0:
       return (
@@ -508,9 +519,10 @@ const StepperScreen = () => {
                     name="company_name"
                     id="company_name"
                     autoComplete="off"
+                    isDisabled={isSubmitting}
                   />
                 </Box>
-                {!!formErrors.company_name && (
+                {!!formErrors.company_name && formTouched.company_name && (
                   <Flex
                     justifyContent="flex-start"
                     alignItems="flex-start"
@@ -567,6 +579,7 @@ const StepperScreen = () => {
 
                         return error;
                       }}
+                      isDisabled={isSubmitting}
                     />
                     <LocationSelect />
                     <Flex
@@ -659,7 +672,7 @@ const StepperScreen = () => {
                           );
                         }
                       }}
-                      isDisabled={formValues.less_than_2_years}
+                      isDisabled={formValues.less_than_2_years || isSubmitting}
                     >
                       +
                     </Button>
@@ -692,7 +705,7 @@ const StepperScreen = () => {
 
                         return error;
                       }}
-                      isDisabled={formValues.less_than_2_years}
+                      isDisabled={formValues.less_than_2_years || isSubmitting}
                     />
                     <Button
                       onClick={() => {
@@ -715,7 +728,8 @@ const StepperScreen = () => {
                       }}
                       isDisabled={
                         parseInt(formValues.years_in_business) <= 2 ||
-                        formValues.less_than_2_years
+                        formValues.less_than_2_years ||
+                        isSubmitting
                       }
                     >
                       -
@@ -735,6 +749,7 @@ const StepperScreen = () => {
                         setFieldTouched("less_than_2_years", true);
                       });
                     }}
+                    isDisabled={isSubmitting}
                   >
                     Less than 2 years
                   </Field>
@@ -768,6 +783,7 @@ const StepperScreen = () => {
                       id={i}
                       name="operating_regions"
                       value={i}
+                      isDisabled={isSubmitting}
                     >
                       {i}
                     </Field>
@@ -817,6 +833,7 @@ const StepperScreen = () => {
                       id={i.name}
                       value={i.name}
                       name="type_of_business"
+                      isDisabled={isSubmitting}
                     >
                       <Tooltip label={i.description} p="3" borderRadius="lg">
                         {i.name}
@@ -855,6 +872,7 @@ const StepperScreen = () => {
                 <CheckboxGroup
                   colorScheme="brand"
                   value={formValues.services_or_products}
+                  isDisabled={isSubmitting}
                 >
                   {services.map((i) => (
                     <Field
@@ -904,6 +922,7 @@ const StepperScreen = () => {
                 <CheckboxGroup
                   colorScheme="brand"
                   value={formValues.technologies_used}
+                  isDisabled={isSubmitting}
                 >
                   {technologiesUsed.map((section) => (
                     <Box key={section.sectionTitle} mr="12">
@@ -979,6 +998,7 @@ const StepperScreen = () => {
                 <CheckboxGroup
                   colorScheme="brand"
                   value={formValues.market_segment_focus}
+                  isDisabled={isSubmitting}
                 >
                   {marketSegmentFocus.map((i) => (
                     <Field
