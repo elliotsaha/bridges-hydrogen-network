@@ -35,7 +35,7 @@ import {
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
 import { Formik, Field, useFormikContext } from "formik";
-import { scrollToTop, truncateText } from "@utils";
+import { scrollToTop, truncateText, omit } from "@utils";
 import { steps } from "./formSteps";
 import {
   typeOfBusinesses,
@@ -107,7 +107,16 @@ const Register = () => {
   );
 
   const submitForm = async (values: Form) => {
-    const res = await axios.post("/api/my-company/register", values);
+    const formQuery = values.less_than_2_years
+      ? omit("years_in_business", values)
+      : {
+          ...values,
+          years_in_business: parseInt(values.years_in_business),
+        };
+
+    console.log(formQuery);
+    const res = await axios.post("/api/my-company/register", formQuery);
+
     console.log(res);
   };
 

@@ -9,7 +9,9 @@ export default async function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const headersList = headers();
-  const domain = headersList.get("x-invoke-path") || "";
+  const domain = headersList.get("next-url") || "/";
+
+  console.log(headersList);
 
   const session = await getClientSession();
 

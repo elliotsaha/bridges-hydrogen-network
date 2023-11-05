@@ -1,5 +1,5 @@
 import { lucia } from "lucia";
-import { nextjs } from "lucia/middleware";
+import { nextjs_future } from "lucia/middleware";
 import { mongoose } from "@lucia-auth/adapter-mongoose";
 import { User, Key, Session } from "@models";
 
@@ -10,7 +10,7 @@ export const auth = lucia({
     Session,
   }),
   env: process.env.NODE_ENV === "development" ? "DEV" : "PROD",
-  middleware: nextjs(),
+  middleware: nextjs_future(),
   sessionCookie: {
     expires: false,
   },

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import z from "zod";
 import { auth, connectToDatabase, logger } from "@lib";
-import { cookies } from "next/headers";
+import * as context from "next/headers";
 import { LuciaError } from "lucia";
 import { ServerResponse } from "@helpers";
 import { User } from "@models";
@@ -41,10 +41,7 @@ export const POST = async (request: NextRequest) => {
         attributes: {},
       });
 
-      const authRequest = auth.handleRequest({
-        request,
-        cookies,
-      });
+      const authRequest = auth.handleRequest(request.method, context);
 
       authRequest.setSession(session);
 
