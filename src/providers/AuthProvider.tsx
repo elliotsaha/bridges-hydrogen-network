@@ -1,12 +1,12 @@
-"use client";
-import { useCallback, useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { User } from "lucia";
-import { getClientSession } from "@utils";
-import { AuthContext } from "@contexts";
-import { authBroadcast } from "@broadcasts";
+'use client';
+import {useCallback, useState, useEffect, useMemo} from 'react';
+import {useRouter} from 'next/navigation';
+import {User} from 'lucia';
+import {getClientSession} from '@utils';
+import {AuthContext} from '@contexts';
+import {authBroadcast} from '@broadcasts';
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,10 +25,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const router = useRouter();
 
-  authBroadcast.addEventListener("message", (msg) => {
-    if (msg === "reload-auth") {
+  authBroadcast.addEventListener('message', msg => {
+    if (msg === 'reload-auth') {
       getSession();
-      router.push("/");
+      router.push('/');
     }
   });
 

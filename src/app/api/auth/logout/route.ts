@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
-import * as context from "next/headers";
-import { auth, connectToDatabase } from "@lib";
-import { ServerResponse } from "@helpers";
+import {NextRequest} from 'next/server';
+import * as context from 'next/headers';
+import {auth, connectToDatabase} from '@lib';
+import {ServerResponse} from '@helpers';
 
 export const POST = async (request: NextRequest) => {
   await connectToDatabase();
@@ -11,12 +11,12 @@ export const POST = async (request: NextRequest) => {
   const session = await authRequest.validate();
 
   if (!session) {
-    return ServerResponse.userError("Invalid session");
+    return ServerResponse.userError('Invalid session');
   }
   // make sure to invalidate the current session!
   await auth.invalidateSession(session.sessionId);
   // delete session cookie
   authRequest.setSession(null);
 
-  return ServerResponse.success("Successfully logged out");
+  return ServerResponse.success('Successfully logged out');
 };

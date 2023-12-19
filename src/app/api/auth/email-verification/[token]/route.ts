@@ -1,24 +1,24 @@
-import { NextRequest } from "next/server";
-import { redirect } from "next/navigation";
-import { connectToDatabase, logger } from "@lib";
-import { User } from "@models";
+import {NextRequest} from 'next/server';
+import {redirect} from 'next/navigation';
+import {connectToDatabase, logger} from '@lib';
+import {User} from '@models';
 
 export const GET = async (
   _: NextRequest,
-  { params: { token } }: { params: { token: string } }
+  {params: {token}}: {params: {token: string}}
 ) => {
   await connectToDatabase();
 
   let success = false;
 
   try {
-    const user = await User.findOne({ "email_verification_token.id": token });
+    const user = await User.findOne({'email_verification_token.id': token});
     if (user) {
       await User.updateOne(
-        { "email_verification_token.id": token },
+        {'email_verification_token.id': token},
         {
-          $set: { email_verified: true },
-          $unset: { email_verification_token: 1 },
+          $set: {email_verified: true},
+          $unset: {email_verification_token: 1},
         }
       );
       success = true;
@@ -28,8 +28,8 @@ export const GET = async (
   }
 
   if (success) {
-    redirect("/login?confirmation-status=true");
+    redirect('/login?confirmation-status=true');
   } else {
-    redirect("/login?confirmation-status=failed");
+    redirect('/login?confirmation-status=failed');
   }
 };

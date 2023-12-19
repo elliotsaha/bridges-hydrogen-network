@@ -6,22 +6,19 @@ import {
   Heading,
   Hr,
   Html,
-  Img,
   Link,
   Preview,
   Section,
   Tailwind,
   Text,
-} from "@react-email/components";
-import * as React from "react";
+} from '@react-email/components';
+import * as React from 'react';
 
 interface ConfirmEmailProps {
   first_name: string;
   last_name: string;
   url: string;
 }
-
-const baseUrl = process.env.NEXT_PUBLIC_HOSTNAME;
 
 export const ConfirmEmail = ({
   first_name,
@@ -54,14 +51,14 @@ export const ConfirmEmail = ({
               </Button>
             </Section>
             <Text className="text-black text-[14px] leading-[24px]">
-              or copy and paste this URL into your browser:{" "}
+              or copy and paste this URL into your browser:{' '}
               <Link href={url} className="text-blue-600 no-underline">
                 {url}
               </Link>
             </Text>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
-              This email was intended for{" "}
+              This email was intended for{' '}
               <span className="text-black">
                 {first_name} {last_name}.
               </span>
@@ -72,3 +69,5 @@ export const ConfirmEmail = ({
     </Html>
   );
 };
+
+export default ConfirmEmail;

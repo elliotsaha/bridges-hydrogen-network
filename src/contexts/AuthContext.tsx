@@ -1,5 +1,5 @@
-import { createContext } from "react";
-import { User } from "lucia";
+import {createContext} from 'react';
+import {User} from 'lucia';
 
 export interface AuthContext {
   user?: User | null;

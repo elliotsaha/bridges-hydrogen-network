@@ -6,8 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "email": "email dev --port 4000 --dir src/app/api/emails"
+    "lint": "gts lint",
+    "email": "email dev --port 4000 --dir src/app/api/emails",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
@@ -15,6 +21,7 @@
     "@chakra-ui/react": "^2.8.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@googlemaps/google-maps-services-js": "^3.3.42",
     "@lucia-auth/adapter-mongoose": "^3.0.0",
     "@react-email/components": "^0.0.7",
     "@react-email/render": "^0.0.7",
@@ -43,17 +50,21 @@
     "zod-formik-adapter": "^1.2.0"
   },
   "devDependencies": {
-    "@types/google.maps": "^3.53.6",
-    "@types/node": "^20.5.1",
+    "@types/google.maps": "^3.54.10",
+    "@types/node": "20.8.2",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@types/validator": "^13.7.17",
     "cz-conventional-changelog": "^3.3.0",
-    "typescript": "^5.1.6"
+    "gts": "^5.2.0",
+    "typescript": "~5.2.0"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "engines": {
+    "node": ">=12.0.0"
   }
 }

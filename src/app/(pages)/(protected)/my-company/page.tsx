@@ -1,5 +1,5 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
+import {useEffect, useState} from 'react';
 import {
   Container,
   Heading,
@@ -12,16 +12,15 @@ import {
   SkeletonCircle,
   Button,
   SlideFade,
-} from "@chakra-ui/react";
-import { useAuth } from "@hooks";
-import { Subheader } from "@components";
-import NextLink from "next/link";
+} from '@chakra-ui/react';
+import {Subheader} from '@components';
+import NextLink from 'next/link';
 
 const CompanyProfile = () => {
   const [loading, setLoading] = useState(true);
-  const [company, setCompany] = useState(false);
+  //  const [company, setCompany] = useState(false);
 
-  const { user } = useAuth();
+  //  const {user} = useAuth();
 
   useEffect(() => {
     setLoading(false);
@@ -33,7 +32,7 @@ const CompanyProfile = () => {
 
   return (
     <SlideFade in={!loading} offsetY="24">
-      <Container maxW="container.xl" py={{ base: "32", lg: "20" }}>
+      <Container maxW="container.xl" py={{base: '32', lg: '20'}}>
         <VStack px="4" align="center">
           <Heading as="h1">Register your company</Heading>
           <Subheader textAlign="center" mb="1">
@@ -62,7 +61,7 @@ const SkeletonProfile = () => {
   return (
     <Container maxW="container.xl">
       <Box my="24" mx="4">
-        <VStack align="flex-start" spacing="4" w={{ base: "100%", lg: "65%" }}>
+        <VStack align="flex-start" spacing="4" w={{base: '100%', lg: '65%'}}>
           <SkeletonCircle size="32" />
           <Skeleton w="100%" h="12" borderRadius="lg" />
           <SkeletonText
