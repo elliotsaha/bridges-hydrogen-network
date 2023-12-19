@@ -11,7 +11,7 @@
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
-    "prepare": "npm run compile",
+    "prepare": "npm run compile && husky install",
     "pretest": "npm run compile",
     "posttest": "npm run lint"
   },
@@ -57,7 +57,8 @@
     "@types/validator": "^13.7.17",
     "cz-conventional-changelog": "^3.3.0",
     "gts": "^5.2.0",
-    "typescript": "~5.2.0"
+    "typescript": "~5.2.0",
+    "husky": "^8.0.0"
   },
   "config": {
     "commitizen": {
