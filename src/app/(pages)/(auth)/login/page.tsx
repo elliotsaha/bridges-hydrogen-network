@@ -1,5 +1,5 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
+import {useEffect, useState} from 'react';
 import {
   Container,
   VStack,
@@ -13,15 +13,15 @@ import {
   Box,
   FormControl,
   FormErrorMessage,
-} from "@chakra-ui/react";
-import { Field, Formik } from "formik";
-import { FiArrowRight } from "react-icons/fi";
-import { Subheader } from "@components";
-import { useSearchParams } from "next/navigation";
-import { authBroadcast } from "@broadcasts";
-import z from "zod";
-import axios from "axios";
-import { toFormikValidationSchema } from "zod-formik-adapter";
+} from '@chakra-ui/react';
+import {Field, Formik} from 'formik';
+import {FiArrowRight} from 'react-icons/fi';
+import {Subheader} from '@components';
+import {useSearchParams} from 'next/navigation';
+import {authBroadcast} from '@broadcasts';
+import z from 'zod';
+import axios from 'axios';
+import {toFormikValidationSchema} from 'zod-formik-adapter';
 
 interface FormParams {
   email_address: string;
@@ -29,7 +29,7 @@ interface FormParams {
 }
 
 const formSchema = z.object({
-  email_address: z.string().email({ message: "Invalid email address" }),
+  email_address: z.string().email({message: 'Invalid email address'}),
   password: z.string(),
 });
 
@@ -37,21 +37,21 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const statusToast = useToast();
   const params = useSearchParams();
-  const redirectURL = params.get("redirect");
-  const confirmationStatus = params.get("confirmation-status");
+  const redirectURL = params.get('redirect');
+  const confirmationStatus = params.get('confirmation-status');
 
   useEffect(() => {
     // only render statusToast if param is actually set in url
     if (confirmationStatus) {
-      if (confirmationStatus === "true") {
+      if (confirmationStatus === 'true') {
         statusToast({
-          title: "Email address successfully confirmed",
-          status: "success",
+          title: 'Email address successfully confirmed',
+          status: 'success',
         });
       } else {
         statusToast({
-          title: "Invalid email address confirmation token",
-          status: "error",
+          title: 'Invalid email address confirmation token',
+          status: 'error',
         });
       }
     }
@@ -60,9 +60,9 @@ const Login = () => {
   useEffect(() => {
     if (redirectURL) {
       statusToast({
-        title: "Sign in first",
-        description: "Please sign in before proceeding",
-        status: "info",
+        title: 'Sign in first',
+        description: 'Please sign in before proceeding',
+        status: 'info',
       });
     }
   }, [redirectURL, statusToast]);
@@ -73,26 +73,28 @@ const Login = () => {
       window.location.href = redirectURL;
     } else {
       // redirect home if no redirect url is specified
-      window.location.href = "/";
+      window.location.href = '/';
     }
   };
 
-  const submitForm = async ({ email_address, password }: FormParams) => {
+  const submitForm = async ({email_address, password}: FormParams) => {
     setLoading(true);
 
     try {
-      await axios.post("/api/auth/login", {
+      await axios.post('/api/auth/login', {
         email_address,
         password,
       });
 
-      authBroadcast.postMessage("reload-auth");
+      authBroadcast.postMessage('reload-auth');
       redirect();
-    } catch (e) {
-      statusToast({
-        title: (e as any).response.data.message,
-        status: "error",
-      });
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        statusToast({
+          title: e?.response?.data?.message,
+          status: 'error',
+        });
+      }
     }
 
     setLoading(false);
@@ -100,9 +102,9 @@ const Login = () => {
 
   return (
     <>
-      <Container maxW="container.xl" py={{ base: "32", lg: "20" }}>
+      <Container maxW="container.xl" py={{base: '32', lg: '20'}}>
         <SimpleGrid
-          columns={{ base: 1, lg: 2 }}
+          columns={{base: 1, lg: 2}}
           px="4"
           alignItems="center"
           spacing="16"
@@ -110,7 +112,7 @@ const Login = () => {
           <Box
             w="100%"
             h="100%"
-            display={{ base: "none", lg: "block" }}
+            display={{base: 'none', lg: 'block'}}
             position="relative"
           >
             <Img
@@ -137,18 +139,18 @@ const Login = () => {
           </Box>
           <Formik
             initialValues={{
-              email_address: "",
-              password: "",
+              email_address: '',
+              password: '',
             }}
             validationSchema={toFormikValidationSchema(formSchema)}
             onSubmit={submitForm}
           >
-            {({ handleSubmit, errors, touched }) => (
+            {({handleSubmit, errors, touched}) => (
               <form onSubmit={handleSubmit}>
                 <VStack
                   align="flex-start"
                   spacing="19"
-                  w={{ base: "100%", sm: "max-content" }}
+                  w={{base: '100%', sm: 'max-content'}}
                   mx="auto"
                 >
                   <Heading as="h1" size="2xl">
@@ -167,7 +169,7 @@ const Login = () => {
                       type="email"
                       placeholder="Email Address"
                       disabled={loading}
-                      w={{ base: "100%", sm: "sm" }}
+                      w={{base: '100%', sm: 'sm'}}
                       size="lg"
                     />
                     <FormErrorMessage>{errors.email_address}</FormErrorMessage>
@@ -182,7 +184,7 @@ const Login = () => {
                       type="password"
                       placeholder="Password"
                       disabled={loading}
-                      w={{ base: "100%", sm: "sm" }}
+                      w={{base: '100%', sm: 'sm'}}
                       size="lg"
                     />
                     <FormErrorMessage>{errors.password}</FormErrorMessage>

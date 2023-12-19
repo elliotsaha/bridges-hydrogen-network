@@ -1,7 +1,7 @@
-"use client";
-import { Container, VStack, Stack, Img, Link } from "@chakra-ui/react";
-import { Subheader } from "./Subheader";
-import NextLink from "next/link";
+'use client';
+import {Container, VStack, Stack, Img, Link} from '@chakra-ui/react';
+import {Subheader} from './subheader';
+import NextLink from 'next/link';
 
 // Footer that is used for all pages
 // TODO: Replace hrefs with real hrefs
@@ -16,8 +16,8 @@ export const Footer = () => {
       minH="220px"
     >
       <Stack
-        spacing={{ base: "12", md: "16" }}
-        direction={{ base: "column", md: "row" }}
+        spacing={{base: '12', md: '16'}}
+        direction={{base: 'column', md: 'row'}}
       >
         <Img src="/static/images/brand/logo_white.svg" w="36" />
         <VStack color="white" align="flex-start">

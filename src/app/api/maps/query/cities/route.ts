@@ -1,17 +1,24 @@
-import { ServerResponse } from "@helpers";
-import { logger } from "@lib";
+import {ServerResponse} from '@helpers';
+import {logger} from '@lib';
+import {
+  Client,
+  PlaceAutocompleteType,
+} from '@googlemaps/google-maps-services-js';
 
 export const POST = async (req: Request) => {
   try {
-    const body: { input: string } = await req.json();
-    const res = await fetch(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
-        body.input
-      )}&types=(cities)&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`
-    );
+    const body: {input: string} = await req.json();
+    const client = new Client({});
 
-    const mapData = await res.json();
-    return ServerResponse.success(mapData);
+    const res = await client.placeAutocomplete({
+      params: {
+        input: encodeURIComponent(body.input),
+        key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
+        types: PlaceAutocompleteType.cities,
+      },
+    });
+
+    return ServerResponse.success(res.data);
   } catch (e) {
     logger.error(e);
     return ServerResponse.serverError();

@@ -1,7 +1,7 @@
-"use server";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { getClientSession } from "@utils";
+'use server';
+import {redirect} from 'next/navigation';
+import {headers} from 'next/headers';
+import {getClientSession} from '@utils';
 
 export default async function ProtectedLayout({
   children,
@@ -9,7 +9,7 @@ export default async function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const headersList = headers();
-  const domain = headersList.get("next-url") || "/";
+  const domain = headersList.get('next-url') || '/';
 
   console.log(headersList);
 

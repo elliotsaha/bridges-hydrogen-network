@@ -1,9 +1,9 @@
-import React from "react";
-import nodemailer from "nodemailer";
-import { render } from "@react-email/render";
+import React from 'react';
+import nodemailer from 'nodemailer';
+import {render} from '@react-email/render';
 
 export const emailTransporter = nodemailer.createTransport({
-  service: "gmail",
+  service: 'gmail',
   auth: {
     user: process.env.SENDER_EMAIL_USERNAME,
     pass: process.env.SENDER_EMAIL_PASSWORD,

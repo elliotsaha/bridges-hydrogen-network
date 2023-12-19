@@ -1,5 +1,5 @@
-"use client";
-import { useState } from "react";
+'use client';
+import {useState} from 'react';
 import {
   Container,
   VStack,
@@ -13,28 +13,27 @@ import {
   Box,
   FormControl,
   FormErrorMessage,
-} from "@chakra-ui/react";
-import { FiArrowRight } from "react-icons/fi";
-import { useRouter } from "next/navigation";
-import { Subheader } from "@components";
-import { Formik, Field } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import z from "zod";
-import axios from "axios";
+} from '@chakra-ui/react';
+import {FiArrowRight} from 'react-icons/fi';
+import {Subheader} from '@components';
+import {Formik, Field} from 'formik';
+import {toFormikValidationSchema} from 'zod-formik-adapter';
+import z from 'zod';
+import axios from 'axios';
 
 const formSchema = z
   .object({
     first_name: z.string(),
     last_name: z.string(),
-    email_address: z.string().email({ message: "Invalid email address" }),
+    email_address: z.string().email({message: 'Invalid email address'}),
     password: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters" }),
+      .min(8, {message: 'Password must be at least 8 characters'}),
     confirm_password: z.string(),
   })
-  .refine((data) => data.password === data.confirm_password, {
-    message: "Does not match password field",
-    path: ["confirm_password"],
+  .refine(data => data.password === data.confirm_password, {
+    message: 'Does not match password field',
+    path: ['confirm_password'],
   });
 
 type Form = z.infer<typeof formSchema>;
@@ -43,7 +42,6 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
 
   const statusToast = useToast();
-  const router = useRouter();
 
   const submitForm = async ({
     first_name,
@@ -54,19 +52,21 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      await axios.post("/api/auth/signup", {
+      await axios.post('/api/auth/signup', {
         first_name,
         last_name,
         email_address,
         password,
       });
 
-      window.location.href = "/signup/verify-email";
+      window.location.href = '/signup/verify-email';
     } catch (e) {
-      statusToast({
-        title: (e as any).response.data.message,
-        status: "error",
-      });
+      if (axios.isAxiosError(e)) {
+        statusToast({
+          title: e?.response?.data?.message,
+          status: 'error',
+        });
+      }
     }
 
     setLoading(false);
@@ -74,21 +74,21 @@ const Signup = () => {
 
   return (
     <>
-      <Container maxW="container.xl" py={{ base: "32", lg: "20" }}>
+      <Container maxW="container.xl" py={{base: '32', lg: '20'}}>
         <Formik
           initialValues={{
-            first_name: "",
-            last_name: "",
-            email_address: "",
-            password: "",
-            confirm_password: "",
+            first_name: '',
+            last_name: '',
+            email_address: '',
+            password: '',
+            confirm_password: '',
           }}
           validationSchema={toFormikValidationSchema(formSchema)}
           onSubmit={submitForm}
         >
-          {({ values, handleSubmit, errors, touched }) => (
+          {({handleSubmit, errors, touched}) => (
             <SimpleGrid
-              columns={{ base: 1, lg: 2 }}
+              columns={{base: 1, lg: 2}}
               px="4"
               alignItems="center"
               spacing="16"
@@ -96,7 +96,7 @@ const Signup = () => {
               <Box
                 w="100%"
                 h="100%"
-                display={{ base: "none", lg: "block" }}
+                display={{base: 'none', lg: 'block'}}
                 position="relative"
               >
                 <Img
@@ -125,7 +125,7 @@ const Signup = () => {
                 <VStack
                   align="flex-start"
                   spacing="19"
-                  w={{ base: "100%", sm: "max-content" }}
+                  w={{base: '100%', sm: 'max-content'}}
                   mx="auto"
                 >
                   <Heading as="h1" size="2xl">
@@ -135,7 +135,7 @@ const Signup = () => {
                     Register With Bridges
                   </Subheader>
                   <SimpleGrid
-                    w={{ base: "100%", sm: "sm" }}
+                    w={{base: '100%', sm: 'sm'}}
                     columns={2}
                     spacing="4"
                   >
@@ -178,7 +178,7 @@ const Signup = () => {
                       type="email"
                       placeholder="Email Address"
                       disabled={loading}
-                      w={{ base: "100%", sm: "sm" }}
+                      w={{base: '100%', sm: 'sm'}}
                       size="lg"
                     />
                     <FormErrorMessage>{errors.email_address}</FormErrorMessage>
@@ -193,7 +193,7 @@ const Signup = () => {
                       type="password"
                       placeholder="Password"
                       disabled={loading}
-                      w={{ base: "100%", sm: "sm" }}
+                      w={{base: '100%', sm: 'sm'}}
                       size="lg"
                     />
                     <FormErrorMessage>{errors.password}</FormErrorMessage>
@@ -210,7 +210,7 @@ const Signup = () => {
                       type="password"
                       placeholder="Confirm Password"
                       disabled={loading}
-                      w={{ base: "100%", sm: "sm" }}
+                      w={{base: '100%', sm: 'sm'}}
                       size="lg"
                     />
                     <FormErrorMessage>

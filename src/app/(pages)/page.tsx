@@ -1,5 +1,5 @@
-"use client";
-import { useEffect } from "react";
+'use client';
+import {useEffect} from 'react';
 import {
   Box,
   Flex,
@@ -22,9 +22,9 @@ import {
   HStack,
   Badge,
   useToast,
-} from "@chakra-ui/react";
-import NextLink from "next/link";
-import { Subheader } from "@components";
+} from '@chakra-ui/react';
+import NextLink from 'next/link';
+import {Subheader} from '@components';
 import {
   FiDollarSign,
   FiUsers,
@@ -37,42 +37,42 @@ import {
   FiUser,
   FiSend,
   FiArrowRight,
-} from "react-icons/fi";
-import { redirect, useSearchParams } from "next/navigation";
-import { authBroadcast } from "@broadcasts";
+} from 'react-icons/fi';
+import {redirect, useSearchParams} from 'next/navigation';
+import {authBroadcast} from '@broadcasts';
 
 const showcaseCompanies = [
-  { name: "Suncor", url: "suncor.png" },
-  { name: "TC Energy", url: "tc_energy.png" },
-  { name: "Shell", url: "shell.png" },
-  { name: "Air Products", url: "air_products.png" },
-  { name: "Hydrogen Optimized", url: "hydrogen_optimized.png" },
-  { name: "Northland Power", url: "northland_power.png" },
-  { name: "EIA", url: "eia.png" },
+  {name: 'Suncor', url: 'suncor.png'},
+  {name: 'TC Energy', url: 'tc_energy.png'},
+  {name: 'Shell', url: 'shell.png'},
+  {name: 'Air Products', url: 'air_products.png'},
+  {name: 'Hydrogen Optimized', url: 'hydrogen_optimized.png'},
+  {name: 'Northland Power', url: 'northland_power.png'},
+  {name: 'EIA', url: 'eia.png'},
 ];
 
 const chaInfo = [
-  { text: "1.2M Raised", icon: FiDollarSign },
-  { text: "500+ Partners", icon: FiUsers },
-  { text: "7+ Services", icon: FiPackage },
-  { text: "Vancouver, BC", icon: FiMapPin },
-  { text: "Non-profit", icon: FiHeart },
+  {text: '1.2M Raised', icon: FiDollarSign},
+  {text: '500+ Partners', icon: FiUsers},
+  {text: '7+ Services', icon: FiPackage},
+  {text: 'Vancouver, BC', icon: FiMapPin},
+  {text: 'Non-profit', icon: FiHeart},
 ];
 
 const companyPotentialCards = [
   {
-    header: "Research",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
+    header: 'Research',
+    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
     icon: FiFileText,
   },
   {
-    header: "Market",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
+    header: 'Market',
+    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
     icon: FiMail,
   },
   {
-    header: "Partner",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
+    header: 'Partner',
+    text: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
     icon: FiUser,
   },
 ];
@@ -81,18 +81,18 @@ const Home = () => {
   const searchParams = useSearchParams();
   const statusToast = useToast();
 
-  const statusQuery = searchParams.get("status");
-  const reloadSession = searchParams.get("reloadSession");
+  const statusQuery = searchParams.get('status');
+  const reloadSession = searchParams.get('reloadSession');
   useEffect(() => {
-    if (statusQuery === "confirmedAuth") {
+    if (statusQuery === 'confirmedAuth') {
       statusToast({
-        title: "Account confirmation successful",
-        status: "success",
+        title: 'Account confirmation successful',
+        status: 'success',
       });
     }
-    if (reloadSession === "true") {
-      authBroadcast.postMessage("reload-auth");
-      redirect("/");
+    if (reloadSession === 'true') {
+      authBroadcast.postMessage('reload-auth');
+      redirect('/');
     }
   }, [reloadSession, statusQuery, statusToast]);
 
@@ -100,7 +100,7 @@ const Home = () => {
     <>
       <Container maxW="container.xl">
         <SimpleGrid
-          columns={{ base: 1, lg: 2 }}
+          columns={{base: 1, lg: 2}}
           spacing="12"
           px="4"
           alignItems="center"
@@ -135,7 +135,7 @@ const Home = () => {
             alt="Hand Shake"
             borderRadius="lg"
             width="xl"
-            display={{ base: "none", lg: "block" }}
+            display={{base: 'none', lg: 'block'}}
           />
         </SimpleGrid>
       </Container>
@@ -160,7 +160,7 @@ const Home = () => {
           Trusted by companies all around the world
         </Heading>
         <Wrap spacing="12" justify="center">
-          {showcaseCompanies.map((i) => (
+          {showcaseCompanies.map(i => (
             <WrapItem key={i.name}>
               <Img
                 src={`/static/images/companies/${i.url}`}
@@ -189,7 +189,7 @@ const Home = () => {
           px="4"
           alignItems="center"
           pt="14"
-          direction={{ base: "column-reverse", lg: "row" }}
+          direction={{base: 'column-reverse', lg: 'row'}}
         >
           <Card overflow="hidden" variant="outline" p="6">
             <CardHeader>
@@ -201,7 +201,7 @@ const Home = () => {
             </CardHeader>
             <CardBody>
               <Wrap mt="-6" mb="8">
-                {chaInfo.map((i) => (
+                {chaInfo.map(i => (
                   <WrapItem key={i.text} mr="4">
                     <Center>
                       <Icon as={i.icon} mr="1" />
@@ -222,7 +222,7 @@ const Home = () => {
                 academia, research agencies and other stakeholders focused on...
               </Text>
               <Text fontWeight="bold" mt="8">
-                Are you partnered with this company?{" "}
+                Are you partnered with this company?{' '}
               </Text>
               <Flex color="blue.500" alignItems="center" fontWeight="bold">
                 Request Partnership Status <Icon as={FiExternalLink} ml="1" />
@@ -247,13 +247,13 @@ const Home = () => {
         <Center>
           <VStack>
             <Heading as="h2" size="2xl" textAlign="center">
-              {"Are you ready to see your company's potential?"}{" "}
+              {"Are you ready to see your company's potential?"}{' '}
             </Heading>
             <Subheader mb="16" mt="4" textAlign="center">
               Growing Company Influence using Bridges
             </Subheader>
-            <Wrap justify="center" spacing={{ base: "12", lg: "24" }}>
-              {companyPotentialCards.map((i) => (
+            <Wrap justify="center" spacing={{base: '12', lg: '24'}}>
+              {companyPotentialCards.map(i => (
                 <WrapItem key={i.header}>
                   <VStack>
                     <Icon as={i.icon} fontSize="42" color="brand.500" />
@@ -277,14 +277,14 @@ const Home = () => {
           px="4"
           alignItems="center"
           pt="14"
-          direction={{ base: "column-reverse", lg: "row" }}
+          direction={{base: 'column-reverse', lg: 'row'}}
         >
           <Box
             bg="brand.500"
             color="white"
             borderRadius="lg"
-            px={{ base: "12", md: "24" }}
-            py={{ base: "24", md: "32" }}
+            px={{base: '12', md: '24'}}
+            py={{base: '24', md: '32'}}
           >
             <Icon as={FiSend} fontSize="62" mb="4" mt="8" />
             <Heading as="h4" mb="8">

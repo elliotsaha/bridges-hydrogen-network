@@ -1,13 +1,13 @@
-"use client";
-import React from "react";
-import { Container, Heading, VStack, Text, Button } from "@chakra-ui/react";
-import { Subheader } from "@components";
-import NextLink from "next/link";
+'use client';
+import React from 'react';
+import {Container, Heading, VStack, Text, Button} from '@chakra-ui/react';
+import {Subheader} from '@components';
+import NextLink from 'next/link';
 
 const VerifyEmail = () => {
   return (
     <>
-      <Container maxW="container.xl" py={{ base: "32", lg: "20" }}>
+      <Container maxW="container.xl" py={{base: '32', lg: '20'}}>
         <VStack px="4" align="center">
           <Heading as="h1" size="2xl" textAlign="center">
             Verification Email Sent
