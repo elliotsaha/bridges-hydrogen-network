@@ -19,17 +19,18 @@ import {useForm} from 'react-hook-form';
 import z from 'zod';
 import axios from 'axios';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {DEFAULT_SERVER_ERR, ZOD_ERR} from '@constants';
 
 const schema = z
   .object({
-    first_name: z.string().min(1, {message: 'Required field'}),
-    last_name: z.string().min(1, {message: 'Required field'}),
-    email_address: z.string().email({message: 'Invalid email address'}),
+    first_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    last_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    email_address: z.string().email(ZOD_ERR.INVALID_EMAIL),
     password: z
       .string()
       .min(8, {message: 'Password must be at least 8 characters'})
       .max(256, {message: 'Password must be less than 256 characters'}),
-    confirm_password: z.string().min(1, {message: 'Required field'}),
+    confirm_password: z.string().min(1, ZOD_ERR.REQ_FIELD),
   })
   .refine(data => data.password === data.confirm_password, {
     message: 'Does not match password field',
@@ -65,7 +66,7 @@ const Signup = () => {
     } catch (e) {
       if (axios.isAxiosError(e)) {
         statusToast({
-          title: e?.response?.data?.message || 'An unexpected error occurred.',
+          title: e?.response?.data?.message || DEFAULT_SERVER_ERR,
           status: 'error',
         });
       }
