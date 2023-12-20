@@ -33,7 +33,8 @@ jobs:
         run: npm ci
 
       - name: Install Doppler CLI
-        run: sudo (curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh || wget -t 3 -qO- https://cli.doppler.com/install.sh) | sh
+        run: |
+          sudo sh -c "$(curl -Ls --tlsv1.2 --proto '=https' --retry 3 https://cli.doppler.com/install.sh || wget -t 3 -qO- https://cli.doppler.com/install.sh)"
 
       - name: Create .env
         run: doppler secrets download --no-file --format env > .env
