@@ -22,8 +22,10 @@ const UserCreationSchema = z.object({
 export const POST = async (request: NextRequest) => {
   await connectToDatabase();
 
-  const {first_name, last_name, password} = await request.json();
-  let {email_address} = await request.json();
+  const body = await request.json();
+
+  const {first_name, last_name, password} = structuredClone(body);
+  let {email_address} = structuredClone(body);
 
   email_address = email_address.toLowerCase();
 
@@ -63,7 +65,7 @@ export const POST = async (request: NextRequest) => {
 
       const emailConfirmationURL = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/email-verification/${emailConfirmationToken}`;
 
-      const email = await sendMail({
+      await sendMail({
         to: email_address,
         subject: 'Confirm your email address',
         emailComponent: ConfirmEmail({
@@ -72,8 +74,6 @@ export const POST = async (request: NextRequest) => {
           url: emailConfirmationURL,
         }),
       });
-
-      logger.info(`Verification email sent (Msg Id: ${email.messageId})`);
 
       return ServerResponse.success(user);
     } catch (e) {
