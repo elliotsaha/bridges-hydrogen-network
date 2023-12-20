@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "doppler run -- next dev",
     "build": "doppler run -- next build",
+    "ci-build": "next build",
     "start": "doppler run -- next start",
     "lint": "gts lint",
     "email": "email dev --port 4000 --dir src/app/api/emails",
