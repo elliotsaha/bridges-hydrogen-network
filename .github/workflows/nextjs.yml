@@ -15,8 +15,6 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v2
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -33,6 +31,9 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Install Doppler CLI
+        run: (curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh || wget -t 3 -qO- https://cli.doppler.com/install.sh) | sh
 
       - name: Create .env
         run: doppler secrets download --no-file --format env > .env
