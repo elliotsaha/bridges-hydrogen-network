@@ -29,9 +29,9 @@
       "@broadcasts/*": ["./src/broadcasts/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@providers/*": ["./src/providers/*"],
+      "@constants/*": ["./src/constants/*"],
       "@helpers/*": ["./src/app/api/helpers/*"],
       "@emails/*": ["./src/app/api/emails/*"],
-      "@constants/*": ["./src/app/api/constants/*"],
 
       "@lib": ["./src/lib"],
       "@models": ["./src/models"],
@@ -41,9 +41,9 @@
       "@broadcasts": ["./src/broadcasts"],
       "@hooks": ["./src/hooks"],
       "@providers": ["./src/providers"],
+      "@constants": ["./src/constants"],
       "@helpers": ["./src/app/api/helpers"],
       "@emails": ["./src/app/api/emails"],
-      "@constants": ["./src/app/api/constants"],
 
       "@/*": ["./src/*"]
     }
