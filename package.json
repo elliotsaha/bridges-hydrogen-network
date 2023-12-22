@@ -36,6 +36,7 @@
     "formik": "^2.4.2",
     "framer-motion": "^10.13.0",
     "lucia": "^2.7.3",
+    "meilisearch": "^0.36.0",
     "mongodb": "^5.7.0",
     "mongoose": "^7.4.3",
     "next": "^13.5.6",
