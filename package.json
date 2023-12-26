@@ -30,12 +30,12 @@
     "@tanstack/react-query": "^4.32.6",
     "axios": "^1.4.0",
     "broadcast-channel": "^5.3.0",
+    "chakra-react-select": "^4.7.6",
     "encoding": "^0.1.13",
     "eslint": "8.45.0",
     "eslint-config-next": "13.4.12",
-    "formik": "^2.4.2",
     "framer-motion": "^10.13.0",
-    "lucia": "^2.7.3",
+    "lucia": "^2.7.6",
     "mongodb": "^5.7.0",
     "mongoose": "^7.4.3",
     "next": "^13.5.6",
@@ -48,8 +48,7 @@
     "resend": "^2.0.0",
     "usehooks-ts": "^2.9.1",
     "winston": "^3.10.0",
-    "zod": "^3.21.4",
-    "zod-formik-adapter": "^1.2.0"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/google.maps": "^3.54.10",

@@ -30,6 +30,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@providers/*": ["./src/providers/*"],
       "@constants/*": ["./src/constants/*"],
+      "@types/*": ["./src/types/*"],
       "@helpers/*": ["./src/app/api/helpers/*"],
       "@emails/*": ["./src/app/api/emails/*"],
 
@@ -42,6 +43,7 @@
       "@hooks": ["./src/hooks"],
       "@providers": ["./src/providers"],
       "@constants": ["./src/constants"],
+      "@types": ["./src/types"],
       "@helpers": ["./src/app/api/helpers"],
       "@emails": ["./src/app/api/emails"],
 
