@@ -15,13 +15,15 @@ import {
   InputLeftAddon,
   InputGroup,
   Icon,
+  useToast,
 } from '@chakra-ui/react';
 import {FiAtSign, FiUser, FiSend, FiArrowRight} from 'react-icons/fi';
 import {Subheader} from '@components/subheader';
 import {z} from 'zod';
-import {ZOD_ERR} from '@constants/error-messages';
+import {ZOD_ERR, DEFAULT_SERVER_ERR} from '@constants/error-messages';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {useForm} from 'react-hook-form';
+import axios from 'axios';
 
 const schema = z.object({
   username: z.string().min(1, ZOD_ERR.REQ_FIELD),
@@ -32,14 +34,28 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 
 const Contact = () => {
+  const statusToast = useToast();
   const {
     handleSubmit,
     register,
     formState: {errors, isSubmitting},
   } = useForm<Form>({resolver: zodResolver(schema)});
 
-  const onSubmit = () => {
-    return;
+  const onSubmit = async ({username, email_address, message}: Form) => {
+    try {
+      await axios.post('api/contact', {
+        username,
+        email_address,
+        message,
+      });
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        statusToast({
+          title: e?.response?.data?.message || DEFAULT_SERVER_ERR,
+          status: 'error',
+        });
+      }
+    }
   };
 
   return (
