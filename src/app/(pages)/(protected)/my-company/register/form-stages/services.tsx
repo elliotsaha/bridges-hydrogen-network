@@ -1,0 +1,181 @@
+'use client';
+import z from 'zod';
+import {
+  VStack,
+  Flex,
+  FormControl,
+  Box,
+  FormErrorMessage,
+  Heading,
+  Text,
+  Checkbox,
+  CheckboxGroup,
+  Tooltip,
+  HStack,
+  Button,
+} from '@chakra-ui/react';
+import {ZOD_ERR} from '@constants';
+import {FormRegistration} from '@types';
+
+export const servicesSchema = z
+  .object({
+    services: z.string().array().nonempty(ZOD_ERR.REQ_FIELD).or(z.boolean()),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.services) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['services'],
+        message: ZOD_ERR.REQ_FIELD.message,
+      });
+    }
+  });
+
+type Form = z.infer<typeof servicesSchema>;
+
+export const Services = ({
+  formControl,
+  formNavigation,
+}: FormRegistration<Form>) => {
+  const watched = {
+    services: formControl.watch('services') as string[],
+  };
+
+  return (
+    <form onSubmit={formNavigation.next}>
+      <Box w="100%">
+        {/*Services Field*/}
+        <FormControl isInvalid={Boolean(formControl.formState.errors.services)}>
+          <VStack align="flex-start" minH="lg">
+            <Heading as="h1">What services does your business provide?</Heading>
+            <Text color="gray.500">Select all that apply</Text>
+            <FormErrorMessage m="0">
+              {formControl.formState.errors?.services?.message}
+            </FormErrorMessage>
+            <Flex flexDir="column" wrap="wrap" h={{base: '100%', lg: 'sm'}}>
+              <CheckboxGroup colorScheme="brand" value={watched.services}>
+                {services.map((i, idx) => (
+                  <Checkbox
+                    key={`${i}-${idx}`}
+                    id={`${i}-${idx}`}
+                    value={JSON.stringify(i)}
+                    mb="2"
+                    mr="12"
+                    {...formControl.register('services')}
+                  >
+                    <Tooltip label={i.description} p="3" borderRadius="lg">
+                      {i.name}
+                    </Tooltip>
+                  </Checkbox>
+                ))}
+              </CheckboxGroup>
+            </Flex>
+          </VStack>
+        </FormControl>
+      </Box>
+
+      {/* Form Navigation */}
+      <HStack
+        spacing="2"
+        alignSelf="flex-end"
+        justifyContent="flex-end"
+        w={{base: '100%', md: '35rem'}}
+      >
+        <Button type="button" onClick={formNavigation.back}>
+          Back
+        </Button>
+        <Button type="submit" colorScheme="brand">
+          Next
+        </Button>
+      </HStack>
+    </form>
+  );
+};
+
+export const services = [
+  {
+    name: 'Hydrogen Production Equipment',
+    description: 'Equipment used in the production of hydrogen.',
+  },
+  {
+    name: 'Fuel Cells',
+    description:
+      'Different types of fuel cells for various applications (PEM, SOFC, etc.).',
+  },
+  {
+    name: 'Hydrogen Storage Solutions',
+    description:
+      'Products related to the storage of hydrogen, like tanks, materials, etc.',
+  },
+  {
+    name: 'Hydrogen Transport Solutions',
+    description:
+      'Technologies or services related to the transportation of hydrogen.',
+  },
+  {
+    name: 'Hydrogen Refueling Stations',
+    description: 'Infrastructure for refueling hydrogen-based vehicles.',
+  },
+  {
+    name: 'Renewable Energy Technologies',
+    description:
+      'Products or services related to renewable energy technologies like solar, wind, etc., that could be coupled with hydrogen production.',
+  },
+  {
+    name: 'Energy Storage Solutions',
+    description: 'Other energy storage solutions beyond hydrogen.',
+  },
+  {
+    name: 'Hydrogen Safety Equipment',
+    description:
+      'Products or services related to safety in hydrogen use, production, or transport.',
+  },
+  {
+    name: 'Electrolyzers',
+    description:
+      'Different types of electrolyzers for hydrogen production (PEM, Alkaline, SOEC, etc.).',
+  },
+  {
+    name: 'Catalysts',
+    description:
+      'Catalysts used in various hydrogen processes, such as electrolysis or steam reforming.',
+  },
+  {
+    name: 'Hydrogen Purification Systems',
+    description: 'Technologies or systems used to purify hydrogen.',
+  },
+  {
+    name: 'Hydrogen Conversion Systems',
+    description:
+      'Systems that convert hydrogen to other forms of energy, such as electricity.',
+  },
+  {
+    name: 'Hydrogen Sensors & Monitoring Systems',
+    description:
+      'Tools or systems used to detect and monitor hydrogen levels for safety and efficiency.',
+  },
+  {
+    name: 'Professional Services',
+    description:
+      'Services like legal advice, financial consulting, engineering design, etc., specifically tailored for the hydrogen and clean energy industry.',
+  },
+  {
+    name: 'Hydrogen Safety & Training',
+    description:
+      'Services that focus on safety training and education in the handling and use of hydrogen.',
+  },
+  {
+    name: 'Hydrogen Economy Consultation',
+    description:
+      'Consultation services to help businesses adapt to and navigate the evolving hydrogen economy.',
+  },
+  {
+    name: 'Waste to Hydrogen Systems',
+    description: 'Technologies or services that convert waste into hydrogen.',
+  },
+  {
+    name: 'Renewable Energy Integration',
+    description:
+      'Services that facilitate the integration of renewable energy sources with hydrogen production.',
+  },
+];

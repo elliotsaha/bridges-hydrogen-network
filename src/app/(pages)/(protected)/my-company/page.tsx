@@ -34,7 +34,9 @@ const CompanyProfile = () => {
     <SlideFade in={!loading} offsetY="24">
       <Container maxW="container.xl" py={{base: '32', lg: '20'}}>
         <VStack px="4" align="center">
-          <Heading as="h1">Register your company</Heading>
+          <Heading as="h1" mx="center" textAlign="center">
+            Register your company
+          </Heading>
           <Subheader textAlign="center" mb="1">
             List your company on bridges
           </Subheader>
