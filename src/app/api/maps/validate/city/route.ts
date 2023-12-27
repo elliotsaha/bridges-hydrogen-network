@@ -6,7 +6,6 @@ import {ZOD_ERR} from '@constants';
 
 const validateCitySchema = z.object({
   place_id: z.string().min(1, ZOD_ERR.REQ_FIELD),
-  city_address: z.string().min(1, ZOD_ERR.REQ_FIELD),
 });
 
 export const POST = async (req: Request) => {
@@ -29,14 +28,12 @@ export const POST = async (req: Request) => {
         },
       });
 
-      if (res?.data?.result?.formatted_address === city_address) {
-        return ServerResponse.success('Valid city query');
-      } else {
-        return ServerResponse.userError('Invalid city query');
-      }
+      return ServerResponse.success({
+        formatted_address: res.data.result.formatted_address as string,
+      });
     } catch (e) {
       logger.error(e);
-      return ServerResponse.serverError();
+      return ServerResponse.userError('Invalid query');
     }
   } else {
     return ServerResponse.validationError(validation);

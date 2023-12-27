@@ -33,60 +33,109 @@ const validatePreprocess = (src: FormOptionData[], errmsg: string) =>
       )
   );
 
-const CompanySchema = z.object({
-  company_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
-  headquarters_location: z.object({
-    label: z.string(),
-    value: z.string(),
-  }),
-  less_than_2_years: z.boolean(),
-  market_focus: validatePreprocess(
-    strictFormOptions.marketFocuses,
-    'Invalid market focus'
-  ),
-
-  operating_regions: z
-    .string()
-    .array()
-    .refine(
-      val => val.every(str => strictFormOptions.operatingRegions.includes(str)),
-      {
-        message: 'Invalid operating region',
-      }
+const CompanySchema = z
+  .object({
+    company_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    headquarters_location: z.object({
+      label: z.string(),
+      value: z.string(),
+    }),
+    less_than_2_years: z.boolean(),
+    market_focus: validatePreprocess(
+      strictFormOptions.marketFocuses,
+      'Invalid market focus'
     ),
-  services: validatePreprocess(strictFormOptions.services, 'Invalid service'),
-  technologies: validatePreprocess(
-    strictFormOptions.technologies as FormOptionData[],
-    'Invalid technology'
-  ),
-  type_of_business: validatePreprocess(
-    strictFormOptions.typesOfBusinesses,
-    'Invalid type of business'
-  ),
-  years_in_business: z.string(),
-});
 
-type CompanyType = z.infer<typeof CompanySchema>;
+    operating_regions: z
+      .string()
+      .array()
+      .refine(
+        val =>
+          val.every(str => strictFormOptions.operatingRegions.includes(str)),
+        {
+          message: 'Invalid operating region',
+        }
+      ),
+    services: validatePreprocess(strictFormOptions.services, 'Invalid service'),
+    technologies: validatePreprocess(
+      strictFormOptions.technologies as FormOptionData[],
+      'Invalid technology'
+    ),
+    type_of_business: validatePreprocess(
+      strictFormOptions.typesOfBusinesses,
+      'Invalid type of business'
+    ),
+    years_in_business: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.less_than_2_years) {
+      if (
+        !z
+          .string()
+          .transform(i => parseInt(i))
+          .pipe(z.number().int().min(2))
+          .safeParse(data.years_in_business).success
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['years_in_business'],
+          message: 'Invalid years in business',
+        });
+      }
+    }
+  });
+
+const parseJSONArray = (arr: Array<string>) => arr.map(i => JSON.parse(i));
 
 export const POST = async (request: NextRequest) => {
-  const body: CompanyType = await request.json();
+  const body = await request.json();
 
-  const zodValidation = CompanySchema.safeParse(body);
-  if (zodValidation.success) {
+  const validation = CompanySchema.safeParse(body);
+  if (validation.success) {
     try {
-      await axios.post(
+      const {
+        company_name,
+        headquarters_location,
+        less_than_2_years,
+        market_focus,
+        operating_regions,
+        services,
+        technologies,
+        type_of_business,
+        years_in_business,
+      } = body;
+
+      const res = await axios.post(
         `${process.env.NEXT_PUBLIC_HOSTNAME}/api/maps/validate/city`,
         {
-          place_id: body.headquarters_location.value,
-          city_address: body.headquarters_location.label,
+          place_id: headquarters_location.value,
+          city_address: headquarters_location.label,
         }
       );
 
-      return ServerResponse.success('Valid schema');
+      // either less_than_2_years or years_in_business (yib) is
+      // to be removed from success data object
+      const yib_obj = less_than_2_years
+        ? {less_than_2_years}
+        : {years_in_business: parseInt(years_in_business)};
+
+      return ServerResponse.success({
+        company_name,
+        headquarters_location: {
+          label: res.data.formatted_address,
+          value: headquarters_location.value,
+        },
+        ...yib_obj,
+        operating_regions: operating_regions,
+        market_focus: parseJSONArray(market_focus),
+        services: parseJSONArray(services),
+        technologies: parseJSONArray(technologies),
+        type_of_business: parseJSONArray(type_of_business),
+      });
     } catch (e) {
       return ServerResponse.userError('Invalid city name and place ID');
     }
   } else {
-    return ServerResponse.userError('Bad schema');
+    return ServerResponse.validationError(validation);
   }
 };

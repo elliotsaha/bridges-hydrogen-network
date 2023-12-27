@@ -1,17 +1,14 @@
 import {NextRequest} from 'next/server';
-import * as context from 'next/headers';
 import {auth, connectToDatabase} from '@lib';
-import {ServerResponse} from '@helpers';
+import {ServerResponse, getSession} from '@helpers';
 
 export const POST = async (request: NextRequest) => {
   await connectToDatabase();
 
-  const authRequest = auth.handleRequest(request.method, context);
-  // check if user is authenticated
-  const session = await authRequest.validate();
+  const {authRequest, session} = await getSession(request);
 
   if (!session) {
-    return ServerResponse.userError('Invalid session');
+    return ServerResponse.unauthorizedError();
   }
   // make sure to invalidate the current session!
   await auth.invalidateSession(session.sessionId);

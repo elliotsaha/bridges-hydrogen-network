@@ -1,5 +1,5 @@
 'use client';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FieldValues, useForm, DefaultValues} from 'react-hook-form';
 import {Container, Stack, Box, Text} from '@chakra-ui/react';
 import {FormRegistration, FormEvent, StepForm} from '@types';
@@ -19,11 +19,13 @@ import {
   StepNumber,
 } from '@chakra-ui/react';
 import {zodResolver} from '@hookform/resolvers/zod';
+import axios from 'axios';
 
 const Register = () => {
   // registration consists of a 5 part multi-stage form
   const {activeStep, setActiveStep} = useSteps({index: 0, count: steps.length});
   const [globalFormState, setGlobalFormState] = useState({});
+  const [completedForm, setCompletedForm] = useState(false);
 
   function mergeWithGlobalForm<T extends FieldValues>(values: T) {
     // shallow merge values to global form state
@@ -41,10 +43,27 @@ const Register = () => {
     setActiveStep(prev => Math.max(prev - 1, 0));
   }
 
-  function onSubmit<T extends FieldValues>(values: T) {
+  async function onSubmit<T extends FieldValues>(values: T) {
     mergeWithGlobalForm(values);
-    console.log(globalFormState); // TODO: Replace with API call
+    setCompletedForm(true);
   }
+
+  useEffect(() => {
+    const controller = new AbortController();
+    if (completedForm) {
+      axios
+        .post('/api/company/create', globalFormState, {
+          signal: controller.signal,
+        })
+        .then(res => {
+          console.log(res.data);
+        })
+        .catch(e => console.log(e));
+    }
+    return () => {
+      controller.abort();
+    };
+  }, [completedForm]);
 
   function registerForm<T extends FieldValues>(
     schema: ZodType<T>
@@ -80,8 +99,6 @@ const Register = () => {
     // render form stage with given step
     return renderStage(stages[currentStep] as StepForm<Form>);
   };
-
-  console.log(globalFormState);
 
   return (
     <Container maxW="container.xl" py={{base: '32', lg: '20'}} px="8">
