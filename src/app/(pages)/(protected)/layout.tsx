@@ -11,8 +11,6 @@ export default async function ProtectedLayout({
   const headersList = headers();
   const domain = headersList.get('next-url') || '/';
 
-  console.log(headersList);
-
   const session = await getClientSession();
 
   if (!session) {

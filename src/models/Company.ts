@@ -1,7 +1,6 @@
 import mongoose, {Schema} from 'mongoose';
 
 export interface Company {
-  _id: string;
   company_name: string;
   headquarters_location: {
     label: string;
@@ -24,18 +23,18 @@ export interface Company {
     name: string;
     description: string;
   }>;
-  years_in_business: number;
-  less_than_2_years: boolean;
+  years_in_business?: number;
+  less_than_2_years?: boolean;
+  team: Array<string>;
 }
 
 mongoose.Promise = global.Promise;
 
 const schema = new Schema<Company>({
-  _id: {type: String, required: true},
   company_name: {type: String, required: true},
   headquarters_location: {
     label: {type: String, required: true},
-    value: {value: String, required: true},
+    value: {type: String, required: true},
   },
   market_focus: [
     {
@@ -62,13 +61,24 @@ const schema = new Schema<Company>({
     },
   ],
   operating_regions: [{type: String, required: true}],
-  less_than_2_years: {type: Boolean, required: true},
+  less_than_2_years: {
+    type: Boolean,
+    required: function (this: Company) {
+      return !this.years_in_business;
+    },
+  },
   years_in_business: {
     type: Number,
     required: function (this: Company) {
       return !this.less_than_2_years;
     },
   },
+  team: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
 });
 
 export const Company =
