@@ -4,23 +4,37 @@ import {
   Client,
   PlaceAutocompleteType,
 } from '@googlemaps/google-maps-services-js';
+import z from 'zod';
+
+const queryCitySchema = z.object({
+  input: z.string(),
+});
 
 export const POST = async (req: Request) => {
-  try {
-    const body: {input: string} = await req.json();
-    const client = new Client({});
+  const {input} = await req.json();
 
-    const res = await client.placeAutocomplete({
-      params: {
-        input: encodeURIComponent(body.input),
-        key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
-        types: PlaceAutocompleteType.cities,
-      },
-    });
+  const validation = queryCitySchema.safeParse({
+    input,
+  });
 
-    return ServerResponse.success(res.data);
-  } catch (e) {
-    logger.error(e);
-    return ServerResponse.serverError();
+  if (validation.success) {
+    try {
+      const client = new Client({});
+
+      const res = await client.placeAutocomplete({
+        params: {
+          input: encodeURIComponent(input),
+          key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
+          types: PlaceAutocompleteType.cities,
+        },
+      });
+
+      return ServerResponse.success(res.data);
+    } catch (e) {
+      logger.error(e);
+      return ServerResponse.serverError();
+    }
+  } else {
+    return ServerResponse.validationError(validation);
   }
 };
