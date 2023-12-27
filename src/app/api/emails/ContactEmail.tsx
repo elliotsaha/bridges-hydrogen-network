@@ -12,13 +12,13 @@ import {
 import * as React from 'react';
 
 interface ContactEmailProps {
-  username: string;
+  name: string;
   email_address: string;
   message: string;
 }
 
 export const ContactEmail = ({
-  username,
+  name,
   email_address,
   message,
 }: ContactEmailProps) => {
@@ -31,7 +31,7 @@ export const ContactEmail = ({
         <Body className="mx-auto my-auto font-sans bg-white">
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[465px]">
             <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
-              Message from {username}
+              Message from {name}
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">
               {message}

@@ -26,7 +26,7 @@ import {useForm} from 'react-hook-form';
 import axios from 'axios';
 
 const schema = z.object({
-  username: z.string().min(1, ZOD_ERR.REQ_FIELD),
+  name: z.string().min(1, ZOD_ERR.REQ_FIELD),
   email_address: z.string().email(ZOD_ERR.INVALID_EMAIL),
   message: z.string().min(1, ZOD_ERR.REQ_FIELD),
 });
@@ -41,13 +41,20 @@ const Contact = () => {
     formState: {errors, isSubmitting},
   } = useForm<Form>({resolver: zodResolver(schema)});
 
-  const onSubmit = async ({username, email_address, message}: Form) => {
+  const onSubmit = async ({name, email_address, message}: Form) => {
     try {
-      await axios.post('api/contact', {
-        username,
+      const res = await axios.post('/api/contact', {
+        name,
         email_address,
         message,
       });
+
+      if (res.data) {
+        statusToast({
+          title: res.data.message,
+          status: 'success',
+        });
+      }
     } catch (e) {
       if (axios.isAxiosError(e)) {
         statusToast({
@@ -107,24 +114,24 @@ const Contact = () => {
             <Subheader mt="-2" mb="1">
               Got any questions?
             </Subheader>
-            <FormControl isInvalid={Boolean(errors.username)}>
+            <FormControl isInvalid={Boolean(errors.name)}>
               <Stack spacing={4}>
                 <InputGroup>
                   <InputLeftAddon h="auto">
                     <Icon as={FiUser} />
                   </InputLeftAddon>
                   <Input
-                    id="username"
+                    id="name"
                     type="text"
                     placeholder="Your Name"
                     disabled={isSubmitting}
                     w={{base: '100%', sm: 'sm'}}
                     size="lg"
-                    {...register('username')}
+                    {...register('name')}
                   />
                 </InputGroup>
               </Stack>
-              <FormErrorMessage>{errors?.username?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={Boolean(errors.email_address)}>
               <Stack spacing={4}>
@@ -173,6 +180,7 @@ const Contact = () => {
               loadingText="Submitting..."
               size="lg"
               rightIcon={<Icon as={FiArrowRight} />}
+              isLoading={isSubmitting}
             >
               Send Message
             </Button>
