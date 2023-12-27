@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {NextRequest} from 'next/server';
 import {ServerResponse} from '@helpers/serverResponse';
 import {ZOD_ERR} from '@constants/error-messages';
-import {formOptions} from '@/app/(pages)/(protected)/my-company/register/form-stages/index';
+import {strictFormOptions} from '@forms/company/register';
 import axios from 'axios';
 
 interface FormOptionData {
@@ -32,7 +32,7 @@ const CompanySchema = z.object({
   market_focus: arrayToJSONSchema.refine(
     val =>
       val.every((obj: FormOptionData) =>
-        formOptions.marketFocuses.includes(obj)
+        strictFormOptions.marketFocuses.includes(obj)
       ),
     {
       message: 'Invalid market focus',
@@ -42,27 +42,29 @@ const CompanySchema = z.object({
     .string()
     .array()
     .refine(
-      val => val.every(str => formOptions.operatingRegions.includes(str)),
+      val => val.every(str => strictFormOptions.operatingRegions.includes(str)),
       {
         message: 'Invalid operating region',
       }
     ),
   services: arrayToJSONSchema.refine(
     val =>
-      val.every((obj: string) => formOptions.operatingRegions.includes(obj)),
+      val.every((obj: string) =>
+        strictFormOptions.operatingRegions.includes(obj)
+      ),
     {message: 'Invalid service'}
   ),
   technologies: arrayToJSONSchema.refine(
     val =>
       val.every((obj: FormOptionData) =>
-        formOptions.technologies.includes(obj)
+        strictFormOptions.technologies.includes(obj)
       ),
     {message: 'Invalid technology'}
   ),
   type_of_business: arrayToJSONSchema.refine(
     val =>
       val.every((obj: FormOptionData) =>
-        formOptions.typesOfBusinesses.includes(obj)
+        strictFormOptions.typesOfBusinesses.includes(obj)
       ),
     {message: 'Invalid type of business'}
   ),

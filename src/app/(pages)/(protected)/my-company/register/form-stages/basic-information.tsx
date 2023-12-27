@@ -27,6 +27,7 @@ import {AsyncSelect} from 'chakra-react-select';
 import axios from 'axios';
 import {PlaceAutocompleteResponseData} from '@googlemaps/google-maps-services-js';
 import {useEffect} from 'react';
+import {operatingRegions} from '@forms/company/register';
 
 export const basicInformationSchema = z
   .object({
@@ -295,16 +296,3 @@ export const BasicInformation = ({
     </form>
   );
 };
-
-export const operatingRegions = [
-  'Canada',
-  'USA',
-  'EU',
-  'Europe (Non-EU)',
-  'South Asia',
-  'East Asia',
-  'Middle East',
-  'Africa',
-  'South America',
-  'Australia',
-];
