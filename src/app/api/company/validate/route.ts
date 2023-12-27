@@ -10,17 +10,28 @@ interface FormOptionData {
   description: string;
 }
 
-const arrayToJSONSchema = z
-  .string()
-  .array()
-  .transform((arr, ctx) => {
-    try {
-      return arr.map(str => JSON.parse(str));
-    } catch (e) {
-      ctx.addIssue({code: 'custom', message: 'Invalid JSON'});
-      return z.NEVER;
-    }
-  });
+const validatePreprocess = (src: FormOptionData[], errmsg: string) =>
+  z.preprocess(
+    (arr, ctx) => {
+      try {
+        return (arr as string[]).map(str => JSON.parse(str));
+      } catch (e) {
+        ctx.addIssue({code: 'custom', message: 'Invalid JSON'});
+        return z.NEVER;
+      }
+    },
+    z
+      .object({name: z.string(), description: z.string().optional()})
+      .array()
+      .refine(
+        val => {
+          return val.every(i =>
+            src.some(j => j.name === i.name && j.description === i.description)
+          );
+        },
+        {message: errmsg}
+      )
+  );
 
 const CompanySchema = z.object({
   company_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
@@ -29,15 +40,11 @@ const CompanySchema = z.object({
     value: z.string(),
   }),
   less_than_2_years: z.boolean(),
-  market_focus: arrayToJSONSchema.refine(
-    val =>
-      val.every((obj: FormOptionData) =>
-        strictFormOptions.marketFocuses.includes(obj)
-      ),
-    {
-      message: 'Invalid market focus',
-    }
+  market_focus: validatePreprocess(
+    strictFormOptions.marketFocuses,
+    'Invalid market focus'
   ),
+
   operating_regions: z
     .string()
     .array()
@@ -47,28 +54,16 @@ const CompanySchema = z.object({
         message: 'Invalid operating region',
       }
     ),
-  services: arrayToJSONSchema.refine(
-    val =>
-      val.every((obj: string) =>
-        strictFormOptions.operatingRegions.includes(obj)
-      ),
-    {message: 'Invalid service'}
+  services: validatePreprocess(strictFormOptions.services, 'Invalid service'),
+  technologies: validatePreprocess(
+    strictFormOptions.technologies as FormOptionData[],
+    'Invalid technology'
   ),
-  technologies: arrayToJSONSchema.refine(
-    val =>
-      val.every((obj: FormOptionData) =>
-        strictFormOptions.technologies.includes(obj)
-      ),
-    {message: 'Invalid technology'}
+  type_of_business: validatePreprocess(
+    strictFormOptions.typesOfBusinesses,
+    'Invalid type of business'
   ),
-  type_of_business: arrayToJSONSchema.refine(
-    val =>
-      val.every((obj: FormOptionData) =>
-        strictFormOptions.typesOfBusinesses.includes(obj)
-      ),
-    {message: 'Invalid type of business'}
-  ),
-  years_in_business: z.number(),
+  years_in_business: z.string(),
 });
 
 type CompanyType = z.infer<typeof CompanySchema>;
@@ -77,12 +72,14 @@ export const POST = async (request: NextRequest) => {
   const body: CompanyType = await request.json();
 
   const zodValidation = CompanySchema.safeParse(body);
-
   if (zodValidation.success) {
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_HOSTNAME}/api/maps/validate/city`,
-        body.headquarters_location
+        {
+          place_id: body.headquarters_location.value,
+          city_address: body.headquarters_location.label,
+        }
       );
 
       return ServerResponse.success('Valid schema');
