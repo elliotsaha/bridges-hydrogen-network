@@ -3,7 +3,6 @@ import {NextRequest} from 'next/server';
 import {connectToDatabase} from '@lib/mongoose';
 import {getSession} from '@helpers/getSession';
 import {ServerResponse} from '@helpers/serverResponse';
-import {Validator} from '@helpers/validateRemaining';
 import {Company} from '@models/Company';
 import axios from 'axios';
 
