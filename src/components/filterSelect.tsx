@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {InputActionMeta, Select} from 'chakra-react-select';
+import {InputActionMeta, Select, Props} from 'chakra-react-select';
 import {Controller, Control, Path} from 'react-hook-form';
 
 interface SelectOption {
@@ -11,7 +11,7 @@ type OptionFieldValues = {
   [x: string]: Array<SelectOption>;
 };
 
-interface FilterSelectProps<T extends OptionFieldValues> {
+interface FilterSelectProps<T extends OptionFieldValues> extends Props {
   control: Control<T>;
   name: Path<T>;
   options: SelectOption[];
