@@ -77,7 +77,7 @@ const Search = () => {
       operating_regions: [],
       types_of_businesses: [],
       services_or_products: [],
-      years_in_business: '',
+      years_in_business: {},
     },
   });
   const onSubmit = (data: FieldValues) => {
