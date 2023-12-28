@@ -1,12 +1,6 @@
 import {useState} from 'react';
 import {InputActionMeta, Select} from 'chakra-react-select';
-import {
-  Controller,
-  UseFormGetValues,
-  UseFormSetValue,
-  Control,
-  Path,
-} from 'react-hook-form';
+import {Controller, Control, Path} from 'react-hook-form';
 
 interface SelectOption {
   label: string;
@@ -18,8 +12,6 @@ type OptionFieldValues = {
 };
 
 interface FilterSelectProps<T extends OptionFieldValues> {
-  getValues: UseFormGetValues<T>;
-  setValue: UseFormSetValue<T>;
   control: Control<T>;
   name: Path<T>;
   options: SelectOption[];
