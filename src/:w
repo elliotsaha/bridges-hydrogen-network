@@ -1,0 +1,66 @@
+import {useState} from 'react';
+import {InputActionMeta, Select} from 'chakra-react-select';
+import {useForm, Controller, FieldValues} from 'react-hook-form';
+import {FormControl} from '@chakra-ui/react';
+
+interface SelectOption {
+  label: string;
+  value: string;
+}
+
+interface FilterSelectProps<T extends FieldValues> {
+  setValue: UseFormSetValue<T>;
+  control: Control<T>;
+  name: string;
+  options: Array<SelectOption>;
+}
+
+function FilterSelect<T extends FieldValues>({
+  setValue,
+  control,
+  name,
+  options,
+}: FilterSelectProps<T>) {
+  const [selectVal, setSelectVal] = useState<string>();
+
+  const inputChangeHandler = (val: string, e: InputActionMeta) => {
+    switch (e.action) {
+      case 'set-value':
+        setSelectVal('');
+        break;
+      case 'input-change':
+        setSelectVal(val);
+        break;
+    }
+  };
+
+  return (
+    <Controller
+      name="operating_regions"
+      control={control}
+      render={({field}) => (
+        <FormControl>
+          <Select
+            options={options}
+            inputValue={selectVal}
+            onInputChange={inputChangeHandler}
+            isMulti
+            controlShouldRenderValue={false}
+            placeholder={`${tags.length} filter${
+              tags.length === 1 ? '' : 's'
+            } selected`}
+            {...field}
+            value={v.operating_regions}
+            name="operating_regions"
+            onChange={newVal => {
+              const fieldVal = [...v.operating_regions, newVal];
+              setValue('operating_regions', fieldVal as SelectOption[]);
+            }}
+          />
+        </FormControl>
+      )}
+    />
+  );
+}
+
+export default FilterSelect;
