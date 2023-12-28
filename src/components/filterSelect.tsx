@@ -21,6 +21,7 @@ function FilterSelect<T extends OptionFieldValues>({
   control,
   name,
   options,
+  ...props
 }: FilterSelectProps<T>) {
   const [selectVal, setSelectVal] = useState<string>();
 
@@ -53,6 +54,7 @@ function FilterSelect<T extends OptionFieldValues>({
           value={value}
           name={name}
           ref={ref}
+          {...props}
         />
       )}
     />
