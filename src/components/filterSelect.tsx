@@ -36,6 +36,11 @@ function FilterSelect<T extends OptionFieldValues>({
     }
   };
 
+  const createPlaceholder = (value: SelectOption[]) => {
+    const len = value?.length || 0;
+    return `${len} filter${len === 1 ? '' : 's'} selected`;
+  };
+
   return (
     <Controller
       control={control}
@@ -44,9 +49,7 @@ function FilterSelect<T extends OptionFieldValues>({
         <Select
           inputValue={selectVal}
           onInputChange={inputChangeHandler}
-          placeholder={`${value.length} filter${
-            value.length === 1 ? '' : 's'
-          } selected`}
+          placeholder={createPlaceholder(value)}
           options={options}
           controlShouldRenderValue={false}
           isMulti
