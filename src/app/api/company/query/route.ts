@@ -8,6 +8,11 @@ interface FormOptionData {
   description?: string;
 }
 
+interface YearsData {
+  min?: number;
+  max?: number;
+}
+
 type CompanyType = {
   company_name: string;
   market_focus: FormOptionData[];
@@ -15,7 +20,7 @@ type CompanyType = {
   technologies: FormOptionData[];
   type_of_business: FormOptionData[];
   operating_regions: String[];
-  years_in_business: number;
+  years_in_business: YearsData;
 };
 
 const getName = (obj: FormOptionData): string => obj.name;
@@ -32,6 +37,22 @@ export const POST = async (request: NextRequest) => {
       type_of_business: body.type_of_business.map(getName),
     };
 
+    let yearQuery;
+
+    if (body.years_in_business && body.years_in_business.min === 25) {
+      yearQuery = {
+        $gte: 25,
+      };
+    } else if (body.years_in_business && body.years_in_business.max === 2) {
+      yearQuery = {
+        $lte: 2,
+      };
+    } else {
+      yearQuery = {
+        $gte: body.years_in_business.min,
+        $lte: body.years_in_business.max,
+      };
+    }
     const res = await Company.aggregate([
       {
         $search: {
@@ -87,9 +108,7 @@ export const POST = async (request: NextRequest) => {
       },
       {
         $match: {
-          years_in_business: {
-            $gte: body.years_in_business,
-          },
+          years_in_business: yearQuery,
         },
       },
     ]);
