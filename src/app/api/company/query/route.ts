@@ -2,11 +2,7 @@ import {NextRequest} from 'next/server';
 import {connectToDatabase} from '@lib/mongoose';
 import {ServerResponse} from '@helpers/serverResponse';
 import {Company} from '@models/Company';
-
-interface FormOptionData {
-  name: string;
-  description?: string;
-}
+import {PipelineStage} from 'mongoose';
 
 interface YearsData {
   min?: number;
@@ -15,46 +11,55 @@ interface YearsData {
 
 type CompanyType = {
   company_name: string;
-  market_focus: FormOptionData[];
-  services: FormOptionData[];
-  technologies: FormOptionData[];
-  type_of_business: FormOptionData[];
-  operating_regions: String[];
-  years_in_business: YearsData;
+  market_focus: string[];
+  services: string[];
+  technologies: string[];
+  type_of_business: string[];
+  operating_regions: string[];
+  years_in_business: string | undefined;
 };
-
-const getName = (obj: FormOptionData): string => obj.name;
 
 export const POST = async (request: NextRequest) => {
   try {
     await connectToDatabase();
     const body: CompanyType = await request.json();
 
-    const queryBody = {
-      market_focus: body.market_focus.map(getName),
-      services: body.services.map(getName),
-      technologies: body.technologies.map(getName),
-      type_of_business: body.type_of_business.map(getName),
-    };
+    const aggregation: PipelineStage[] = [];
 
-    let yearQuery;
+    let yearQuery = {};
 
-    if (body.years_in_business && body.years_in_business.min === 25) {
-      yearQuery = {
-        $gte: 25,
-      };
-    } else if (body.years_in_business && body.years_in_business.max === 2) {
-      yearQuery = {
-        $lte: 2,
-      };
-    } else {
-      yearQuery = {
-        $gte: body.years_in_business.min,
-        $lte: body.years_in_business.max,
-      };
+    if (body.years_in_business) {
+      const yearField: YearsData = JSON.parse(body.years_in_business);
+      if (yearField.min === 25) {
+        yearQuery = {
+          $gte: 25,
+        };
+        aggregation.push({
+          $match: {
+            years_in_business: yearQuery,
+          },
+        });
+      } else if (yearField.max === 2) {
+        aggregation.push({
+          $match: {
+            less_than_2_years: true,
+          },
+        });
+      } else {
+        yearQuery = {
+          $gte: yearField.min,
+          $lte: yearField.max,
+        };
+        aggregation.push({
+          $match: {
+            years_in_business: yearQuery,
+          },
+        });
+      }
     }
-    const res = await Company.aggregate([
-      {
+
+    if (body.company_name !== '') {
+      aggregation.unshift({
         $search: {
           autocomplete: {
             fuzzy: {maxEdits: 1, maxExpansions: 256},
@@ -62,56 +67,74 @@ export const POST = async (request: NextRequest) => {
             path: 'company_name',
           },
         },
-      },
-      {
+      });
+    }
+
+    if (body.market_focus.length !== 0) {
+      aggregation.push({
         $match: {
           market_focus: {
             $elemMatch: {
-              name: {$in: queryBody.market_focus},
+              name: {$in: body.market_focus},
             },
           },
         },
-      },
-      {
+      });
+    }
+
+    if (body.services.length !== 0) {
+      aggregation.push({
         $match: {
           services: {
             $elemMatch: {
-              name: {$in: queryBody.services},
+              name: {$in: body.services},
             },
           },
         },
-      },
-      {
+      });
+    }
+
+    if (body.technologies.length !== 0) {
+      aggregation.push({
         $match: {
           technologies: {
             $elemMatch: {
-              name: {$in: queryBody.technologies},
+              name: {$in: body.technologies},
             },
           },
         },
-      },
-      {
+      });
+    }
+
+    if (body.type_of_business.length !== 0) {
+      aggregation.push({
         $match: {
           type_of_business: {
             $elemMatch: {
-              name: {$in: queryBody.type_of_business},
+              name: {$in: body.type_of_business},
             },
           },
         },
-      },
-      {
+      });
+    }
+
+    if (body.operating_regions.length !== 0) {
+      aggregation.push({
         $match: {
           operating_regions: {
             $elemMatch: {$in: body.operating_regions},
           },
         },
-      },
-      {
-        $match: {
-          years_in_business: yearQuery,
-        },
-      },
-    ]);
+      });
+    }
+
+    let res;
+
+    if (aggregation.length !== 0) {
+      res = await Company.aggregate(aggregation);
+    } else {
+      res = await Company.find();
+    }
 
     return ServerResponse.success(res);
   } catch (e) {

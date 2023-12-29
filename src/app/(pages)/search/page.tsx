@@ -33,6 +33,7 @@ import {Select} from 'chakra-react-select';
 import React from 'react';
 import FilterSelect from '@components/filterSelect';
 import {SelectOption} from '@types';
+import axios from 'axios';
 
 interface FormOptionData {
   name: string;
@@ -46,7 +47,6 @@ interface BodyRequest {
   services: SelectOption[];
   technologies: SelectOption[];
   types_of_business: SelectOption[];
-  years_in_business: SelectOption[];
 }
 
 const mapOptions = (options: SelectOption[]) => {
@@ -55,7 +55,6 @@ const mapOptions = (options: SelectOption[]) => {
 };
 
 const defaultValues = {
-  company_name: '',
   market_focus: [],
   technologies: [],
   operating_regions: [],
@@ -113,15 +112,35 @@ const Search = () => {
       services: mapOptions(services),
       technologies: mapOptions(technologies),
       types_of_business: mapOptions(types_of_business),
-      years_in_business: years_in_business.value,
+      years_in_business: years_in_business?.value,
     };
 
     setBodyValue(formBody);
   };
 
+  const postRequest = async () => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/query`,
+        {
+          company_name: debouncedQueryValue,
+          operating_regions: bodyValue.operating_regions,
+          market_focus: bodyValue.market_focus,
+          services: bodyValue.services,
+          technologies: bodyValue.technologies,
+          type_of_business: bodyValue.types_of_business,
+          years_in_business: bodyValue.years_in_business,
+        }
+      );
+      console.log(res.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
-    /*
-     * API REQ*/
+    console.log(bodyValue);
+    postRequest();
   }, [debouncedQueryValue, bodyValue]);
 
   return (
