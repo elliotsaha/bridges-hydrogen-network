@@ -39,6 +39,21 @@ interface FormOptionData {
   description?: string;
 }
 
+interface YearQuery {
+  min?: number;
+  max?: number;
+}
+
+interface BodyRequest {
+  company_name: string;
+  operating_regions: string[];
+  market_focus: FormOptionData[];
+  services: FormOptionData[];
+  technologies: FormOptionData[];
+  types_of_business: FormOptionData[];
+  years_in_business: YearQuery[];
+}
+
 const mapOptions = (options: SelectOption[]) => {
   const result = options.map((option: SelectOption) => option.value);
   return result;
