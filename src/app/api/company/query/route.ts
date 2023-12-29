@@ -1,112 +1,121 @@
-import {z} from 'zod';
 import {NextRequest} from 'next/server';
 import {connectToDatabase} from '@lib/mongoose';
-import {getSession} from '@helpers/getSession';
 import {ServerResponse} from '@helpers/serverResponse';
 import {Company} from '@models/Company';
-import axios from 'axios';
 
-const validator = new Validator();
+interface FormOptionData {
+  name: string;
+  description?: string;
+}
 
-const CompanySchema = z.object({
-  company_name: z.string({
-    required_error: 'Substring of company name is required',
-  }),
-  headquarters_location: z.string({
-    required_error: 'Location of company headquarters is required',
-  }),
-  market_segment_focus: z
-    .string()
-    .array()
-    .nonempty('At least 1 market segment focus is required')
-    .refine(val => validator.segments(val), {
-      message: 'Invalid market segments',
-    }),
-  operating_regions: z
-    .string()
-    .array()
-    .nonempty('At least 1 operating region is required')
-    .refine(val => validator.regions(val), {
-      message: 'Invalid operating regions',
-    }),
-  services_or_products: z
-    .string()
-    .array()
-    .nonempty('At least a service or a product is required')
-    .refine(val => validator.services(val), {
-      message: 'Invalid services or products',
-    }),
-  technologies_used: z
-    .string()
-    .array()
-    .nonempty('At least 1 technology is required')
-    .refine(val => validator.technologies(val), {
-      message: 'Invalid technologies',
-    }),
-  type_of_business: z
-    .string()
-    .array()
-    .nonempty('At least 1 type of business is required')
-    .refine(val => validator.businesses(val), {
-      message: 'Invalid businesses',
-    }),
-  years_in_business: z.number({
-    required_error: 'Number of years in business is required',
-  }),
-  less_than_2_years: z.boolean(),
-});
+interface YearsData {
+  min?: number;
+  max?: number;
+}
 
-type CompanyType = z.infer<typeof CompanySchema>;
-
-const validatePlaceId = async (value: string) => {
-  try {
-    const cityName = await axios.post(
-      `${process.env.NEXT_PUBLIC_HOSTNAME}/api/maps/query/cities`,
-      {
-        place_id: value,
-      }
-    );
-    return cityName;
-  } catch (e) {
-    return ServerResponse.userError('Invalid city name');
-  }
+type CompanyType = {
+  company_name: string;
+  market_focus: FormOptionData[];
+  services: FormOptionData[];
+  technologies: FormOptionData[];
+  type_of_business: FormOptionData[];
+  operating_regions: String[];
+  years_in_business: YearsData;
 };
 
+const getName = (obj: FormOptionData): string => obj.name;
+
 export const POST = async (request: NextRequest) => {
-  await connectToDatabase();
+  try {
+    await connectToDatabase();
+    const body: CompanyType = await request.json();
 
-  const body: CompanyType = await request.json();
+    const queryBody = {
+      market_focus: body.market_focus.map(getName),
+      services: body.services.map(getName),
+      technologies: body.technologies.map(getName),
+      type_of_business: body.type_of_business.map(getName),
+    };
 
-  const session = getSession(request);
+    let yearQuery;
 
-  if (!session) {
-    ServerResponse.unauthorizedError();
-  }
-
-  const zodValidation = CompanySchema.safeParse(body);
-
-  if (zodValidation.success) {
-    try {
-      const cityName = validatePlaceId(body.headquarters_location);
-      return cityName;
-    } catch (e) {
-      return ServerResponse.userError('Invalid city name');
+    if (body.years_in_business && body.years_in_business.min === 25) {
+      yearQuery = {
+        $gte: 25,
+      };
+    } else if (body.years_in_business && body.years_in_business.max === 2) {
+      yearQuery = {
+        $lte: 2,
+      };
+    } else {
+      yearQuery = {
+        $gte: body.years_in_business.min,
+        $lte: body.years_in_business.max,
+      };
     }
+    const res = await Company.aggregate([
+      {
+        $search: {
+          autocomplete: {
+            fuzzy: {maxEdits: 1, maxExpansions: 256},
+            query: body.company_name,
+            path: 'company_name',
+          },
+        },
+      },
+      {
+        $match: {
+          market_focus: {
+            $elemMatch: {
+              name: {$in: queryBody.market_focus},
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          services: {
+            $elemMatch: {
+              name: {$in: queryBody.services},
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          technologies: {
+            $elemMatch: {
+              name: {$in: queryBody.technologies},
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          type_of_business: {
+            $elemMatch: {
+              name: {$in: queryBody.type_of_business},
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          operating_regions: {
+            $elemMatch: {$in: body.operating_regions},
+          },
+        },
+      },
+      {
+        $match: {
+          years_in_business: yearQuery,
+        },
+      },
+    ]);
 
-    const res = await Company.find({
-      $and: [
-        {company_name: {$text: {$search: body.company_name}}},
-        {market_segment_focus: {$in: body.market_segment_focus}},
-        {operating_regions: {$in: body.operating_regions}},
-        {services_or_products: {$in: body.services_or_products}},
-        {technologies_used: {$in: body.technologies_used}},
-        {type_of_business: {$in: body.type_of_business}},
-        {years_in_business: {$gte: body.years_in_business}},
-        {less_than_2_years: body.less_than_2_years},
-      ],
-    });
-    return res;
-  } else {
-    return ServerResponse.userError('bad schema');
+    return ServerResponse.success(res);
+  } catch (e) {
+    console.log(e);
+    return ServerResponse.serverError('An error occured');
   }
 };
