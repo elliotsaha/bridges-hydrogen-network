@@ -39,19 +39,14 @@ interface FormOptionData {
   description?: string;
 }
 
-interface YearQuery {
-  min?: number;
-  max?: number;
-}
-
 interface BodyRequest {
   company_name: string;
   operating_regions: string[];
-  market_focus: FormOptionData[];
-  services: FormOptionData[];
-  technologies: FormOptionData[];
-  types_of_business: FormOptionData[];
-  years_in_business: YearQuery[];
+  market_focus: SelectOption[];
+  services: SelectOption[];
+  technologies: SelectOption[];
+  types_of_business: SelectOption[];
+  years_in_business: SelectOption[];
 }
 
 const mapOptions = (options: SelectOption[]) => {
@@ -61,12 +56,11 @@ const mapOptions = (options: SelectOption[]) => {
 
 const defaultValues = {
   company_name: '',
-  market_segment_focus: [],
-  technologies_used: [],
+  market_focus: [],
+  technologies: [],
   operating_regions: [],
-  types_of_businesses: [],
-  services_or_products: [],
-  years_in_business: {},
+  types_of_business: [],
+  services: [],
 };
 
 const Search = () => {
@@ -98,9 +92,9 @@ const Search = () => {
     services: strictFormOptions.services.map(makeSelect),
   };
 
-  const {control, handleSubmit} = useForm({
+  const {control, handleSubmit} = useForm<BodyRequest>({
     mode: 'onChange',
-    defaultValues: defaultValues,
+    defaultValues,
   });
 
   const onSubmit = (data: FieldValues) => {
@@ -199,7 +193,7 @@ const Search = () => {
                               <FilterSelect
                                 size="md"
                                 control={control}
-                                name="market_segment_focus"
+                                name="market_focus"
                                 options={selectOptions.marketFocuses}
                               />
                             </Box>
@@ -213,7 +207,7 @@ const Search = () => {
                               <FilterSelect
                                 size="md"
                                 control={control}
-                                name="technologies_used"
+                                name="technologies"
                                 options={selectOptions.technologies}
                               />
                             </Box>
@@ -241,7 +235,7 @@ const Search = () => {
                               <FilterSelect
                                 size="md"
                                 control={control}
-                                name="types_of_businesses"
+                                name="types_of_business"
                                 options={selectOptions.businesses}
                               />
                             </Box>
@@ -255,7 +249,7 @@ const Search = () => {
                               <FilterSelect
                                 size="md"
                                 control={control}
-                                name="services_or_products"
+                                name="services"
                                 options={selectOptions.services}
                               />
                             </Box>

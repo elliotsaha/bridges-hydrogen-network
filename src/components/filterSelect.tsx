@@ -43,6 +43,8 @@ function FilterSelect<T extends FieldValues>({
           placeholder={createPlaceholder(value as Array<SelectOption>)}
           options={options}
           controlShouldRenderValue={false}
+          hideSelectedOptions={false}
+          selectedOptionStyle="check"
           isMulti
           onChange={onChange}
           value={value}
