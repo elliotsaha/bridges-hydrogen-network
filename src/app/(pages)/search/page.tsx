@@ -108,10 +108,10 @@ const Search = () => {
     } = data;
 
     const formBody = {
-      market_segment_focus: mapOptions(market_focus),
+      market_focus: mapOptions(market_focus),
       operating_regions: mapOptions(operating_regions),
-      services_or_products: mapOptions(services),
-      technologies_used: mapOptions(technologies),
+      services: mapOptions(services),
+      technologies: mapOptions(technologies),
       types_of_business: mapOptions(types_of_business),
       years_in_business: years_in_business.value,
     };
