@@ -99,20 +99,20 @@ const Search = () => {
 
   const onSubmit = (data: FieldValues) => {
     const {
-      market_segment_focus,
+      market_focus,
       operating_regions,
-      services_or_products,
-      technologies_used,
-      types_of_businesses,
+      services,
+      technologies,
+      types_of_business,
       years_in_business,
     } = data;
 
     const formBody = {
-      market_segment_focus: mapOptions(market_segment_focus),
+      market_segment_focus: mapOptions(market_focus),
       operating_regions: mapOptions(operating_regions),
-      services_or_products: mapOptions(services_or_products),
-      technologies_used: mapOptions(technologies_used),
-      types_of_business: mapOptions(types_of_businesses),
+      services_or_products: mapOptions(services),
+      technologies_used: mapOptions(technologies),
+      types_of_business: mapOptions(types_of_business),
       years_in_business: years_in_business.value,
     };
 
