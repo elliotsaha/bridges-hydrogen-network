@@ -57,7 +57,8 @@ const defaultValues = {
 const Search = () => {
   const [queryValue, setQueryValue] = useState<string>('');
   const debouncedQueryValue = useDebounce<string>(queryValue, 1000);
-  const [bodyValue, setBodyValue] = useState(defaultValues);
+  const [bodyValue, setBodyValue] =
+    useState<Record<string, unknown>>(defaultValues);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setQueryValue(event.target.value);
@@ -65,11 +66,6 @@ const Search = () => {
 
   const {isOpen, onOpen, onClose} = useDisclosure();
   const finalRef = React.useRef(null);
-
-  useEffect(() => {
-    // make api request here
-    console.log(debouncedQueryValue);
-  }, [debouncedQueryValue]);
 
   const makeSelect = (obj: FormOptionData) => ({
     label: obj.name,
@@ -87,10 +83,11 @@ const Search = () => {
     services: strictFormOptions.services.map(makeSelect),
   };
 
-  const {register, control, handleSubmit} = useForm({
+  const {control, handleSubmit} = useForm({
     mode: 'onChange',
     defaultValues: defaultValues,
   });
+
   const onSubmit = (data: FieldValues) => {
     const {
       market_segment_focus,
@@ -101,7 +98,7 @@ const Search = () => {
       years_in_business,
     } = data;
 
-    const body = {
+    const formBody = {
       market_segment_focus: mapOptions(market_segment_focus),
       operating_regions: mapOptions(operating_regions),
       services_or_products: mapOptions(services_or_products),
@@ -110,8 +107,13 @@ const Search = () => {
       years_in_business: years_in_business.value,
     };
 
-    console.log(body);
+    setBodyValue(formBody);
   };
+
+  useEffect(() => {
+    /*
+     * API REQ*/
+  }, [debouncedQueryValue, bodyValue]);
 
   return (
     <>
@@ -132,33 +134,34 @@ const Search = () => {
             <Heading as="h1" size="3xl" mb="3">
               Looking for a company?
             </Heading>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Stack spacing={4} w="2xl">
-                <InputGroup>
-                  <InputLeftAddon h="auto">
-                    <FiSearch />
-                  </InputLeftAddon>
-                  <Input
-                    id="company_name"
-                    placeholder="Canadian Hydrogen Association"
-                    size="lg"
-                    {...register('company_name')}
-                  />
-                  <InputRightAddon h="auto" onClick={onOpen}>
-                    <FiSliders />
-                  </InputRightAddon>
-                </InputGroup>
-              </Stack>
-              <Modal
-                finalFocusRef={finalRef}
-                size="2xl"
-                isOpen={isOpen}
-                onClose={onClose}
-              >
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalCloseButton />
-                  <ModalBody>
+            <Stack spacing={4} w="2xl">
+              <InputGroup>
+                <InputLeftAddon h="auto">
+                  <FiSearch />
+                </InputLeftAddon>
+                <Input
+                  id="company_name"
+                  name="company_name"
+                  placeholder="Canadian Hydrogen Association"
+                  size="lg"
+                  onChange={handleChange}
+                />
+                <InputRightAddon h="auto" onClick={onOpen}>
+                  <FiSliders />
+                </InputRightAddon>
+              </InputGroup>
+            </Stack>
+            <Modal
+              finalFocusRef={finalRef}
+              size="2xl"
+              isOpen={isOpen}
+              onClose={onClose}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalCloseButton />
+                <ModalBody>
+                  <form onSubmit={handleSubmit(onSubmit)}>
                     <Container
                       maxW="container.md"
                       variant="bold"
@@ -291,7 +294,7 @@ const Search = () => {
                                       },
                                     ]}
                                     {...field}
-                                  ></Select>
+                                  />
                                 </Box>
                               </VStack>
                             </FormControl>
@@ -311,10 +314,10 @@ const Search = () => {
                         </Button>
                       </SimpleGrid>
                     </Container>
-                  </ModalBody>
-                </ModalContent>
-              </Modal>
-            </form>
+                  </form>
+                </ModalBody>
+              </ModalContent>
+            </Modal>
           </VStack>
         </SimpleGrid>
       </Container>

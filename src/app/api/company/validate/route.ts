@@ -133,9 +133,11 @@ export const POST = async (request: NextRequest) => {
         type_of_business: parseJSONArray(type_of_business),
       });
     } catch (e) {
+      console.log(e);
       return ServerResponse.userError('Invalid city name and place ID');
     }
   } else {
+    console.log(validation);
     return ServerResponse.validationError(validation);
   }
 };

@@ -34,6 +34,7 @@ export const POST = async (request: NextRequest) => {
     return ServerResponse.success('Successfully created company');
   } catch (e) {
     logger.error(e);
+    console.log(e);
     if (axios.isAxiosError(e)) {
       return ServerResponse.userError('Invalid schema');
     }

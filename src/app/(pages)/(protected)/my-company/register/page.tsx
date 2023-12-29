@@ -52,9 +52,13 @@ const Register = () => {
     const controller = new AbortController();
     if (completedForm) {
       axios
-        .post('/api/company/create', globalFormState, {
-          signal: controller.signal,
-        })
+        .post(
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/create`,
+          globalFormState,
+          {
+            signal: controller.signal,
+          }
+        )
         .then(res => {
           console.log(res.data);
         })

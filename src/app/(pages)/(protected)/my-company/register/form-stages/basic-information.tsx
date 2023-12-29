@@ -84,7 +84,7 @@ export const BasicInformation = ({
 }: FormRegistration<Form>) => {
   const queryLocation = async (inputValue: string) => {
     const req = await axios.post<PlaceAutocompleteResponseData>(
-      '/api/maps/query/cities',
+      `${process.env.NEXT_PUBLIC_HOSTNAME}/api/maps/query/cities`,
       {
         input: inputValue,
       }
