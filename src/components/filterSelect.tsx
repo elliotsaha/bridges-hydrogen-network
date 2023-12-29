@@ -1,23 +1,15 @@
 import {useState} from 'react';
 import {InputActionMeta, Select, Props} from 'chakra-react-select';
-import {Controller, Control, Path} from 'react-hook-form';
+import {Controller, Control, Path, FieldValues} from 'react-hook-form';
+import {SelectOption} from '@types';
 
-interface SelectOption {
-  label: string;
-  value: string;
-}
-
-type OptionFieldValues = {
-  [x: string]: Array<SelectOption>;
-};
-
-interface FilterSelectProps<T extends OptionFieldValues> extends Props {
+interface FilterSelectProps<T extends FieldValues> extends Props {
   control: Control<T>;
   name: Path<T>;
   options: SelectOption[];
 }
 
-function FilterSelect<T extends OptionFieldValues>({
+function FilterSelect<T extends FieldValues>({
   control,
   name,
   options,
@@ -36,9 +28,8 @@ function FilterSelect<T extends OptionFieldValues>({
     }
   };
 
-  const createPlaceholder = (value: SelectOption[]) => {
-    const len = value?.length || 0;
-    return `${len} filter${len === 1 ? '' : 's'} selected`;
+  const createPlaceholder = (value: Array<SelectOption>) => {
+    return `${value?.length} filter${value?.length === 1 ? '' : 's'} selected`;
   };
 
   return (
@@ -49,7 +40,7 @@ function FilterSelect<T extends OptionFieldValues>({
         <Select
           inputValue={selectVal}
           onInputChange={inputChangeHandler}
-          placeholder={createPlaceholder(value)}
+          placeholder={createPlaceholder(value as Array<SelectOption>)}
           options={options}
           controlShouldRenderValue={false}
           isMulti
