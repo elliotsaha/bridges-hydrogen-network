@@ -87,7 +87,7 @@ const Search = () => {
     services: strictFormOptions.services.map(makeSelect),
   };
 
-  const {register, control, handleSubmit} = useForm({
+  const {control, handleSubmit} = useForm({
     mode: 'onChange',
     defaultValues: defaultValues,
   });
@@ -132,42 +132,43 @@ const Search = () => {
             <Heading as="h1" size="3xl" mb="3">
               Looking for a company?
             </Heading>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Stack spacing={4} w="2xl">
-                <InputGroup>
-                  <InputLeftAddon h="auto">
-                    <FiSearch />
-                  </InputLeftAddon>
-                  <Input
-                    id="company_name"
-                    placeholder="Canadian Hydrogen Association"
-                    size="lg"
-                    {...register('company_name')}
-                  />
-                  <InputRightAddon h="auto" onClick={onOpen}>
-                    <FiSliders />
-                  </InputRightAddon>
-                </InputGroup>
-              </Stack>
-              <Modal
-                finalFocusRef={finalRef}
-                size="2xl"
-                isOpen={isOpen}
-                onClose={onClose}
-              >
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <Container
-                      maxW="container.md"
-                      variant="bold"
-                      size="sm"
-                      py="10"
-                    >
-                      <Heading px="4" py="4" as="h1" size="lg" mb="3">
-                        Filters
-                      </Heading>
+            <Stack spacing={4} w="2xl">
+              <InputGroup>
+                <InputLeftAddon h="auto">
+                  <FiSearch />
+                </InputLeftAddon>
+                <Input
+                  id="email_address"
+                  type="email"
+                  placeholder="Canadian Hydrogen Association"
+                  size="lg"
+                  onChange={handleChange}
+                />
+                <InputRightAddon h="auto" onClick={onOpen}>
+                  <FiSliders />
+                </InputRightAddon>
+              </InputGroup>
+            </Stack>
+            <Modal
+              finalFocusRef={finalRef}
+              size="2xl"
+              isOpen={isOpen}
+              onClose={onClose}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Container
+                    maxW="container.md"
+                    variant="bold"
+                    size="sm"
+                    py="10"
+                  >
+                    <Heading px="4" py="4" as="h1" size="lg" mb="3">
+                      Filters
+                    </Heading>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                       <SimpleGrid
                         columns={2}
                         px="2"
@@ -310,11 +311,11 @@ const Search = () => {
                           Apply changes
                         </Button>
                       </SimpleGrid>
-                    </Container>
-                  </ModalBody>
-                </ModalContent>
-              </Modal>
-            </form>
+                    </form>
+                  </Container>
+                </ModalBody>
+              </ModalContent>
+            </Modal>
           </VStack>
         </SimpleGrid>
       </Container>
