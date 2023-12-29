@@ -44,6 +44,7 @@ function FilterSelect<T extends FieldValues>({
           options={options}
           controlShouldRenderValue={false}
           hideSelectedOptions={false}
+          closeMenuOnSelect={false}
           selectedOptionStyle="check"
           isMulti
           onChange={onChange}
