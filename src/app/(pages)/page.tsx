@@ -54,7 +54,7 @@ const showcaseCompanies = [
 const chaInfo = [
   {text: '1.2M Raised', icon: FiDollarSign},
   {text: '500+ Partners', icon: FiUsers},
-  {text: '7+ Services', icon: FiPackage},
+  {text: '7 Services', icon: FiPackage},
   {text: 'Vancouver, BC', icon: FiMapPin},
   {text: 'Non-profit', icon: FiHeart},
 ];

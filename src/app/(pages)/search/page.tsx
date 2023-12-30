@@ -1,13 +1,12 @@
 'use client';
 import {
+  Text,
+  Card,
   Container,
   SimpleGrid,
   VStack,
-  HStack,
-  Badge,
-  Stack,
-  InputLeftAddon,
-  InputRightAddon,
+  InputLeftElement,
+  InputRightElement,
   InputGroup,
   Input,
   Heading,
@@ -22,16 +21,20 @@ import {
   ModalCloseButton,
   ModalBody,
   useDisclosure,
+  IconButton,
+  SkeletonText,
+  SkeletonCircle,
+  CardBody,
+  Skeleton,
 } from '@chakra-ui/react';
-import {Subheader} from '@components';
-import {FiSearch, FiSliders, FiArrowRight} from 'react-icons/fi';
+import {FiSearch, FiSliders, FiArrowRight, FiAlertCircle} from 'react-icons/fi';
 import {strictFormOptions} from '@forms/company/register';
 import {useForm, Controller} from 'react-hook-form';
 import {useDebounce} from 'usehooks-ts';
 import {useEffect, useState, ChangeEvent, useReducer} from 'react';
 import {Select} from 'chakra-react-select';
 import React from 'react';
-import FilterSelect from '@components/filterSelect';
+import {FilterSelect, CompanyCard} from '@components';
 import {SelectOption, SearchCompanyRequestFilters} from '@types';
 import {Company} from '@models';
 import axios from 'axios';
@@ -70,7 +73,7 @@ const Search = () => {
   const [requestBody, setRequestBody] =
     useState<SearchCompanyRequestFilters>(defaultValues);
 
-  const debouncedSearchInput = useDebounce<string>(rawSearchInput, 1000);
+  const debouncedSearchInput = useDebounce<string>(rawSearchInput, 200);
 
   const INITIAL_COMPANY_DATA_STATE = {
     loading: true,
@@ -146,7 +149,7 @@ const Search = () => {
     services: strictFormOptions.services.map(makeSelect),
   };
 
-  const {control, handleSubmit} = useForm<FormOptions>({
+  const {control, handleSubmit, watch} = useForm<FormOptions>({
     mode: 'onChange',
     defaultValues,
   });
@@ -171,6 +174,12 @@ const Search = () => {
     };
 
     setRequestBody(formBody);
+  };
+
+  const closeModal = () => {
+    const watched = watch();
+    onSubmit(watched);
+    onClose();
   };
 
   const getCompaniesFromQuery = async () => {
@@ -202,36 +211,51 @@ const Search = () => {
   return (
     <>
       <Container maxW="container.xl">
-        <VStack alignItems="flex-start">
-          <HStack>
-            <Subheader>A CHA Project</Subheader>
-            <Badge colorScheme="orange">Beta</Badge>
-          </HStack>
-          <Heading as="h1" size="3xl" mb="3">
-            Looking for a company?
+        <VStack
+          alignItems={{
+            base: 'flex-start',
+            md: 'center',
+          }}
+          mt="12"
+        >
+          <Heading as="h1" textAlign={{base: 'left', md: 'center'}}>
+            Find who you want to work with
           </Heading>
-          <Stack spacing={4} w="2xl">
-            <InputGroup>
-              <InputLeftAddon h="auto">
-                <FiSearch />
-              </InputLeftAddon>
-              <Input
-                id="company_name"
-                name="company_name"
-                placeholder="Canadian Hydrogen Association"
-                size="lg"
-                onChange={handleInputChange}
+          <Text
+            textAlign={{base: 'left', md: 'center'}}
+            color="gray.600"
+            mb="4"
+          >
+            Identify and Engage with Key Industry Players
+          </Text>
+          <InputGroup
+            w={{base: '100%', md: '40rem'}}
+            size={{base: 'md', md: 'lg'}}
+          >
+            <InputLeftElement pointerEvents="none">
+              <Icon as={FiSearch} color="gray.500" />
+            </InputLeftElement>
+            <Input
+              id="company_name"
+              name="company_name"
+              placeholder="Canadian Hydrogen Association"
+              onChange={handleInputChange}
+            />
+            <InputRightElement>
+              <IconButton
+                aria-label="Filter search"
+                colorScheme="brand"
+                variant="ghost"
+                onClick={onOpen}
+                icon={<Icon as={FiSliders} />}
               />
-              <InputRightAddon h="auto" onClick={onOpen}>
-                <FiSliders />
-              </InputRightAddon>
-            </InputGroup>
-          </Stack>
+            </InputRightElement>
+          </InputGroup>
           <Modal
             finalFocusRef={finalRef}
-            size="2xl"
+            size={{base: 'full', md: 'xl', lg: '2xl'}}
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={closeModal}
           >
             <ModalOverlay />
             <ModalContent>
@@ -244,18 +268,20 @@ const Search = () => {
                     size="sm"
                     py="10"
                   >
-                    <Heading px="4" py="4" as="h1" size="lg" mb="3">
-                      Filters
+                    <Heading py="2" as="h1" size="lg">
+                      Refine your search
                     </Heading>
+                    <Text color="gray.600" mb="8">
+                      Narrow down to the best matches with precision filters
+                    </Text>
                     <SimpleGrid
-                      columns={2}
-                      px="2"
+                      columns={{base: 1, md: 2}}
                       alignItems="center"
-                      spacing="16"
+                      spacing="12"
                     >
                       <FormControl>
                         <VStack alignItems="flex-start">
-                          <FormLabel>Market segment focus</FormLabel>
+                          <FormLabel color="gray.600">Market focus</FormLabel>
                           <Box w="100%">
                             <FilterSelect
                               size="md"
@@ -269,7 +295,9 @@ const Search = () => {
 
                       <FormControl>
                         <VStack alignItems="flex-start">
-                          <FormLabel>Technologies used</FormLabel>
+                          <FormLabel color="gray.600">
+                            Technologies used
+                          </FormLabel>
                           <Box w="100%">
                             <FilterSelect
                               size="md"
@@ -283,7 +311,9 @@ const Search = () => {
 
                       <FormControl>
                         <VStack alignItems="flex-start">
-                          <FormLabel>Operating regions</FormLabel>
+                          <FormLabel color="gray.600">
+                            Operating regions
+                          </FormLabel>
                           <Box w="100%">
                             <FilterSelect
                               size="md"
@@ -297,7 +327,9 @@ const Search = () => {
 
                       <FormControl>
                         <VStack alignItems="flex-start">
-                          <FormLabel>Types of businesses</FormLabel>
+                          <FormLabel color="gray.600">
+                            Type of business
+                          </FormLabel>
                           <Box w="100%">
                             <FilterSelect
                               size="md"
@@ -311,7 +343,9 @@ const Search = () => {
 
                       <FormControl>
                         <VStack alignItems="flex-start">
-                          <FormLabel>Services or products</FormLabel>
+                          <FormLabel color="gray.600">
+                            Services or products
+                          </FormLabel>
                           <Box w="100%">
                             <FilterSelect
                               size="md"
@@ -329,7 +363,9 @@ const Search = () => {
                         render={({field}) => (
                           <FormControl>
                             <VStack alignItems="flex-start">
-                              <FormLabel>Years in business</FormLabel>
+                              <FormLabel color="gray.600">
+                                Years in business
+                              </FormLabel>
                               <Box w="100%">
                                 <Select
                                   size="md"
@@ -343,19 +379,18 @@ const Search = () => {
                           </FormControl>
                         )}
                       />
-                      <Button
-                        mt="2"
-                        w="40"
-                        colorScheme="brand"
-                        type="submit"
-                        loadingText="Submitting..."
-                        size="md"
-                        rightIcon={<Icon as={FiArrowRight} />}
-                        onClick={onClose}
-                      >
-                        Apply changes
-                      </Button>
                     </SimpleGrid>
+                    <Button
+                      mt="12"
+                      colorScheme="brand"
+                      type="submit"
+                      loadingText="Submitting..."
+                      size="md"
+                      rightIcon={<Icon as={FiArrowRight} />}
+                      onClick={onClose}
+                    >
+                      Filter search
+                    </Button>
                   </Container>
                 </form>
               </ModalBody>
@@ -363,18 +398,56 @@ const Search = () => {
           </Modal>
 
           {/* Loading state */}
-          {state.loading && <div>Loading</div>}
+          {state.loading && (
+            <SimpleGrid
+              columns={{base: 1, md: 2, lg: 3}}
+              spacing="4"
+              py="10"
+              alignItems="center"
+              w={{base: '100%', lg: 'auto'}}
+            >
+              {[...Array(9).keys()].map(idx => (
+                <Card
+                  key={idx}
+                  size="lg"
+                  w={{base: 'auto', lg: '72'}}
+                  h="72"
+                  variant="outline"
+                >
+                  <CardBody>
+                    <SkeletonCircle size="10" mb="4" mt="4" />
+                    <Skeleton height="6" mb="4" />
+                    <SkeletonText size="md" mb="2" />
+                    <Skeleton height="2" w="24" mt="20" />
+                  </CardBody>
+                </Card>
+              ))}
+            </SimpleGrid>
+          )}
 
           {/* Error state */}
-          {state.error && <div>error</div>}
+          {state.error && (
+            <VStack mt="8" justifyContent="center" w="100%">
+              <Icon as={FiAlertCircle} fontSize="32" color="red.400" />
+              <Text color="gray.600" textAlign="center" w="48">
+                An unexpected error has occurred
+              </Text>
+            </VStack>
+          )}
 
           {/* Data state */}
           {state.data && (
-            <Box>
+            <SimpleGrid
+              columns={{base: 1, md: 2, lg: 3}}
+              spacing="4"
+              py="10"
+              alignItems="center"
+              w={{base: '100%', lg: 'auto'}}
+            >
               {state.data.map(company => (
-                <Box>{company.company_name}</Box>
+                <CompanyCard {...company} />
               ))}
-            </Box>
+            </SimpleGrid>
           )}
         </VStack>
       </Container>

@@ -6,3 +6,5 @@ export * from './pageWrapper';
 export * from './navbar';
 export * from './providers';
 export * from './queryFilter';
+export * from './companyCard';
+export * from './filterSelect';
