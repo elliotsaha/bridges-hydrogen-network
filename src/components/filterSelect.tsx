@@ -1,5 +1,11 @@
+'use client';
 import {useState} from 'react';
-import {InputActionMeta, Select, Props} from 'chakra-react-select';
+import {
+  InputActionMeta,
+  Select,
+  Props,
+  ChakraStylesConfig,
+} from 'chakra-react-select';
 import {Controller, Control, Path, FieldValues} from 'react-hook-form';
 import {SelectOption} from '@types';
 
@@ -9,7 +15,7 @@ interface FilterSelectProps<T extends FieldValues> extends Props {
   options: SelectOption[];
 }
 
-function FilterSelect<T extends FieldValues>({
+export function FilterSelect<T extends FieldValues>({
   control,
   name,
   options,
@@ -29,9 +35,15 @@ function FilterSelect<T extends FieldValues>({
   };
 
   const createPlaceholder = (value: Array<SelectOption>) => {
-    return `${value?.length} filter${value?.length === 1 ? '' : 's'} selected`;
+    return value?.length === 0 ? 'Select...' : `${value?.length} selected`;
   };
 
+  const createStyles: ChakraStylesConfig = {
+    placeholder: css => ({
+      ...css,
+      whiteSpace: 'nowrap',
+    }),
+  };
   return (
     <Controller
       control={control}
@@ -51,11 +63,10 @@ function FilterSelect<T extends FieldValues>({
           value={value}
           name={name}
           ref={ref}
+          chakraStyles={createStyles}
           {...props}
         />
       )}
     />
   );
 }
-
-export default FilterSelect;
