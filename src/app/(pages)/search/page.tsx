@@ -32,7 +32,7 @@ import {useEffect, useState, ChangeEvent, useReducer} from 'react';
 import {Select} from 'chakra-react-select';
 import React from 'react';
 import FilterSelect from '@components/filterSelect';
-import {SelectOption} from '@types';
+import {SelectOption, SearchCompanyRequestFilters} from '@types';
 import {Company} from '@models';
 import axios from 'axios';
 
@@ -46,17 +46,8 @@ interface FormOptions {
   market_focus: SelectOption[];
   services: SelectOption[];
   technologies: SelectOption[];
-  types_of_business: SelectOption[];
+  type_of_business: SelectOption[];
   years_in_business?: SelectOption;
-}
-
-interface BodyRequest {
-  operating_regions: string[];
-  market_focus: string[];
-  services: string[];
-  technologies: string[];
-  types_of_business: string[];
-  years_in_business?: string;
 }
 
 const mapOptions = (options: SelectOption[]) => {
@@ -68,7 +59,7 @@ const defaultValues = {
   market_focus: [],
   technologies: [],
   operating_regions: [],
-  types_of_business: [],
+  type_of_business: [],
   services: [],
 };
 
@@ -76,7 +67,8 @@ const Search = () => {
   // rawSearchInput and requestBody must be seperated because
   // the searchbar input must be debounced
   const [rawSearchInput, setRawSearchInput] = useState<string>('');
-  const [requestBody, setRequestBody] = useState<BodyRequest>(defaultValues);
+  const [requestBody, setRequestBody] =
+    useState<SearchCompanyRequestFilters>(defaultValues);
 
   const debouncedSearchInput = useDebounce<string>(rawSearchInput, 1000);
 
@@ -165,7 +157,7 @@ const Search = () => {
       operating_regions,
       services,
       technologies,
-      types_of_business,
+      type_of_business,
       years_in_business,
     } = data;
 
@@ -174,7 +166,7 @@ const Search = () => {
       operating_regions: mapOptions(operating_regions),
       services: mapOptions(services),
       technologies: mapOptions(technologies),
-      types_of_business: mapOptions(types_of_business),
+      type_of_business: mapOptions(type_of_business),
       years_in_business: years_in_business?.value,
     };
 
@@ -191,7 +183,7 @@ const Search = () => {
           market_focus: requestBody.market_focus,
           services: requestBody.services,
           technologies: requestBody.technologies,
-          type_of_business: requestBody.types_of_business,
+          type_of_business: requestBody.type_of_business,
           years_in_business: requestBody.years_in_business,
         }
       );
@@ -310,7 +302,7 @@ const Search = () => {
                             <FilterSelect
                               size="md"
                               control={control}
-                              name="types_of_business"
+                              name="type_of_business"
                               options={selectOptions.businesses}
                             />
                           </Box>
@@ -342,41 +334,8 @@ const Search = () => {
                                 <Select
                                   size="md"
                                   selectedOptionStyle="check"
-                                  options={[
-                                    {
-                                      label: 'Less than 2 years',
-                                      value: JSON.stringify({
-                                        max: 2,
-                                      }),
-                                    },
-                                    {
-                                      label: '2-5',
-                                      value: JSON.stringify({
-                                        min: 2,
-                                        max: 5,
-                                      }),
-                                    },
-                                    {
-                                      label: '5-10',
-                                      value: JSON.stringify({
-                                        min: 5,
-                                        max: 10,
-                                      }),
-                                    },
-                                    {
-                                      label: '10-25',
-                                      value: JSON.stringify({
-                                        min: 10,
-                                        max: 25,
-                                      }),
-                                    },
-                                    {
-                                      label: '25+',
-                                      value: JSON.stringify({
-                                        min: 25,
-                                      }),
-                                    },
-                                  ]}
+                                  isClearable
+                                  options={yearsInBusinessFormOptions}
                                   {...field}
                                 />
                               </Box>
@@ -422,5 +381,41 @@ const Search = () => {
     </>
   );
 };
+
+const yearsInBusinessFormOptions = [
+  {
+    label: 'Less than 2 years',
+    value: JSON.stringify({
+      max: 2,
+    }),
+  },
+  {
+    label: '2-5',
+    value: JSON.stringify({
+      min: 2,
+      max: 5,
+    }),
+  },
+  {
+    label: '5-10',
+    value: JSON.stringify({
+      min: 5,
+      max: 10,
+    }),
+  },
+  {
+    label: '10-25',
+    value: JSON.stringify({
+      min: 10,
+      max: 25,
+    }),
+  },
+  {
+    label: '25+',
+    value: JSON.stringify({
+      min: 25,
+    }),
+  },
+];
 
 export default Search;
