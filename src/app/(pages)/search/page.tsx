@@ -228,7 +228,7 @@ const Search = () => {
                 id="company_name"
                 name="company_name"
                 placeholder="Canadian Hydrogen Association"
-                size="lg"
+                size={{base: 'md', lg: 'xl'}}
                 onChange={handleInputChange}
               />
               <InputRightAddon h="auto" onClick={onOpen}>
@@ -411,11 +411,22 @@ const Search = () => {
           {state.error && <div>error</div>}
           {/* Data state */}
           {state.data && (
-            <Box>
+            <SimpleGrid
+              columns={{base: 1, md: 2, lg: 3}}
+              spacing="4"
+              px="2"
+              py="10"
+              alignItems="center"
+            >
               {state.data.map(company => (
-                <Box>{company.company_name}</Box>
+                <DataCard
+                  company_name={company.company_name}
+                  less_than_2_years={company.less_than_2_years as boolean}
+                  services={company.services.map(service => service.name)}
+                  headquarters_location={company.headquarters_location.label}
+                />
               ))}
-            </Box>
+            </SimpleGrid>
           )}
         </VStack>
       </Container>
