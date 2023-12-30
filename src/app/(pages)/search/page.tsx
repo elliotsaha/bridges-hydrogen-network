@@ -34,6 +34,7 @@ import React from 'react';
 import FilterSelect from '@components/filterSelect';
 import {SelectOption} from '@types';
 import axios from 'axios';
+import {DataCard} from '@components';
 
 interface FormOptionData {
   name: string;
@@ -310,7 +311,7 @@ const Search = () => {
                                       {
                                         label: '10-25',
                                         value: JSON.stringify({
-                                          mix: 10,
+                                          min: 10,
                                           max: 25,
                                         }),
                                       },
