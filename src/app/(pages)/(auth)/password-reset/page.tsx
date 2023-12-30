@@ -19,6 +19,9 @@ import {useForm} from 'react-hook-form';
 import {ZOD_ERR} from '@constants/error-messages';
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {useState} from 'react';
+import {Subheader} from '@components/subheader';
+import axios from 'axios';
 
 const schema = z.object({
   email_address: z.string().email(ZOD_ERR.INVALID_EMAIL),
@@ -27,8 +30,20 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 
 const Page = () => {
-  const onSubmit = async () => {
-    console.log('submitted');
+  const [status, setStatus] = useState('');
+
+  const onSubmit = async ({email_address}: Form) => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/password-reset`,
+        {
+          email_address,
+        }
+      );
+      setStatus(res.data);
+    } catch (e) {
+      setStatus('An unexpected error occured');
+    }
   };
 
   const {
@@ -75,6 +90,7 @@ const Page = () => {
               >
                 Get Reset Link
               </Button>
+              <Subheader>{status}</Subheader>
             </VStack>
           </form>
         </Box>

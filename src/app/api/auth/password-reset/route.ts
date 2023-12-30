@@ -3,7 +3,10 @@ import {NextRequest} from 'next/server';
 import {connectToDatabase} from '@lib/mongoose';
 import {z} from 'zod';
 import {ServerResponse} from '@helpers/serverResponse';
+import ResetPasswordEmail from '@emails/ResetPasswordEmail';
+import {logger, sendMail} from '@lib';
 import {auth} from '@lib/lucia';
+import {generatePasswordResetToken} from '@helpers/generateToken';
 
 type Email = {
   email_address: string;
@@ -28,7 +31,23 @@ export const POST = async (request: NextRequest) => {
     if (!res) {
       return ServerResponse.userError('User does not exist');
     }
-    return ServerResponse.success('Password reset email sent to inbox');
+    try {
+      const token = await generatePasswordResetToken(res._id);
+      const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/password-reset/${token}`;
+
+      await sendMail({
+        to: body.email_address,
+        subject: 'Reset your password',
+        emailComponent: ResetPasswordEmail({
+          first_name: res.first_name,
+          last_name: res.last_name,
+          url: url,
+        }),
+      });
+      return ServerResponse.success('Password reset link sent to inbox');
+    } catch (e) {
+      return ServerResponse.serverError('An unexpected error occurred');
+    }
   } else {
     return ServerResponse.validationError(validation);
   }
