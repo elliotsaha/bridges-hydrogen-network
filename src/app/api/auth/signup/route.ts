@@ -8,7 +8,7 @@ import {ServerResponse} from '@helpers';
 import {ConfirmEmail} from '@emails';
 import {User} from '@models';
 
-const UserCreationSchema = z.object({
+const signupSchema = z.object({
   first_name: z.string({required_error: 'First name is required'}),
   last_name: z.string({required_error: 'Last name is required'}),
   email_address: z
@@ -29,7 +29,7 @@ export const POST = async (request: NextRequest) => {
 
   email_address = email_address.toLowerCase();
 
-  const validation = UserCreationSchema.safeParse({
+  const validation = signupSchema.safeParse({
     first_name,
     last_name,
     email_address,
