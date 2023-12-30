@@ -43,11 +43,14 @@ const Contact = () => {
 
   const onSubmit = async ({name, email_address, message}: Form) => {
     try {
-      const res = await axios.post('/api/contact', {
-        name,
-        email_address,
-        message,
-      });
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/contact`,
+        {
+          name,
+          email_address,
+          message,
+        }
+      );
 
       if (res.data) {
         statusToast({

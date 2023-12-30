@@ -55,7 +55,7 @@ const Signup = () => {
     password,
   }: Form) => {
     try {
-      await axios.post('/api/auth/signup', {
+      await axios.post(`${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/signup`, {
         first_name,
         last_name,
         email_address,

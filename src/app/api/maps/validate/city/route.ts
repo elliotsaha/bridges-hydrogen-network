@@ -22,7 +22,7 @@ export const POST = async (req: Request) => {
 
       const res = await client.placeDetails({
         params: {
-          place_id: encodeURIComponent(place_id),
+          place_id: place_id,
           key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
           fields: ['formatted_address'],
         },

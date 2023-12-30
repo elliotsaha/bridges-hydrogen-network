@@ -82,7 +82,7 @@ const Login = () => {
 
   const onSubmit = async ({email_address, password}: Form) => {
     try {
-      await axios.post('/api/auth/login', {
+      await axios.post(`${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/login`, {
         email_address,
         password,
       });

@@ -23,7 +23,7 @@ export const POST = async (req: Request) => {
 
       const res = await client.placeAutocomplete({
         params: {
-          input: encodeURIComponent(input),
+          input: input,
           key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
           types: PlaceAutocompleteType.cities,
         },

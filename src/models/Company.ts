@@ -1,6 +1,7 @@
 import mongoose, {Schema} from 'mongoose';
 
 export interface Company {
+  _id: string;
   company_name: string;
   headquarters_location: {
     label: string;
@@ -79,6 +80,18 @@ const schema = new Schema<Company>({
       required: true,
     },
   ],
+});
+
+schema.pre('save', function (next) {
+  if (this.years_in_business && this.less_than_2_years) {
+    next(
+      new Error(
+        'Only one of years_in_business or less_than_2_years should be provided'
+      )
+    );
+  } else {
+    next();
+  }
 });
 
 export const Company =

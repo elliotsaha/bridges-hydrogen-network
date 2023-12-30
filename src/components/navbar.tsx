@@ -72,7 +72,7 @@ export const Navbar = () => {
   const logout = async () => {
     setIsLoggingOut(true);
     try {
-      await axios.post('/api/auth/logout');
+      await axios.post(`${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/logout`);
 
       authBroadcast.postMessage('reload-auth');
 

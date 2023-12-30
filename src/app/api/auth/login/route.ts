@@ -6,7 +6,7 @@ import {LuciaError} from 'lucia';
 import {ServerResponse} from '@helpers';
 import {User} from '@models';
 
-const UserLoginSchema = z.object({
+const loginSchema = z.object({
   email_address: z.string({required_error: 'Email address is required'}),
   password: z.string({required_error: 'Password is required'}),
 });
@@ -16,7 +16,7 @@ export const POST = async (request: NextRequest) => {
 
   const {email_address, password} = await request.json();
 
-  const validation = UserLoginSchema.safeParse({
+  const validation = loginSchema.safeParse({
     email_address,
     password,
   });
