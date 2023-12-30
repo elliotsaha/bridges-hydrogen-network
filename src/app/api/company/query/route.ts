@@ -30,6 +30,7 @@ export const POST = async (request: NextRequest) => {
 
     if (body.years_in_business) {
       const yearField: YearsData = JSON.parse(body.years_in_business);
+      console.log(yearField);
       if (yearField.min === 25) {
         yearQuery = {
           $gte: 25,
