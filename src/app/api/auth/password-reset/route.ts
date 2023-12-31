@@ -33,7 +33,7 @@ export const POST = async (request: NextRequest) => {
     }
     try {
       const token = await generatePasswordResetToken(res._id);
-      const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/password-reset/${token}`;
+      const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/password-reset/${token}`;
 
       await sendMail({
         to: body.email_address,

@@ -62,12 +62,10 @@ export const POST = async (
         user.email_address,
         body.new_password
       );
-
-      return ServerResponse.success('success');
+      return ServerResponse.success('Password successfully reset');
     } catch (e) {
-      console.log(e);
-
-      return ServerResponse.serverError();
+      logger.error(e);
+      return ServerResponse.serverError('Server error');
     }
   } else {
     return ServerResponse.validationError(validation);

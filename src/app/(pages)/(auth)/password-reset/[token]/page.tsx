@@ -15,11 +15,14 @@ import {
   Icon,
   SimpleGrid,
   Img,
+  useToast,
 } from '@chakra-ui/react';
 import {FiKey, FiArrowRight} from 'react-icons/fi';
 import {useForm} from 'react-hook-form';
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
+import axios from 'axios';
+import {DEFAULT_SERVER_ERR} from '@constants/error-messages';
 
 const schema = z
   .object({
@@ -35,9 +38,32 @@ const schema = z
 
 type Form = z.infer<typeof schema>;
 
-const Page = () => {
-  const onSubmit = async () => {
-    console.log('submitted');
+const Page = ({params}: {params: {token: string}}) => {
+  const statusToast = useToast();
+  console.log(params.token);
+  const onSubmit = async ({new_password, confirm_password}: Form) => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/password-reset/${params.token}`,
+        {
+          new_password,
+          confirm_password,
+        }
+      );
+      if (res.data) {
+        statusToast({
+          title: res.data.message,
+          status: 'success',
+        });
+      }
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        statusToast({
+          title: e?.response?.data?.message || DEFAULT_SERVER_ERR,
+          status: 'error',
+        });
+      }
+    }
   };
 
   const {
