@@ -1,15 +1,11 @@
 import {User} from '@models';
 import {NextRequest} from 'next/server';
 import {connectToDatabase} from '@lib/mongoose';
-import {z} from 'zod';
+import z from 'zod';
 import {ServerResponse} from '@helpers/serverResponse';
 import ResetPasswordEmail from '@emails/ResetPasswordEmail';
 import {logger, sendMail} from '@lib';
 import {generatePasswordResetToken} from '@helpers/generateToken';
-
-type Email = {
-  email_address: string;
-};
 
 const emailSchema = z.object({
   email_address: z.string().email(),
@@ -18,7 +14,7 @@ const emailSchema = z.object({
 export const POST = async (request: NextRequest) => {
   await connectToDatabase();
 
-  const body: Email = await request.json();
+  const body = await request.json();
 
   const validation = emailSchema.safeParse(body);
 

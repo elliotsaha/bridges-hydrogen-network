@@ -1,12 +1,11 @@
 'use client';
-
+import {useState} from 'react';
 import {
+  Text,
   VStack,
   Heading,
   FormControl,
   FormErrorMessage,
-  InputGroup,
-  InputLeftAddon,
   Input,
   Stack,
   Container,
@@ -17,13 +16,12 @@ import {
   SimpleGrid,
   Img,
 } from '@chakra-ui/react';
-import {FiArrowRight, FiAtSign} from 'react-icons/fi';
+import {FiArrowRight, FiCheck} from 'react-icons/fi';
 import {useForm} from 'react-hook-form';
 import {ZOD_ERR} from '@constants/error-messages';
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {DEFAULT_SERVER_ERR} from '@constants/error-messages';
-import {Subheader} from '@components/subheader';
 import axios from 'axios';
 
 const schema = z.object({
@@ -33,6 +31,7 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 const Page = () => {
   const statusToast = useToast();
+  const [submitted, setSubmitted] = useState(false);
   const onSubmit = async ({email_address}: Form) => {
     try {
       const res = await axios.post(
@@ -46,6 +45,7 @@ const Page = () => {
           title: res.data.message,
           status: 'success',
         });
+        setSubmitted(true);
       }
     } catch (e) {
       if (axios.isAxiosError(e)) {
@@ -96,7 +96,7 @@ const Page = () => {
               mr="20"
               color="white"
             >
-              Protecting your company at all costs.
+              Protecting your company at all costs
             </Heading>
           </Box>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -107,24 +107,23 @@ const Page = () => {
               mx="auto"
             >
               <Heading as="h1" size="2xl">
-                Reset your password
+                Reset password
               </Heading>
+              <Text w={{base: '100%', sm: 'sm'}} color="gray.500">
+                We will send a recovery link to your email address ensuring you
+                get access to your account again soon.
+              </Text>
               <FormControl isInvalid={Boolean(errors.email_address)}>
                 <Stack>
-                  <InputGroup>
-                    <InputLeftAddon h="auto">
-                      <FiAtSign />
-                    </InputLeftAddon>
-                    <Input
-                      id="email_address"
-                      type="email"
-                      placeholder="Email Address"
-                      disabled={isSubmitting}
-                      w={{base: '100%', sm: 'sm'}}
-                      size="lg"
-                      {...register('email_address')}
-                    />
-                  </InputGroup>
+                  <Input
+                    id="email_address"
+                    type="email"
+                    placeholder="Email Address"
+                    disabled={isSubmitting || submitted}
+                    w={{base: '100%', sm: 'sm'}}
+                    size="lg"
+                    {...register('email_address')}
+                  />
                 </Stack>
                 <FormErrorMessage>
                   {errors?.email_address?.message}
@@ -136,12 +135,12 @@ const Page = () => {
                 type="submit"
                 loadingText="Submitting..."
                 size="lg"
-                rightIcon={<Icon as={FiArrowRight} />}
+                rightIcon={<Icon as={submitted ? FiCheck : FiArrowRight} />}
                 isLoading={isSubmitting}
+                isDisabled={submitted}
               >
-                Get Reset Link
+                {submitted ? 'Sent' : 'Submit'}
               </Button>
-              <Subheader>{status}</Subheader>
             </VStack>
           </form>
         </SimpleGrid>

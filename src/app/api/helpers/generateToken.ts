@@ -1,4 +1,4 @@
-import {generateRandomString, isWithinExpiration} from 'lucia/utils';
+import {generateRandomString} from 'lucia/utils';
 import {Token} from '@models';
 import {connectToDatabase} from '@lib/mongoose';
 import {ServerResponse} from './serverResponse';

@@ -1,5 +1,5 @@
 import {connectToDatabase} from '@lib/mongoose';
-import {z} from 'zod';
+import z from 'zod';
 import {logger} from '@lib/winston';
 import type {NextRequest} from 'next/server';
 import {ServerResponse} from '@helpers/serverResponse';
@@ -7,20 +7,11 @@ import {Token} from '@models/Token';
 import {auth} from '@lib/lucia';
 import {isWithinExpiration} from 'lucia/utils';
 
-interface Password {
-  new_password: string;
-  confirm_password: string;
-}
-
-const passwordSchema = z
-  .object({
-    new_password: z.string().min(8),
-    confirm_password: z.string().min(8),
-  })
-  .refine(data => data.new_password === data.confirm_password, {
-    message: 'Passwords are not equal',
-    path: ['confirm_password'],
-  });
+const passwordResetSchema = z.object({
+  new_password: z
+    .string({required_error: 'Password is required'})
+    .min(8, {message: 'Password must be at least 8 characters'}),
+});
 
 export const POST = async (
   request: NextRequest,
@@ -34,9 +25,9 @@ export const POST = async (
 ) => {
   await connectToDatabase();
 
-  const body: Password = await request.json();
+  const body = await request.json();
 
-  const validation = passwordSchema.safeParse(body);
+  const validation = passwordResetSchema.safeParse(body);
   if (validation.success) {
     try {
       const {token} = params;

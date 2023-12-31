@@ -12,12 +12,10 @@ import {
   FormControl,
   FormErrorMessage,
   Stack,
-  InputLeftAddon,
-  InputGroup,
   Icon,
   useToast,
 } from '@chakra-ui/react';
-import {FiAtSign, FiUser, FiSend, FiArrowRight} from 'react-icons/fi';
+import {FiArrowRight} from 'react-icons/fi';
 import {Subheader} from '@components/subheader';
 import {z} from 'zod';
 import {ZOD_ERR, DEFAULT_SERVER_ERR} from '@constants/error-messages';
@@ -119,39 +117,29 @@ const Contact = () => {
             </Subheader>
             <FormControl isInvalid={Boolean(errors.name)}>
               <Stack spacing={4}>
-                <InputGroup>
-                  <InputLeftAddon h="auto">
-                    <Icon as={FiUser} />
-                  </InputLeftAddon>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Your Name"
-                    disabled={isSubmitting}
-                    w={{base: '100%', sm: 'sm'}}
-                    size="lg"
-                    {...register('name')}
-                  />
-                </InputGroup>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Your Name"
+                  disabled={isSubmitting}
+                  w={{base: '100%', sm: 'sm'}}
+                  size="lg"
+                  {...register('name')}
+                />
               </Stack>
               <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={Boolean(errors.email_address)}>
               <Stack spacing={4}>
-                <InputGroup>
-                  <InputLeftAddon h="auto">
-                    <FiAtSign />
-                  </InputLeftAddon>
-                  <Input
-                    id="email_address"
-                    type="email"
-                    placeholder="Email Address"
-                    disabled={isSubmitting}
-                    w={{base: '100%', sm: 'sm'}}
-                    size="lg"
-                    {...register('email_address')}
-                  />
-                </InputGroup>
+                <Input
+                  id="email_address"
+                  type="email"
+                  placeholder="Email Address"
+                  disabled={isSubmitting}
+                  w={{base: '100%', sm: 'sm'}}
+                  size="lg"
+                  {...register('email_address')}
+                />
               </Stack>
               <FormErrorMessage>
                 {errors?.email_address?.message}
@@ -159,20 +147,15 @@ const Contact = () => {
             </FormControl>
             <FormControl isInvalid={Boolean(errors.message)}>
               <Stack spacing={4}>
-                <InputGroup>
-                  <InputLeftAddon h="auto">
-                    <FiSend />
-                  </InputLeftAddon>
-                  <Input
-                    id="message"
-                    type="text"
-                    placeholder="Message"
-                    disabled={isSubmitting}
-                    w={{base: '100%', sm: 'sm'}}
-                    size="lg"
-                    {...register('message')}
-                  />
-                </InputGroup>
+                <Input
+                  id="message"
+                  type="text"
+                  placeholder="Message"
+                  disabled={isSubmitting}
+                  w={{base: '100%', sm: 'sm'}}
+                  size="lg"
+                  {...register('message')}
+                />
               </Stack>
               <FormErrorMessage>{errors?.message?.message}</FormErrorMessage>
             </FormControl>
