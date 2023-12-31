@@ -78,7 +78,7 @@ const Page = () => {
             position="relative"
           >
             <Img
-              src="/static/images/stock/windmill.jpg"
+              src="/static/images/stock/skysolarpanel.jpeg"
               alt="Windmill"
               borderRadius="lg"
               width="100%"
@@ -96,7 +96,7 @@ const Page = () => {
               mr="20"
               color="white"
             >
-              Back to join the fight for clean energy?
+              Protecting your company at all costs.
             </Heading>
           </Box>
           <form onSubmit={handleSubmit(onSubmit)}>

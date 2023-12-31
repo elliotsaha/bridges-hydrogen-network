@@ -13,6 +13,7 @@ import {
   Box,
   FormControl,
   FormErrorMessage,
+  Link,
 } from '@chakra-ui/react';
 import {useForm} from 'react-hook-form';
 import {FiArrowRight} from 'react-icons/fi';
@@ -174,8 +175,8 @@ const Login = () => {
               />
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
+            <Link href="/password-reset">Forgot password?</Link>
             <Button
-              mt="2"
               colorScheme="brand"
               type="submit"
               isLoading={isSubmitting}

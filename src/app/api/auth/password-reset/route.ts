@@ -5,7 +5,6 @@ import {z} from 'zod';
 import {ServerResponse} from '@helpers/serverResponse';
 import ResetPasswordEmail from '@emails/ResetPasswordEmail';
 import {logger, sendMail} from '@lib';
-import {auth} from '@lib/lucia';
 import {generatePasswordResetToken} from '@helpers/generateToken';
 
 type Email = {
@@ -46,6 +45,7 @@ export const POST = async (request: NextRequest) => {
       });
       return ServerResponse.success('Password reset link sent to inbox');
     } catch (e) {
+      logger.error(e);
       return ServerResponse.serverError('An unexpected error occurred');
     }
   } else {

@@ -40,7 +40,6 @@ type Form = z.infer<typeof schema>;
 
 const Page = ({params}: {params: {token: string}}) => {
   const statusToast = useToast();
-  console.log(params.token);
   const onSubmit = async ({new_password, confirm_password}: Form) => {
     try {
       const res = await axios.post(
@@ -87,7 +86,7 @@ const Page = ({params}: {params: {token: string}}) => {
             position="relative"
           >
             <Img
-              src="/static/images/stock/windmill.jpg"
+              src="/static/images/stock/skywindmill.jpeg"
               alt="Windmill"
               borderRadius="lg"
               width="100%"
@@ -105,7 +104,7 @@ const Page = ({params}: {params: {token: string}}) => {
               mr="20"
               color="white"
             >
-              Back to join the fight for clean energy?
+              Keep your company secure.
             </Heading>
           </Box>
           <form onSubmit={handleSubmit(onSubmit)}>
