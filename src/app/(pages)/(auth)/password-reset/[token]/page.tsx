@@ -13,6 +13,8 @@ import {
   Box,
   Button,
   Icon,
+  SimpleGrid,
+  Img,
 } from '@chakra-ui/react';
 import {FiKey, FiArrowRight} from 'react-icons/fi';
 import {useForm} from 'react-hook-form';
@@ -45,11 +47,51 @@ const Page = () => {
   } = useForm<Form>({resolver: zodResolver(schema)});
   return (
     <>
-      <Container maxW="container.xl">
-        <Box w="100%" h="100%" my="48">
+      <Container maxW="container.xl" py={{base: '32', lg: '20'}}>
+        <SimpleGrid
+          columns={{base: 1, lg: 2}}
+          px="4"
+          alignItems="center"
+          spacing="16"
+        >
+          <Box
+            w="100%"
+            h="100%"
+            display={{base: 'none', lg: 'block'}}
+            position="relative"
+          >
+            <Img
+              src="/static/images/stock/windmill.jpg"
+              alt="Windmill"
+              borderRadius="lg"
+              width="100%"
+              h="2xl"
+              objectFit="cover"
+              filter="brightness(70%)"
+            />
+            <Heading
+              as="h3"
+              size="xl"
+              position="absolute"
+              zIndex="2"
+              top="8"
+              left="8"
+              mr="20"
+              color="white"
+            >
+              Back to join the fight for clean energy?
+            </Heading>
+          </Box>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <VStack alignItems="flex-start" spacing="5">
-              <Heading>Set new password</Heading>
+            <VStack
+              alignItems="flex-start"
+              spacing="19"
+              w={{base: '100%', sm: 'max-content'}}
+              mx="auto"
+            >
+              <Heading as="h1" size="2xl">
+                Set new password
+              </Heading>
               <FormControl isInvalid={Boolean(errors.new_password)}>
                 <Stack>
                   <InputGroup>
@@ -105,7 +147,7 @@ const Page = () => {
               </Button>
             </VStack>
           </form>
-        </Box>
+        </SimpleGrid>
       </Container>
     </>
   );
