@@ -13,6 +13,7 @@ import {
   Box,
   FormControl,
   FormErrorMessage,
+  Link,
 } from '@chakra-ui/react';
 import {useForm} from 'react-hook-form';
 import {FiArrowRight} from 'react-icons/fi';
@@ -36,6 +37,16 @@ const Login = () => {
   const params = useSearchParams();
   const redirectURL = params.get('redirect');
   const confirmationStatus = params.get('confirmation-status');
+  const recoveryStatus = params.get('recovery-status');
+
+  useEffect(() => {
+    if (recoveryStatus === 'true') {
+      statusToast({
+        title: 'Password reset successful. Please login',
+        status: 'success',
+      });
+    }
+  }, [recoveryStatus]);
 
   useEffect(() => {
     // only render statusToast if param is actually set in url
@@ -174,8 +185,14 @@ const Login = () => {
               />
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
+            <Link
+              href="/password-reset"
+              color="gray.500"
+              textDecoration="underline"
+            >
+              Forgot password?
+            </Link>
             <Button
-              mt="2"
               colorScheme="brand"
               type="submit"
               isLoading={isSubmitting}
