@@ -449,6 +449,18 @@ const Search = () => {
               ))}
             </SimpleGrid>
           )}
+
+          {/* If no results */}
+          {state?.data?.length === 0 && (
+            <VStack mt="8" justifyContent="center" w="100%">
+              <Heading as="h3" size="md" textAlign="center">
+                No results found
+              </Heading>
+              <Text color="gray.500" textAlign="center">
+                Try broadening your search result
+              </Text>
+            </VStack>
+          )}
         </VStack>
       </Container>
     </>
