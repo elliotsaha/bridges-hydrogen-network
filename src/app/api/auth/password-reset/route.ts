@@ -5,7 +5,7 @@ import z from 'zod';
 import {ServerResponse} from '@helpers/serverResponse';
 import ResetPasswordEmail from '@emails/ResetPasswordEmail';
 import {logger, sendMail} from '@lib';
-import {generatePasswordResetToken} from '@helpers/generateToken';
+import {generateToken} from '@helpers/generateToken';
 
 const emailSchema = z.object({
   email_address: z.string().email(),
@@ -27,7 +27,7 @@ export const POST = async (request: NextRequest) => {
       return ServerResponse.userError('User does not exist');
     }
     try {
-      const token = await generatePasswordResetToken(res._id);
+      const token = await generateToken(res._id);
       const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/password-reset/${token}`;
 
       await sendMail({

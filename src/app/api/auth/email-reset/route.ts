@@ -5,6 +5,7 @@ import z from 'zod';
 import {ServerResponse, getSession} from '@helpers';
 import ResetEmail from '@emails/ResetEmail';
 import {logger, sendMail} from '@lib';
+import {generateToken} from '@helpers/generateToken';
 
 const emailSchema = z.object({
   email_address: z.string().email(),
@@ -35,6 +36,7 @@ export const POST = async (request: NextRequest) => {
       );
     }
     try {
+      const token = generateToken(session.user.userId);
       const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/login`;
 
       await sendMail({
@@ -47,11 +49,12 @@ export const POST = async (request: NextRequest) => {
           old_email: OLD_EMAIL,
         }),
       });
+      console.log(token);
+      return ServerResponse.success('Confirmation link has been sent to inbox');
     } catch (e) {
       logger.error(e);
       return ServerResponse.serverError('An unexpected error occurred');
     }
-    return ServerResponse.success('Confirmation link has been sent to inbox');
   } else {
     return ServerResponse.validationError(validation);
   }

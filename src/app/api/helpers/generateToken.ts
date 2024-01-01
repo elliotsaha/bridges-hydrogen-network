@@ -5,7 +5,7 @@ import {ServerResponse} from './serverResponse';
 
 const EXPIRES_IN = 1000 * 60 * 60; // expiry for token set to 1 hour
 
-export const generatePasswordResetToken = async (userId: string) => {
+export const generateToken = async (userId: string) => {
   await connectToDatabase();
 
   const token = generateRandomString(63);
