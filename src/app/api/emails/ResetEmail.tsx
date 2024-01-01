@@ -18,9 +18,15 @@ interface ResetEmailProps {
   first_name: string;
   last_name: string;
   url: string;
+  old_email: string;
 }
 
-export const ResetEmail = ({first_name, last_name, url}: ResetEmailProps) => {
+export const ResetEmail = ({
+  first_name,
+  last_name,
+  url,
+  old_email,
+}: ResetEmailProps) => {
   return (
     <Html>
       <Head />
@@ -32,16 +38,17 @@ export const ResetEmail = ({first_name, last_name, url}: ResetEmailProps) => {
               Reset your email
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">
-              Hey <b>{first_name}</b>, trying to reset to email? We received a
-              request to reset your account email to this email. To verify this
-              email, click on the button below.
+              Hey <b>{first_name}</b>, trying to reset your email? We received a
+              request to reset your account email from <b>{old_email}</b> to
+              this email. To change your account email to this email, click on
+              the button below.
             </Text>
             <Section className="text-center mt-[32px] mb-[32px]">
               <Button
                 className="bg-[#232F6F] rounded text-white text-[12px] font-semibold no-underline text-center px-6 py-4"
                 href={url}
               >
-                Verify email
+                Reset email
               </Button>
             </Section>
             <Text className="text-black text-[14px] leading-[24px]">

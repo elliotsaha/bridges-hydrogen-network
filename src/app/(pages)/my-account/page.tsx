@@ -12,6 +12,7 @@ import {
   FormErrorMessage,
   Button,
   Icon,
+  useToast,
 } from '@chakra-ui/react';
 import {FiArrowRight, FiCheck} from 'react-icons/fi';
 import axios from 'axios';
@@ -20,6 +21,7 @@ import {useState} from 'react';
 import z from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {ZOD_ERR} from '@constants/error-messages';
+import {DEFAULT_SERVER_ERR} from '@constants/error-messages';
 
 const schema = z.object({
   email_address: z.string().email(ZOD_ERR.INVALID_EMAIL),
@@ -29,9 +31,31 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 
 const MyAccount = () => {
-  const [submitted, setSubmitted] = useState(false);
-  const onSubmit = () => {
-    return;
+  const statusToast = useToast();
+  const onSubmit = async ({email_address, password}: Form) => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/email-reset`,
+        {
+          email_address,
+          password,
+        }
+      );
+
+      if (res.data) {
+        statusToast({
+          title: res.data.message,
+          status: 'success',
+        });
+      }
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        statusToast({
+          title: e?.response?.data?.message || DEFAULT_SERVER_ERR,
+          status: 'error',
+        });
+      }
+    }
   };
 
   const {
@@ -63,7 +87,7 @@ const MyAccount = () => {
                     id="email_address"
                     type="email"
                     placeholder="New Email Address"
-                    disabled={isSubmitting || submitted}
+                    disabled={isSubmitting}
                     w={{base: '100%', sm: 'sm'}}
                     size="lg"
                     {...register('email_address')}
@@ -79,7 +103,7 @@ const MyAccount = () => {
                     id="password"
                     type="password"
                     placeholder="Reconfirm Your Password"
-                    disabled={isSubmitting || submitted}
+                    disabled={isSubmitting}
                     w={{base: '100%', sm: 'sm'}}
                     size="lg"
                     {...register('password')}
@@ -93,11 +117,10 @@ const MyAccount = () => {
                 type="submit"
                 loadingText="Submitting..."
                 size="lg"
-                rightIcon={<Icon as={submitted ? FiCheck : FiArrowRight} />}
+                rightIcon={<Icon as={FiArrowRight} />}
                 isLoading={isSubmitting}
-                isDisabled={submitted}
               >
-                {submitted ? 'Sent' : 'Submit'}
+                Submit
               </Button>
             </VStack>
           </form>
