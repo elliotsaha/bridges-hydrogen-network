@@ -59,8 +59,8 @@ const Register = () => {
             signal: controller.signal,
           }
         )
-        .then(res => {
-          console.log(res.data);
+        .then(() => {
+          window.location.href = '/my-company';
         })
         .catch(e => console.log(e));
     }

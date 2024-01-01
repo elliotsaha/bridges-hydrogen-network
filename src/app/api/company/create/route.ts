@@ -29,7 +29,11 @@ export const POST = async (request: NextRequest) => {
       body
     );
 
-    await Company.create({...res.data, team: [session.user.email_address]});
+    await Company.create({
+      ...res.data,
+      team: [session.user.email_address], // the only team member is the creator when just created
+      partners: [], // company should have no partners when just created
+    });
 
     return ServerResponse.success('Successfully created company');
   } catch (e) {
