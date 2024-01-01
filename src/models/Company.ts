@@ -27,6 +27,7 @@ export interface Company {
   years_in_business?: number;
   less_than_2_years?: boolean;
   team: Array<string>;
+  partners: Array<string>;
 }
 
 mongoose.Promise = global.Promise;
@@ -75,6 +76,12 @@ const schema = new Schema<Company>({
     },
   },
   team: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
+  partners: [
     {
       type: String,
       required: true,
