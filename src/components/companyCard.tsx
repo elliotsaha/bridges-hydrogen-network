@@ -90,7 +90,7 @@ export const CompanyCard = (company: Company) => {
               textOverflow: 'ellipsis',
             }}
           >
-            {pluralize(2, 'Partner(s)')}
+            {pluralize(company.partners.length, 'Partner(s)')}
           </Text>
           {/*TODO: add partners to company creation API*/}
         </HStack>
