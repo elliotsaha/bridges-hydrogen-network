@@ -1,41 +1,36 @@
 import {connectToDatabase} from '@lib/mongoose';
-import z from 'zod';
 import {logger} from '@lib/winston';
-import type {NextRequest} from 'next/server';
 import {ServerResponse} from '@helpers/serverResponse';
-import {Token} from '@models/Token';
 import {auth} from '@lib/lucia';
 import {isWithinExpiration} from 'lucia/utils';
 import {Company} from '@models/Company';
 import {EmailToken} from '@models/EmailToken';
+import {NextRequest, NextResponse} from 'next/server';
+import {createKeyId} from 'lucia';
+import {Key} from '@models';
 
-export const POST = async (
-  request: NextRequest,
-  {
-    params,
-  }: {
-    params: {
-      token: string;
-    };
-  }
-) => {
+export const GET = async (request: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const {token} = params;
+    const token = request.nextUrl.searchParams.get('token');
 
     const storedToken = await EmailToken.findOne({
       _id: token,
     });
 
     if (!storedToken) {
-      return ServerResponse.userError('Invalid token');
+      return NextResponse.redirect(
+        new URL('/login?confirmation-status=false', request.url)
+      );
     }
 
     const tokenExpires = Number(storedToken.expires);
 
     if (!isWithinExpiration(tokenExpires)) {
-      return ServerResponse.userError('Expired token');
+      return NextResponse.redirect(
+        new URL('/login?confirmation-status=false', request.url)
+      );
     }
 
     const userToUpdate = await auth.getUser(storedToken.user_id);
@@ -47,6 +42,19 @@ export const POST = async (
     await auth.updateUserAttributes(userToUpdate.userId, {
       email_address: NEW_EMAIL,
     });
+
+    //    const oldKey = await auth.getKey('email_address', userToUpdate.user_id);
+    const newKeyId = createKeyId('email_address', storedToken.email_address);
+
+    const key = await Key.findOne({
+      user_id: storedToken.user_id,
+    }).lean();
+
+    await Key.deleteOne({user_id: storedToken.user_id});
+
+    const newKey = {...key, _id: newKeyId};
+
+    await Key.create(newKey);
 
     const companyToUpdate = await Company.findOne({
       team: OLD_EMAIL,
@@ -63,11 +71,16 @@ export const POST = async (
     );
 
     if (!res.acknowledged) {
-      return ServerResponse.success('Mongoose error');
+      return ServerResponse.serverError();
     }
-    return ServerResponse.success('Email successfully updated');
+
+    return NextResponse.redirect(
+      new URL('/login?confirmation-status=true&invalidate=true', request.url)
+    );
   } catch (e) {
     logger.error(e);
-    return ServerResponse.serverError('Server error');
+    return NextResponse.redirect(
+      new URL('/login?confirmation-status=false', request.url)
+    );
   }
 };

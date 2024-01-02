@@ -40,7 +40,7 @@ export const POST = async (request: NextRequest) => {
         session.user.userId,
         NEW_EMAIL
       );
-      const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/email-reset/${token}`;
+      const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/email-reset/callback?token=${token}`;
 
       await sendMail({
         to: NEW_EMAIL,
