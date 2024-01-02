@@ -55,7 +55,6 @@ export const POST = async (
       );
       return ServerResponse.success('Password successfully reset');
     } catch (e) {
-      logger.error(e);
       return ServerResponse.serverError('Server error');
     }
   } else {
