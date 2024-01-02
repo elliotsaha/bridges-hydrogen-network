@@ -21,4 +21,4 @@ const schema = new Schema<EmailToken>(
 
 export const EmailToken =
   mongoose.models?.EmailToken ||
-  mongoose.model<EmailToken>('Email Token', schema);
+  mongoose.model<EmailToken>('EmailToken', schema);

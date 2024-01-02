@@ -36,7 +36,10 @@ export const POST = async (request: NextRequest) => {
       );
     }
     try {
-      const token = generateEmailResetToken(session.user.userId, NEW_EMAIL);
+      const token = await generateEmailResetToken(
+        session.user.userId,
+        NEW_EMAIL
+      );
       const url = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/email-reset/${token}`;
 
       await sendMail({
