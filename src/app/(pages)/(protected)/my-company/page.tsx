@@ -31,16 +31,6 @@ const CompanyProfile = () => {
     return <SkeletonProfile />;
   }
 
-  const handleSubmit = async () => {
-    try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/view-form`
-      );
-      console.log(res.data);
-    } catch (e) {
-      console.log(e);
-    }
-  };
   return (
     <SlideFade in={!loading} offsetY="24">
       <Container maxW="container.xl" py={{base: '32', lg: '20'}}>
@@ -77,7 +67,13 @@ const CompanyProfile = () => {
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque.
             Lorem ipsum dolor sit amet.
           </Text>
-          <Button mt="3" colorScheme="brand" size="lg" onClick={handleSubmit}>
+          <Button
+            mt="3"
+            colorScheme="brand"
+            size="lg"
+            as={NextLink}
+            href="/my-company/update"
+          >
             Make Changes
           </Button>
         </VStack>

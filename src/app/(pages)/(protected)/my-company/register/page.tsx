@@ -4,7 +4,7 @@ import {FieldValues, useForm, DefaultValues} from 'react-hook-form';
 import {Container, Stack, Box, Text} from '@chakra-ui/react';
 import {FormRegistration, FormEvent, StepForm} from '@types';
 import z, {ZodType} from 'zod';
-import stages from './form-stages';
+import stages from '../form-stages';
 // stepper components & hooks
 import {
   useSteps,
