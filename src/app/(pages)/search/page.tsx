@@ -14,6 +14,7 @@ import {
   FormControl,
   FormLabel,
   Box,
+  Badge,
   Button,
   Modal,
   ModalOverlay,
@@ -69,6 +70,7 @@ const defaultValues = {
 const Search = () => {
   // rawSearchInput and requestBody must be seperated because
   // the searchbar input must be debounced
+  const [filterCount, setFilterCount] = useState(0);
   const [rawSearchInput, setRawSearchInput] = useState<string>('');
   const [requestBody, setRequestBody] =
     useState<SearchCompanyRequestFilters>(defaultValues);
@@ -178,6 +180,24 @@ const Search = () => {
 
   const closeModal = () => {
     const watched = watch();
+    console.log(watched);
+    let count = 0;
+
+    if (watched.years_in_business) {
+      count++;
+    }
+
+    const filterKeys: Array<keyof Omit<FormOptions, 'years_in_business'>> = [
+      'market_focus',
+      'operating_regions',
+      'services',
+      'technologies',
+      'type_of_business',
+    ];
+
+    filterKeys.map(key => (count += watched[key].length));
+
+    setFilterCount(count);
     onSubmit(watched);
     onClose();
   };
@@ -207,7 +227,6 @@ const Search = () => {
     getCompaniesFromQuery();
   }, [debouncedSearchInput, requestBody]);
 
-  console.log(state);
   return (
     <>
       <Container maxW="container.xl">
@@ -242,13 +261,29 @@ const Search = () => {
               onChange={handleInputChange}
             />
             <InputRightElement>
-              <IconButton
-                aria-label="Filter search"
-                colorScheme="brand"
-                variant="ghost"
-                onClick={onOpen}
-                icon={<Icon as={FiSliders} />}
-              />
+              <Box
+                css={{
+                  position: 'relative',
+                }}
+              >
+                <IconButton
+                  aria-label="Filter search"
+                  colorScheme="brand"
+                  variant="ghost"
+                  onClick={onOpen}
+                  icon={<Icon as={FiSliders} />}
+                />
+                <Badge
+                  position="absolute"
+                  bottom="0"
+                  right="0"
+                  colorScheme="brand"
+                  borderRadius="full"
+                  fontSize="2xs"
+                >
+                  {filterCount}
+                </Badge>
+              </Box>
             </InputRightElement>
           </InputGroup>
           <Modal
@@ -387,7 +422,7 @@ const Search = () => {
                       loadingText="Submitting..."
                       size="md"
                       rightIcon={<Icon as={FiArrowRight} />}
-                      onClick={onClose}
+                      onClick={closeModal}
                     >
                       Filter search
                     </Button>
