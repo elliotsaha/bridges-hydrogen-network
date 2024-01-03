@@ -79,7 +79,7 @@ export const POST = async (request: NextRequest) => {
     } catch (e) {
       console.log(e);
       logger.error(e);
-
+      console.log(e);
       if (e instanceof LuciaError && e.message === 'AUTH_DUPLICATE_KEY_ID') {
         return ServerResponse.userError(
           'A user with this email address already exists'
