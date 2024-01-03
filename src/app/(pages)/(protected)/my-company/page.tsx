@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react';
 import {Subheader} from '@components';
 import NextLink from 'next/link';
-import axios from 'axios';
 
 const CompanyProfile = () => {
   const [loading, setLoading] = useState(true);
