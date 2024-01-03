@@ -14,24 +14,34 @@ export const GET = async (request: NextRequest) => {
 
     const USER_EMAIL = session.user.email_address;
 
-    const res = await Company.findOne({
-      team: USER_EMAIL,
-    });
+    const res: Company | null = await Company.findOne(
+      {
+        team: USER_EMAIL,
+      },
+      {
+        'market_focus._id': 0,
+        'services._id': 0,
+        'technologies._id': 0,
+        'type_of_business._id': 0,
+      }
+    ).lean();
 
-    const stringfiedCompany = {
-      company_name: res.company_name,
-      headquarters_location: res.headquarters_location,
-      less_than_2_years: res.less_than_2_years,
-      market_focus: res.market_focus.map(JSON.stringify),
-      operating_regions: res.operating_regions,
-      partners: res.partners,
-      services: res.services.map(JSON.stringify),
-      team: res.team,
-      technologies: res.technologies.map(JSON.stringify),
-      type_of_business: res.type_of_business.map(JSON.stringify),
-    };
+    if (res) {
+      const formBody = {
+        company_name: res.company_name,
+        headquarters_location: res.headquarters_location,
+        less_than_2_years: res.less_than_2_years,
+        years_in_business: res.years_in_business?.toString(),
+        market_focus: res.market_focus.map(i => JSON.stringify(i)),
+        operating_regions: res.operating_regions,
+        services: res.services.map(i => JSON.stringify(i)),
+        technologies: res.technologies.map(i => JSON.stringify(i)),
+        type_of_business: res.type_of_business.map(i => JSON.stringify(i)),
+      };
 
-    return ServerResponse.success(stringfiedCompany);
+      return ServerResponse.success(formBody);
+    }
+    return ServerResponse.serverError();
   } catch (e) {
     return ServerResponse.serverError();
   }

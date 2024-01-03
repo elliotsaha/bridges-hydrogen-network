@@ -33,6 +33,7 @@ const Register = () => {
         `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/view-form`
       );
       setGlobalFormState(res.data);
+      console.log(res.data);
     } catch (e) {
       console.log(e);
     }
@@ -40,7 +41,7 @@ const Register = () => {
 
   useEffect(() => {
     fetchFormValues();
-  });
+  }, []);
 
   function mergeWithGlobalForm<T extends FieldValues>(values: T) {
     // shallow merge values to global form state
@@ -90,7 +91,9 @@ const Register = () => {
     const formControl = useForm<T>({
       resolver: zodResolver(schema),
       defaultValues: globalFormState as DefaultValues<T>,
+      disabled: Object.keys(globalFormState).length === 0,
     });
+
     const formNavigation = {
       back: () => formControl.handleSubmit(prevFormState)(),
       next: (e: FormEvent) => {
