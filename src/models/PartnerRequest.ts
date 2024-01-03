@@ -17,4 +17,4 @@ const schema = new Schema<PartnerRequest>({
 
 export const PartnerRequest =
   mongoose.models?.PartnerRequest ||
-  mongoose.model<PartnerRequest>('ParnerRequest', schema);
+  mongoose.model<PartnerRequest>('PartnerRequest', schema);
