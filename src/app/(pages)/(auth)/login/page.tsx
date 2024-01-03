@@ -38,6 +38,13 @@ const Login = () => {
   const redirectURL = params.get('redirect');
   const confirmationStatus = params.get('confirmation-status');
   const recoveryStatus = params.get('recovery-status');
+  const invalidate = params.get('invalidate');
+
+  useEffect(() => {
+    if (invalidate === 'true') {
+      authBroadcast.postMessage('reload-auth');
+    }
+  }, [invalidate]);
 
   useEffect(() => {
     if (recoveryStatus === 'true') {
