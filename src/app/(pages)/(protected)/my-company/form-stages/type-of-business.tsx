@@ -17,6 +17,8 @@ import {
 import {ZOD_ERR} from '@constants';
 import {FormRegistration} from '@types';
 import {typesOfBusinesses} from '@forms/company/register';
+import {Controller} from 'react-hook-form';
+import {useEffect} from 'react';
 
 export const typeOfBusinessSchema = z
   .object({

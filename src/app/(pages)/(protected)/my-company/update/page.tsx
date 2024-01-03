@@ -27,6 +27,22 @@ const Register = () => {
   const [globalFormState, setGlobalFormState] = useState({});
   const [completedForm, setCompletedForm] = useState(false);
 
+  const fetchFormValues = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/view-form`
+      );
+      setGlobalFormState(res.data);
+      console.log(res.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchFormValues();
+  }, []);
+
   function mergeWithGlobalForm<T extends FieldValues>(values: T) {
     // shallow merge values to global form state
     setGlobalFormState(prev => Object.assign({}, prev, values));
@@ -52,8 +68,8 @@ const Register = () => {
     const controller = new AbortController();
     if (completedForm) {
       axios
-        .post(
-          `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/create`,
+        .put(
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/update`,
           globalFormState,
           {
             signal: controller.signal,
@@ -75,7 +91,9 @@ const Register = () => {
     const formControl = useForm<T>({
       resolver: zodResolver(schema),
       defaultValues: globalFormState as DefaultValues<T>,
+      disabled: Object.keys(globalFormState).length === 0,
     });
+
     const formNavigation = {
       back: () => formControl.handleSubmit(prevFormState)(),
       next: (e: FormEvent) => {

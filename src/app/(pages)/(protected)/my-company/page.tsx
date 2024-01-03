@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import {Subheader} from '@components';
 import NextLink from 'next/link';
+import axios from 'axios';
 
 const CompanyProfile = () => {
   const [loading, setLoading] = useState(true);
@@ -52,6 +53,28 @@ const CompanyProfile = () => {
             href="/my-company/register"
           >
             Get Started
+          </Button>
+        </VStack>
+
+        <VStack px="4" mt="50" align="center">
+          <Heading as="h1" mx="center" textAlign="center">
+            Update your company
+          </Heading>
+          <Subheader textAlign="center" mb="1">
+            Making any changes?
+          </Subheader>
+          <Text maxW="md" textAlign="center" color="gray.700">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque.
+            Lorem ipsum dolor sit amet.
+          </Text>
+          <Button
+            mt="3"
+            colorScheme="brand"
+            size="lg"
+            as={NextLink}
+            href="/my-company/update"
+          >
+            Make Changes
           </Button>
         </VStack>
       </Container>
