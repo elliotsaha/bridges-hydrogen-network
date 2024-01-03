@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -23,6 +24,8 @@ import {FiMap, FiMapPin, FiPackage, FiTool, FiRadio} from 'react-icons/fi';
 import {useQuery} from '@tanstack/react-query';
 import {Company} from '@models';
 import axios from 'axios';
+import {FormOptionData} from '@types';
+import {IconType} from 'react-icons';
 
 const CompanyDetail = ({params}: {params: {id: string}}) => {
   const fetchCompany = async () => {
@@ -38,7 +41,84 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
     queryFn: fetchCompany,
   });
 
-  const {isOpen, onOpen, onClose} = useDisclosure();
+  interface DataLine {
+    icon: IconType;
+    title: string;
+    arr: Array<FormOptionData>;
+  }
+
+  const GenerateDataLine = ({icon, title, arr}: DataLine) => {
+    const {isOpen, onOpen, onClose} = useDisclosure();
+    const CUTOFF = 2;
+    return (
+      <>
+        <Flex alignItems="flex-start" gap="2" color="gray.500" my="2">
+          <Flex alignItems="center" gap="2" mr="-1">
+            {React.createElement(icon)}
+            <Text fontWeight="bold" color="gray.500" display="inline">
+              {title}:
+            </Text>
+          </Flex>
+          <Box color="gray.500" display="inline-block">
+            {arr.length > CUTOFF ? (
+              <Box>
+                {arr.slice(0, CUTOFF).map(i =>
+                  i.description ? (
+                    <Tooltip label={i.description} borderRadius="lg" p="3">
+                      <Text display="inline" ml="1">{`${i.name},`}</Text>
+                    </Tooltip>
+                  ) : (
+                    <Text ml="1" display="inline">{`${i.name},`}</Text>
+                  )
+                )}
+                <Button
+                  variant="link"
+                  colorScheme="blue"
+                  ml="1"
+                  onClick={onOpen}
+                >
+                  View {arr.length - CUTOFF} more
+                </Button>
+              </Box>
+            ) : (
+              <Box>
+                {arr.map((i, idx) =>
+                  i.description ? (
+                    <Tooltip label={i.description} borderRadius="lg" p="3">
+                      <Text ml="1" display="inline">
+                        {idx === arr.length - 1 ? i.name : `${i.name},`}
+                      </Text>
+                    </Tooltip>
+                  ) : (
+                    <Text ml="1" display="inline">
+                      {idx === arr.length - 1 ? i.name : `${i.name},`}
+                    </Text>
+                  )
+                )}
+              </Box>
+            )}
+          </Box>
+        </Flex>
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>All {title}</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <UnorderedList listStyleType="none" m="0" p="0">
+                {arr.map(i => (
+                  <>
+                    <ListItem my="2">{i.name}</ListItem>
+                    <Divider />
+                  </>
+                ))}
+              </UnorderedList>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </>
+    );
+  };
 
   return (
     <>
@@ -89,69 +169,21 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
               stage to minimize damage on property and loss of life.
             </Text>
             <Divider w="50%" my="4" />
-
-            <Flex alignItems="center" gap="2" color="gray.500" my="2">
-              <FiPackage />
-              <Box display="inline-block">
-                <Text fontWeight="bold" color="gray.500" display="inline">
-                  Services:
-                </Text>
-                <Box color="gray.500" display="inline-block">
-                  {data.services.length > 2 ? (
-                    <Box>
-                      {data.services.slice(0, 2).map(i =>
-                        i.description ? (
-                          <Tooltip
-                            label={i.description}
-                            borderRadius="lg"
-                            p="3"
-                          >
-                            <Text display="inline" ml="1">{`${i.name},`}</Text>
-                          </Tooltip>
-                        ) : (
-                          <Text>{`${i.name},`}</Text>
-                        )
-                      )}
-                      <Button
-                        variant="link"
-                        colorScheme="blue"
-                        ml="1"
-                        onClick={onOpen}
-                      >
-                        View {data.services.length - 2} more
-                      </Button>
-                    </Box>
-                  ) : (
-                    data.services.map(i =>
-                      i.description ? (
-                        <Tooltip label={i.description} borderRadius="lg" p="3">
-                          {i.name},
-                        </Tooltip>
-                      ) : (
-                        <Text>{i.name}, </Text>
-                      )
-                    )
-                  )}
-                </Box>
-              </Box>
-            </Flex>
-            <Modal isOpen={isOpen} onClose={onClose}>
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader>All Services</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  <UnorderedList listStyleType="none" m="0" p="0">
-                    {data.services.map(i => (
-                      <>
-                        <ListItem my="2">{i.name}</ListItem>
-                        <Divider />
-                      </>
-                    ))}
-                  </UnorderedList>
-                </ModalBody>
-              </ModalContent>
-            </Modal>
+            <GenerateDataLine
+              icon={FiPackage}
+              title="Services"
+              arr={data.services}
+            />
+            <GenerateDataLine
+              icon={FiRadio}
+              title="Market Focus"
+              arr={data.market_focus}
+            />
+            <GenerateDataLine
+              icon={FiTool}
+              title="Technologies"
+              arr={data.technologies}
+            />
           </Box>
         )}
       </Container>

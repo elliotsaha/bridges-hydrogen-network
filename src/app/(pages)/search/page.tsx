@@ -36,23 +36,14 @@ import {useEffect, useState, ChangeEvent, useReducer} from 'react';
 import {Select} from 'chakra-react-select';
 import React from 'react';
 import {FilterSelect, CompanyCard} from '@components';
-import {SelectOption, SearchCompanyRequestFilters} from '@types';
+import {
+  SelectOption,
+  SearchCompanyRequestFilters,
+  FormOptions,
+  FormOptionData,
+} from '@types';
 import {Company} from '@models';
 import axios from 'axios';
-
-interface FormOptionData {
-  name: string;
-  description?: string;
-}
-
-interface FormOptions {
-  operating_regions: SelectOption[];
-  market_focus: SelectOption[];
-  services: SelectOption[];
-  technologies: SelectOption[];
-  type_of_business: SelectOption[];
-  years_in_business?: SelectOption;
-}
 
 const mapOptions = (options: SelectOption[]) => {
   const result = options.map((option: SelectOption) => option.value);

@@ -77,6 +77,7 @@ export const POST = async (request: NextRequest) => {
 
       return ServerResponse.success(user);
     } catch (e) {
+      console.log(e);
       logger.error(e);
 
       if (e instanceof LuciaError && e.message === 'AUTH_DUPLICATE_KEY_ID') {
