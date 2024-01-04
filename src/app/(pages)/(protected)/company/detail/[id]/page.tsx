@@ -54,7 +54,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
   };
 
   const {isLoading, isError, data} = useQuery({
-    queryKey: ['company'],
+    queryKey: [`company/${params.id}`],
     queryFn: fetchCompany,
   });
 
@@ -328,7 +328,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
               </Flex>
             </Box>
             <Flex
-              justifyContent="center"
+              justifyContent={{base: 'flex-start', lg: 'center'}}
               w={{base: '100%', lg: '50%'}}
               mb={{base: '0', lg: '44'}}
             >
