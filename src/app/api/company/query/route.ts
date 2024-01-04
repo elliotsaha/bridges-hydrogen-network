@@ -4,6 +4,7 @@ import {ServerResponse} from '@helpers/serverResponse';
 import {Company} from '@models/Company';
 import {PipelineStage} from 'mongoose';
 import {SearchCompanyRequest} from '@types';
+import {logger} from '@lib/winston';
 import z from 'zod';
 
 interface YearsData {
@@ -11,10 +12,11 @@ interface YearsData {
   max?: number;
 }
 
-// Filters that follow the schema of Array<{ name: string, description?: string }>
+// years in business has to be omitted because it doesn't follow
+// the conventional filtering array pattern
 type NameFilterKeys = keyof Omit<
   SearchCompanyRequest,
-  'company_name' | 'years_in_business' | 'operating_regions'
+  'company_name' | 'years_in_business'
 >;
 
 const searchSchema = z.object({
@@ -37,14 +39,29 @@ export const POST = async (request: NextRequest) => {
     try {
       const aggregation: PipelineStage[] = [];
 
+      const filterProjection = {
+        _id: 1,
+        company_name: 1,
+        headquarters_location: 1,
+        market_focus: '$market_focus.name',
+        services: '$services.name',
+        technologies: '$technologies.name',
+        type_of_business: '$type_of_business.name',
+        years_in_business: 1,
+        less_than_2_years: 1,
+        operating_regions: 1,
+        team: 1,
+        partners: 1,
+      };
+
+      aggregation.push({$project: filterProjection});
+
       const arrayAggregator = (key: NameFilterKeys) => {
         if (body[key].length !== 0) {
           aggregation.push({
             $match: {
-              [key]: {
-                $elemMatch: {
-                  name: {$in: body[key]},
-                },
+              $expr: {
+                $setIsSubset: [body[key], `$${key}`],
               },
             },
           });
@@ -96,24 +113,12 @@ export const POST = async (request: NextRequest) => {
           });
         }
       }
-
-      // operating regions need to be done seperately from rest
-      // of array filters because it doesn't have { name, description } schema
-      if (body.operating_regions.length !== 0) {
-        aggregation.push({
-          $match: {
-            operating_regions: {
-              $elemMatch: {$in: body.operating_regions},
-            },
-          },
-        });
-      }
-
       const arrayFilters: NameFilterKeys[] = [
         'market_focus',
         'services',
         'technologies',
         'type_of_business',
+        'operating_regions',
       ];
 
       arrayFilters.map((i: NameFilterKeys) => arrayAggregator(i));
@@ -129,7 +134,7 @@ export const POST = async (request: NextRequest) => {
 
       return ServerResponse.success(res);
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return ServerResponse.serverError();
     }
   } else {
