@@ -15,11 +15,16 @@ import * as React from 'react';
 
 interface PartnerRequestEmailProps {
   company_name: string;
+  id: string;
 }
 
 export const PartnerRequestEmail = ({
   company_name,
+  id,
 }: PartnerRequestEmailProps) => {
+  const ACCEPT_URL = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/accept?id=${id}`;
+  const DENY_URL = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/deny?id=${id}`;
+
   return (
     <Html>
       <Head />
@@ -35,12 +40,18 @@ export const PartnerRequestEmail = ({
               company. Please choose to accept or decline below.
             </Text>
             <Section className="text-center mt-[32px] mb-[32px]">
-              <Button className="bg-[#232F6F] rounded text-white text-[12px] font-semibold no-underline text-center px-6 py-4 col-start-1 row-start-1">
+              <Button
+                className="bg-[#232F6F] rounded text-white text-[12px] font-semibold no-underline text-center px-6 py-4 col-start-1 row-start-1"
+                href={ACCEPT_URL}
+              >
                 Accept Request
               </Button>
             </Section>
             <Section className="text-center mt-[32px] mb-[32px]">
-              <Button className="bg-[#232F6F] rounded text-white text-[12px] font-semibold no-underline text-center px-6 py-4 col-start-1 row-start-1">
+              <Button
+                className="bg-[#232F6F] rounded text-white text-[12px] font-semibold no-underline text-center px-6 py-4 col-start-1 row-start-1"
+                href={DENY_URL}
+              >
                 Decline Request
               </Button>
             </Section>

@@ -3,7 +3,7 @@ import {Company, PartnerRequest} from '@models';
 import {NextRequest} from 'next/server';
 import {ServerResponse} from '@helpers';
 
-export const PUT = async (request: NextRequest) => {
+export const ACCEPT = async (request: NextRequest) => {
   await connectToDatabase();
 
   try {

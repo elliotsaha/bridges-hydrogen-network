@@ -17,13 +17,15 @@ export const POST = async (request: NextRequest) => {
 
   const sendPartnerRequest = async (
     company_name: string,
-    email_address: string
+    email_address: string,
+    id: string
   ) => {
     await sendMail({
       to: email_address,
       subject: `Partnership request from ${company_name}`,
       emailComponent: PartnerRequestEmail({
         company_name,
+        id,
       }),
     });
   };
@@ -45,16 +47,18 @@ export const POST = async (request: NextRequest) => {
       return ServerResponse.userError('Invalid company ID');
     }
 
-    await PartnerRequest.create({
+    const partnerRequest = await PartnerRequest.create({
       from: COMPANY_FROM._id,
       to: COMPANY_TO._id,
       status: 'PENDING',
     });
 
+    const RES_ID = partnerRequest._id;
+
     const COMPANY_TEAM = COMPANY_TO.team;
 
     [...COMPANY_TEAM].forEach((team: string) =>
-      sendPartnerRequest(COMPANY_FROM.company_name, team)
+      sendPartnerRequest(COMPANY_FROM.company_name, team, RES_ID)
     );
 
     return ServerResponse.success('Successfully sent a partnership request');
