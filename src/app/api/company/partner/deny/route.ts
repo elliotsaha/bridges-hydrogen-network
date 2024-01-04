@@ -15,8 +15,11 @@ export const GET = async (request: NextRequest) => {
       return ServerResponse.userError('Invalid ID');
     }
 
-    if (PARTNER_REQUEST.status !== 'PENDING') {
-      return ServerResponse.userError('This request has been closed');
+    switch (PARTNER_REQUEST.status) {
+      case 'ACCEPT':
+        return ServerResponse.userError('Request already accepted');
+      case 'DENY':
+        return ServerResponse.userError('Request already denied');
     }
 
     await PartnerRequest.findByIdAndUpdate(PARTNERSHIP_ID, {
