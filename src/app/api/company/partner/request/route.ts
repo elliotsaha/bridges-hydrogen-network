@@ -1,6 +1,6 @@
 import {NextRequest} from 'next/server';
 import {Company, PartnerRequest} from '@models';
-import {ServerResponse} from '@helpers/serverResponse';
+import {ServerResponse} from '@helpers';
 import PartnerRequestEmail from '@emails/PartnerRequestEmail';
 import {sendMail, logger, connectToDatabase} from '@lib';
 import {getSession} from '@helpers';
@@ -31,7 +31,7 @@ export const POST = async (request: NextRequest) => {
   };
 
   try {
-    const id = request.nextUrl.searchParams.get('id');
+    const {id} = await request.json();
 
     const COMPANY_FROM = await Company.findOne({
       team: USER_EMAIL,

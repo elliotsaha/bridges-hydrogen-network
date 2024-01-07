@@ -4,7 +4,7 @@ export interface PartnerRequest {
   _id: string;
   from: string;
   to: string;
-  status: string;
+  status: 'PENDING' | 'ACCEPT' | 'DENY';
 }
 
 mongoose.Promise = global.Promise;

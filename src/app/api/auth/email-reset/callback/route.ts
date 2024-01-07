@@ -48,7 +48,7 @@ export const GET = async (request: NextRequest) => {
 
     const key = await Key.findOne({
       user_id: storedToken.user_id,
-    }).lean();
+    }).lean<Key>();
 
     await Key.deleteOne({user_id: storedToken.user_id});
 
