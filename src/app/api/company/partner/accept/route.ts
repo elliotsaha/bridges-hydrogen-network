@@ -27,6 +27,10 @@ export const GET = async (request: NextRequest) => {
       $push: {partners: PARTNER_REQUEST.from},
     });
 
+    await Company.findByIdAndUpdate(PARTNER_REQUEST.from, {
+      $push: {partners: PARTNER_REQUEST.to},
+    });
+
     return ServerResponse.success('Successfully accepted request');
   } catch (e) {
     logger.error(e);
