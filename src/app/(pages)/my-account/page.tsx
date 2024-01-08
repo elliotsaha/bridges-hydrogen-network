@@ -1,5 +1,4 @@
 'use client';
-
 import {
   Container,
   Box,
@@ -14,10 +13,9 @@ import {
   Icon,
   useToast,
 } from '@chakra-ui/react';
-import {FiArrowRight, FiCheck} from 'react-icons/fi';
+import {FiArrowRight} from 'react-icons/fi';
 import axios from 'axios';
 import {useForm} from 'react-hook-form';
-import {useState} from 'react';
 import z from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {ZOD_ERR} from '@constants/error-messages';

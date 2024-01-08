@@ -92,7 +92,6 @@ export const CompanyCard = (company: Company) => {
           >
             {pluralize(company.partners.length, 'Partner(s)')}
           </Text>
-          {/*TODO: add partners to company creation API*/}
         </HStack>
         <Badge mt="4" px="2">
           {badgeText(company)}
