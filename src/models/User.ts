@@ -9,6 +9,7 @@ export interface User {
   email_verification_token?: {
     id: string;
   };
+  role: string;
 }
 
 mongoose.Promise = global.Promise;
@@ -24,6 +25,7 @@ const schema = new Schema<User>(
       id: {type: String},
       // TODO: Add token expiration
     },
+    role: {type: String, required: true},
   },
   {_id: false}
 );
