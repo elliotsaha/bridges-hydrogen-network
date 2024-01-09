@@ -55,7 +55,8 @@ import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 import {FormOptionData, ViewPartner, ViewCompany} from '@types';
 import {IconType} from 'react-icons';
-import NextLink, {useSearchParams} from 'next/navigation';
+import {useSearchParams} from 'next/navigation';
+import NextLink from 'next/link';
 
 const CompanyDetail = ({params}: {params: {id: string}}) => {
   const statusToast = useToast();

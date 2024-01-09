@@ -85,7 +85,9 @@ const MyCompany = () => {
     queryFn: fetchCompany,
   });
 
-  const {onCopy, hasCopied} = useClipboard(data?.team?.join(', ') || ' ');
+  const {onCopy, hasCopied} = useClipboard(
+    data?.company?.team?.join(', ') || ' '
+  );
 
   return (
     <>
