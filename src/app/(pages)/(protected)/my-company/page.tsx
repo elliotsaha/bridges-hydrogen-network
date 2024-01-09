@@ -62,16 +62,32 @@ import NextLink from 'next/link';
 const MyCompany = () => {
   const statusToast = useToast();
   const searchParams = useSearchParams();
-  const status = searchParams.get('status');
+  const statusError = searchParams.get('status');
+  const noCompanyError = searchParams.get('no_company');
 
   useEffect(() => {
-    if (status === 'ERR') {
-      statusToast({
-        title: 'An unexpected error has occurred',
-        status: 'error',
-      });
+    if (statusError === 'ERR') {
+      if (!statusToast.isActive('status_error')) {
+        statusToast({
+          id: 'status_error',
+          title: 'An unexpected error has occurred',
+          status: 'error',
+        });
+      }
     }
-  }, [status]);
+  }, [statusError]);
+
+  useEffect(() => {
+    if (noCompanyError === 'true') {
+      if (!statusToast.isActive('no_company')) {
+        statusToast({
+          id: 'no_company',
+          title: 'You must register your company before performing this action',
+          status: 'error',
+        });
+      }
+    }
+  }, [noCompanyError]);
 
   const fetchCompany = async () => {
     const res = await axios.get<ViewCompanyResponse>(
@@ -86,7 +102,7 @@ const MyCompany = () => {
   });
 
   const {onCopy, hasCopied} = useClipboard(
-    data?.company?.team?.join(', ') || ' '
+    data?.company?.team?.map(i => i.email_address).join(', ') || ' '
   );
 
   return (
@@ -295,10 +311,8 @@ const MyCompany = () => {
                           <Tbody>
                             {data.company.team.map(i => (
                               <Tr>
-                                <Td>
-                                  Web Developer {/*REPLACE WITH REAL ROLE*/}
-                                </Td>
-                                <Td>{i}</Td>
+                                <Td>{i.role}</Td>
+                                <Td>{i.email_address}</Td>
                               </Tr>
                             ))}
                           </Tbody>

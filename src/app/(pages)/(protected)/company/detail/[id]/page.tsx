@@ -53,7 +53,12 @@ import {
 } from 'react-icons/fi';
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
-import {FormOptionData, ViewPartner, ViewCompanyResponse} from '@types';
+import {
+  FormOptionData,
+  ViewPartner,
+  ViewCompanyResponse,
+  ViewPartnerResponse,
+} from '@types';
 import {IconType} from 'react-icons';
 import {useSearchParams} from 'next/navigation';
 import NextLink from 'next/link';
@@ -103,10 +108,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
   };
 
   const fetchPartner = async () => {
-    const res = await axios.post<{
-      status: 'ACCEPT' | 'PENDING' | 'NO_REQ';
-      team?: Array<string>; // CHANGE WITH ROLES LATER
-    }>(
+    const res = await axios.post<ViewPartnerResponse>(
       `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/view-request`,
       params
     );
@@ -129,23 +131,24 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
   const {company: companyResponse, partner: partnerResponse} = makeQuery();
 
   const {onCopy, hasCopied} = useClipboard(
-    partnerResponse?.data?.team?.join(', ') || ' '
+    partnerResponse?.data?.team?.map(i => i.email_address).join(', ') || ' '
   );
 
   const [pendingRequest, setPendingRequest] = useState(false);
 
   const sendPartnershipRequest = async () => {
-    // TODO: add loading state to sending post request
-    setPendingRequest(true);
-    try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/request`,
-        params
-      );
-
-      console.log(res);
-    } catch (e) {
-      console.log(e);
+    if (partnerResponse?.data?.status === 'NO_COMPANY') {
+      router.push('/my-company/?no_company=true');
+    } else {
+      setPendingRequest(true);
+      try {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/request`,
+          params
+        );
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 
@@ -153,6 +156,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
     router.push('/my-company');
   }
 
+  console.log(partnerResponse.data);
   return (
     <>
       <Container maxW="container.xl" mb="24">
@@ -354,10 +358,8 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                           <Tbody>
                             {partnerResponse?.data?.team?.map(i => (
                               <Tr>
-                                <Td>
-                                  Web Developer {/*REPLACE WITH REAL ROLE*/}
-                                </Td>
-                                <Td>{i}</Td>
+                                <Td>{i.role}</Td>
+                                <Td>{i.email_address}</Td>
                               </Tr>
                             ))}
                           </Tbody>

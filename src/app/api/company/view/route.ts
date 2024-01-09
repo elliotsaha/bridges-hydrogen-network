@@ -1,7 +1,7 @@
 import {connectToDatabase} from '@lib/mongoose';
 import {NextRequest} from 'next/server';
 import {ServerResponse, getSession} from '@helpers';
-import {Company} from '@models';
+import {Company, User} from '@models';
 
 export const GET = async (request: NextRequest) => {
   await connectToDatabase();
@@ -29,11 +29,20 @@ export const GET = async (request: NextRequest) => {
         }
       );
 
+      const transformedTeam = await User.find(
+        {email_address: {$in: company.team}},
+        {
+          email_address: 1,
+          role: 1,
+        }
+      );
+
       return ServerResponse.success({
         status: 'FOUND',
         company: {
           ...company,
           partners: transformedPartners,
+          team: transformedTeam,
         },
       });
     }
