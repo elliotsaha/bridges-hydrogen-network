@@ -24,10 +24,28 @@ export const POST = async (request: NextRequest) => {
 
   if (validation.success) {
     try {
-      const company = await Company.findById(id);
-      return ServerResponse.success(company);
+      const company = await Company.findById(id).lean<Company>();
+
+      if (company) {
+        const transformedPartners = await Company.find(
+          {
+            _id: {$in: company.partners},
+          },
+          {
+            company_name: 1,
+            operating_regions: 1,
+          }
+        );
+
+        return ServerResponse.success({
+          ...company,
+          partners: transformedPartners,
+        });
+      }
+
+      return ServerResponse.userError('Company not found');
     } catch (e) {
-      return ServerResponse.userError('Could not find company');
+      return ServerResponse.serverError();
     }
   } else {
     return ServerResponse.validationError(validation);
