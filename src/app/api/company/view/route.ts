@@ -1,7 +1,7 @@
 import {connectToDatabase} from '@lib/mongoose';
 import {NextRequest} from 'next/server';
 import {ServerResponse, getSession} from '@helpers';
-import {Company} from '@models/Company';
+import {Company} from '@models';
 
 export const GET = async (request: NextRequest) => {
   await connectToDatabase();
@@ -14,11 +14,31 @@ export const GET = async (request: NextRequest) => {
 
     const USER_EMAIL = session.user.email_address;
 
-    const res = await Company.findOne({
+    const company = await Company.findOne({
       team: USER_EMAIL,
-    });
+    }).lean<Company>();
 
-    return ServerResponse.success(res);
+    if (company) {
+      const transformedPartners = await Company.find(
+        {
+          _id: {$in: company.partners},
+        },
+        {
+          company_name: 1,
+          operating_regions: 1,
+        }
+      );
+
+      return ServerResponse.success({
+        status: 'FOUND',
+        company: {
+          ...company,
+          partners: transformedPartners,
+        },
+      });
+    }
+
+    return ServerResponse.success({status: 'NOT_FOUND', company: null});
   } catch (e) {
     return ServerResponse.serverError();
   }

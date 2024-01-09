@@ -1,6 +1,7 @@
 'use client';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
+  useToast,
   SlideFade,
   Modal,
   ModalOverlay,
@@ -35,6 +36,7 @@ import {
   Th,
   Tbody,
   Td,
+  Link,
   useClipboard,
 } from '@chakra-ui/react';
 import {
@@ -47,18 +49,32 @@ import {
   FiCopy,
   FiCheck,
   FiArrowRight,
+  FiUsers,
 } from 'react-icons/fi';
 import {useQuery} from '@tanstack/react-query';
-import {Company} from '@models';
 import axios from 'axios';
-import {FormOptionData} from '@types';
+import {FormOptionData, ViewPartner, ViewCompanyResponse} from '@types';
 import {IconType} from 'react-icons';
 import {Subheader} from '@components';
+import {useSearchParams} from 'next/navigation';
 import NextLink from 'next/link';
 
 const MyCompany = () => {
+  const statusToast = useToast();
+  const searchParams = useSearchParams();
+  const status = searchParams.get('status');
+
+  useEffect(() => {
+    if (status === 'ERR') {
+      statusToast({
+        title: 'An unexpected error has occurred',
+        status: 'error',
+      });
+    }
+  }, [status]);
+
   const fetchCompany = async () => {
-    const res = await axios.get<Company>(
+    const res = await axios.get<ViewCompanyResponse>(
       `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/view`
     );
     return res.data;
@@ -69,119 +85,9 @@ const MyCompany = () => {
     queryFn: fetchCompany,
   });
 
-  const {onCopy, hasCopied} = useClipboard(data?.team?.join(', ') || ' ');
-
-  interface DataLine {
-    icon: IconType;
-    title: string;
-    arr: Array<FormOptionData>;
-  }
-
-  const GenerateDataLine = ({icon, title, arr}: DataLine) => {
-    const {isOpen, onOpen, onClose} = useDisclosure();
-    const CUTOFF = 2;
-    return (
-      <>
-        <Flex
-          alignItems="flex-start"
-          gap="1"
-          color="gray.500"
-          my="2"
-          flexDirection="column"
-        >
-          <Flex alignItems="center" gap="2" mr="-1">
-            {React.createElement(icon)}
-            <Text fontWeight="bold" color="gray.500" display="inline">
-              {title}:
-            </Text>
-          </Flex>
-          <Box
-            color="gray.500"
-            display={{base: 'flex', sm: 'inline-block'}}
-            flexDirection={{base: 'column', sm: 'row'}}
-          >
-            {arr.length > CUTOFF ? (
-              <Box
-                display={{base: 'flex', sm: 'block'}}
-                flexDirection="column"
-                alignItems="flex-start"
-                gap="2"
-              >
-                {arr.slice(0, CUTOFF).map(i =>
-                  i.description ? (
-                    <Tooltip label={i.description} borderRadius="lg" p="3">
-                      <Text
-                        display={{base: 'block', sm: 'inline'}}
-                      >{`${i.name}, `}</Text>
-                    </Tooltip>
-                  ) : (
-                    <Text
-                      display={{base: 'block', sm: 'inline'}}
-                    >{`${i.name}, `}</Text>
-                  )
-                )}
-                <Button variant="link" colorScheme="blue" onClick={onOpen}>
-                  View {arr.length - CUTOFF} more
-                </Button>
-              </Box>
-            ) : (
-              <Box
-                display={{base: 'flex', sm: 'block'}}
-                flexDirection="column"
-                alignItems="flex-start"
-                gap="2"
-              >
-                {arr.map((i, idx) =>
-                  i.description ? (
-                    <Tooltip label={i.description} borderRadius="lg" p="3">
-                      <Text display={{base: 'block', sm: 'inline'}}>
-                        {idx === arr.length - 1 ? i.name : `${i.name}, `}
-                      </Text>
-                    </Tooltip>
-                  ) : (
-                    <Text display={{base: 'block', sm: 'inline'}}>
-                      {idx === arr.length - 1 ? i.name : `${i.name}, `}
-                    </Text>
-                  )
-                )}
-              </Box>
-            )}
-          </Box>
-        </Flex>
-        <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader display="flex" alignItems="center" gap="2">
-              {React.createElement(icon, {fontSize: '18'})}
-              {title}
-            </ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <UnorderedList listStyleType="none" m="0" p="0">
-                {arr.map((i, idx) => (
-                  <>
-                    {i.description ? (
-                      <Tooltip
-                        label={i.description}
-                        borderRadius="lg"
-                        p="3"
-                        placement="left"
-                      >
-                        <ListItem my="2">{i.name}</ListItem>
-                      </Tooltip>
-                    ) : (
-                      <ListItem my="2">{i.name}</ListItem>
-                    )}
-                    {idx !== arr.length - 1 && <Divider />}
-                  </>
-                ))}
-              </UnorderedList>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      </>
-    );
-  };
+  const {onCopy, hasCopied} = useClipboard(
+    data?.company?.team?.join(', ') || ' '
+  );
 
   return (
     <>
@@ -240,7 +146,7 @@ const MyCompany = () => {
         )}
 
         {/* Data State */}
-        {data && (
+        {data?.status === 'FOUND' && (
           <Container maxW="container.xl" mb="24">
             <Flex
               flexDirection={{base: 'column', lg: 'row'}}
@@ -249,10 +155,10 @@ const MyCompany = () => {
             >
               <Box mt="14" w={{base: '100%', lg: '50%'}}>
                 <Img src="/static/images/brand/cha.png" w="16" mb="2" />
-                <Heading as="h1">{data.company_name}</Heading>
+                <Heading as="h1">{data.company.company_name}</Heading>
                 <Text mt="2" color="brand.400" fontWeight="bold">
                   {/*REMOVE SLICE LATER*/}
-                  {data.type_of_business
+                  {data.company.type_of_business
                     .map(i => i.name)
                     .slice(0, 3)
                     .join(' • ')}
@@ -261,11 +167,13 @@ const MyCompany = () => {
                   mt="3"
                   fontSize="14"
                   whiteSpace="unset"
-                  colorScheme={data.less_than_2_years ? 'gray' : 'brand'}
+                  colorScheme={
+                    data.company.less_than_2_years ? 'gray' : 'brand'
+                  }
                 >
-                  {data.less_than_2_years
+                  {data.company.less_than_2_years
                     ? 'Less than 2 years in business'
-                    : `${data.years_in_business} years in business`}
+                    : `${data.company.years_in_business} years in business`}
                 </Badge>
                 <Divider my="4" />
                 <Flex
@@ -284,7 +192,7 @@ const MyCompany = () => {
                       Headquarters Location:{' '}
                     </Text>
                     <Text color="gray.500" display="inline">
-                      {data.headquarters_location.label}
+                      {data.company.headquarters_location.label}
                     </Text>
                   </Box>
                 </Flex>
@@ -302,9 +210,9 @@ const MyCompany = () => {
                     <Text fontWeight="bold" color="gray.500" display="inline">
                       Operating Regions:
                     </Text>
-                    {data.operating_regions.map((i, idx) => (
+                    {data.company.operating_regions.map((i, idx) => (
                       <Text whiteSpace="nowrap" display="inline">
-                        {idx === data.operating_regions.length - 1
+                        {idx === data.company.operating_regions.length - 1
                           ? i
                           : `${i}, `}
                       </Text>
@@ -326,20 +234,21 @@ const MyCompany = () => {
                 <Divider my="4" />
 
                 <Flex flexDirection="column" gap={{base: '4', sm: '1'}}>
+                  <PartnersDataLine partners={data.company.partners} />
                   <GenerateDataLine
                     icon={FiRadio}
                     title="Market Focus"
-                    arr={data.market_focus}
+                    arr={data.company.market_focus}
                   />
                   <GenerateDataLine
                     icon={FiPackage}
                     title="Services"
-                    arr={data.services}
+                    arr={data.company.services}
                   />
                   <GenerateDataLine
                     icon={FiTool}
                     title="Technologies"
-                    arr={data.technologies}
+                    arr={data.company.technologies}
                   />
                 </Flex>
               </Box>
@@ -384,7 +293,7 @@ const MyCompany = () => {
                             </Tr>
                           </Thead>
                           <Tbody>
-                            {data.team.map(i => (
+                            {data.company.team.map(i => (
                               <Tr>
                                 <Td>
                                   Web Developer {/*REPLACE WITH REAL ROLE*/}
@@ -404,7 +313,7 @@ const MyCompany = () => {
         )}
 
         {/* No company found state */}
-        {data === null && (
+        {data?.status === 'NOT_FOUND' && (
           <Container maxW="container.xl" mb="24">
             <SlideFade in={!isLoading} offsetY="24">
               <VStack px="4" align="center" mt="24">
@@ -432,6 +341,244 @@ const MyCompany = () => {
           </Container>
         )}
       </Container>
+    </>
+  );
+};
+
+interface DataLine {
+  icon: IconType;
+  title: string;
+  arr: Array<FormOptionData>;
+}
+
+const GenerateDataLine = ({icon, title, arr}: DataLine) => {
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const CUTOFF = 2;
+  return (
+    <>
+      <Flex
+        alignItems="flex-start"
+        gap="1"
+        color="gray.500"
+        my="2"
+        flexDirection="column"
+      >
+        <Flex alignItems="center" gap="2" mr="-1">
+          {React.createElement(icon)}
+          <Text fontWeight="bold" color="gray.500" display="inline">
+            {title}:
+          </Text>
+        </Flex>
+        <Box
+          color="gray.500"
+          display={{base: 'flex', sm: 'inline-block'}}
+          flexDirection={{base: 'column', sm: 'row'}}
+        >
+          {arr.length > CUTOFF ? (
+            <Box
+              display={{base: 'flex', sm: 'block'}}
+              flexDirection="column"
+              alignItems="flex-start"
+              gap="2"
+            >
+              {arr.slice(0, CUTOFF).map(i =>
+                i.description ? (
+                  <Tooltip label={i.description} borderRadius="lg" p="3">
+                    <Text
+                      display={{base: 'block', sm: 'inline'}}
+                    >{`${i.name}, `}</Text>
+                  </Tooltip>
+                ) : (
+                  <Text
+                    display={{base: 'block', sm: 'inline'}}
+                  >{`${i.name}, `}</Text>
+                )
+              )}
+              <Button variant="link" colorScheme="blue" onClick={onOpen}>
+                View {arr.length - CUTOFF} more
+              </Button>
+            </Box>
+          ) : (
+            <Box
+              display={{base: 'flex', sm: 'block'}}
+              flexDirection="column"
+              alignItems="flex-start"
+              gap="2"
+            >
+              {arr.map((i, idx) =>
+                i.description ? (
+                  <Tooltip label={i.description} borderRadius="lg" p="3">
+                    <Text display={{base: 'block', sm: 'inline'}}>
+                      {idx === arr.length - 1 ? i.name : `${i.name}, `}
+                    </Text>
+                  </Tooltip>
+                ) : (
+                  <Text display={{base: 'block', sm: 'inline'}}>
+                    {idx === arr.length - 1 ? i.name : `${i.name}, `}
+                  </Text>
+                )
+              )}
+            </Box>
+          )}
+        </Box>
+      </Flex>
+      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader display="flex" alignItems="center" gap="2">
+            {React.createElement(icon, {fontSize: '18'})}
+            {title}
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <UnorderedList listStyleType="none" m="0" p="0">
+              {arr.map((i, idx) => (
+                <>
+                  {i.description ? (
+                    <Tooltip
+                      label={i.description}
+                      borderRadius="lg"
+                      p="3"
+                      placement="left"
+                    >
+                      <ListItem my="2">{i.name}</ListItem>
+                    </Tooltip>
+                  ) : (
+                    <ListItem my="2">{i.name}</ListItem>
+                  )}
+                  {idx !== arr.length - 1 && <Divider />}
+                </>
+              ))}
+            </UnorderedList>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
+const PartnersDataLine = ({partners}: {partners: Array<ViewPartner>}) => {
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const CUTOFF = 2;
+
+  if (partners.length === 0) return <></>;
+
+  return (
+    <>
+      <Flex
+        alignItems="flex-start"
+        gap="1"
+        color="gray.500"
+        my="2"
+        flexDirection="column"
+      >
+        <Flex alignItems="center" gap="2" mr="-1">
+          <FiUsers />
+          <Text fontWeight="bold" color="gray.500" display="inline">
+            Partners:
+          </Text>
+        </Flex>
+        <Box
+          color="gray.500"
+          display={{base: 'flex', sm: 'inline-block'}}
+          flexDirection={{base: 'column', sm: 'row'}}
+        >
+          {partners.length > CUTOFF ? (
+            <Box
+              display={{base: 'flex', sm: 'block'}}
+              flexDirection="column"
+              alignItems="flex-start"
+              gap="2"
+            >
+              {partners.slice(0, CUTOFF).map(i => (
+                <Link
+                  as={NextLink}
+                  href={`/company/detail/${i._id}`}
+                  _hover={{textDecoration: 'none'}}
+                >
+                  <Text
+                    display={{base: 'block', sm: 'inline'}}
+                    textDecoration="none"
+                    color="brand.300"
+                    fontWeight="medium"
+                    _hover={{color: 'brand.600'}}
+                  >
+                    {`${i.company_name}, `}
+                  </Text>
+                </Link>
+              ))}
+              <Button variant="link" colorScheme="blue" onClick={onOpen}>
+                View {partners.length - CUTOFF} more
+              </Button>
+            </Box>
+          ) : (
+            <Box
+              display={{base: 'flex', sm: 'block'}}
+              flexDirection="column"
+              alignItems="flex-start"
+              gap="2"
+            >
+              {partners.map((i, idx) => (
+                <Link
+                  as={NextLink}
+                  href={`/company/detail/${i._id}`}
+                  _hover={{textDecoration: 'none'}}
+                >
+                  <Text
+                    display={{base: 'block', sm: 'inline'}}
+                    textDecoration="none"
+                    color="brand.300"
+                    fontWeight="medium"
+                    _hover={{color: 'brand.600'}}
+                  >
+                    {idx === partners.length - 1
+                      ? i.company_name
+                      : `${i.company_name}, `}
+                  </Text>
+                </Link>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Flex>
+      <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader display="flex" alignItems="center" gap="2">
+            <FiUsers fontSize="18" />
+            Partners
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <UnorderedList listStyleType="none" m="0" p="0">
+              {partners.map((i, idx) => (
+                <>
+                  <ListItem my="2">
+                    <Link
+                      as={NextLink}
+                      href={`/company/detail/${i._id}`}
+                      _hover={{textDecoration: 'none'}}
+                    >
+                      <Text
+                        textDecoration="none"
+                        color="brand.300"
+                        fontWeight="medium"
+                        _hover={{color: 'brand.600'}}
+                      >
+                        {i.company_name}
+                      </Text>
+                      <Text color="gray.500">
+                        {i.operating_regions.length} Operating regions
+                      </Text>
+                    </Link>
+                  </ListItem>
+                  {idx !== partners.length - 1 && <Divider />}
+                </>
+              ))}
+            </UnorderedList>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
