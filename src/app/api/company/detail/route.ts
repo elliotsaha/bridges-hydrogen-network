@@ -1,9 +1,9 @@
 import {connectToDatabase} from '@lib';
-import {NextRequest, NextResponse} from 'next/server';
+import {NextRequest} from 'next/server';
 import {ServerResponse, getSession} from '@helpers';
 import z from 'zod';
 import {ZOD_ERR} from '@constants';
-import {Company} from '@models';
+import {Company, User} from '@models';
 
 const detailSchema = z.object({
   id: z.string().min(1, ZOD_ERR.REQ_FIELD),
@@ -45,10 +45,24 @@ export const POST = async (request: NextRequest) => {
           }
         );
 
+        console.log(company.team);
+        const transformedTeam = await User.find(
+          {email_address: {$in: company.team}},
+          {
+            email_address: 1,
+            role: 1,
+          }
+        );
+
+        console.log(transformedTeam);
+
         return ServerResponse.success({
           status: 'FOUND',
-          ...company,
-          partners: transformedPartners,
+          company: {
+            ...company,
+            partners: transformedPartners,
+            team: transformedTeam,
+          },
         });
       }
 
