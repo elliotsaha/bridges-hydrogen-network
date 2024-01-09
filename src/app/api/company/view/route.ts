@@ -30,12 +30,15 @@ export const GET = async (request: NextRequest) => {
       );
 
       return ServerResponse.success({
-        ...company,
-        partners: transformedPartners,
+        status: 'FOUND',
+        company: {
+          ...company,
+          partners: transformedPartners,
+        },
       });
     }
 
-    return ServerResponse.userError('Company not found');
+    return ServerResponse.success({status: 'NOT_FOUND', company: null});
   } catch (e) {
     return ServerResponse.serverError();
   }

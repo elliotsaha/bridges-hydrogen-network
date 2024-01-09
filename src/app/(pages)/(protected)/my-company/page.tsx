@@ -53,10 +53,11 @@ import {
 } from 'react-icons/fi';
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
-import {FormOptionData, ViewPartner, ViewCompany} from '@types';
+import {FormOptionData, ViewPartner, ViewCompanyResponse} from '@types';
 import {IconType} from 'react-icons';
 import {Subheader} from '@components';
-import NextLink, {useSearchParams} from 'next/navigation';
+import {useSearchParams} from 'next/navigation';
+import NextLink from 'next/link';
 
 const MyCompany = () => {
   const statusToast = useToast();
@@ -73,7 +74,7 @@ const MyCompany = () => {
   }, [status]);
 
   const fetchCompany = async () => {
-    const res = await axios.get<ViewCompany>(
+    const res = await axios.get<ViewCompanyResponse>(
       `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/view`
     );
     return res.data;
@@ -143,7 +144,7 @@ const MyCompany = () => {
         )}
 
         {/* Data State */}
-        {data && (
+        {data?.status === 'FOUND' && (
           <Container maxW="container.xl" mb="24">
             <Flex
               flexDirection={{base: 'column', lg: 'row'}}
@@ -152,10 +153,10 @@ const MyCompany = () => {
             >
               <Box mt="14" w={{base: '100%', lg: '50%'}}>
                 <Img src="/static/images/brand/cha.png" w="16" mb="2" />
-                <Heading as="h1">{data.company_name}</Heading>
+                <Heading as="h1">{data.company.company_name}</Heading>
                 <Text mt="2" color="brand.400" fontWeight="bold">
                   {/*REMOVE SLICE LATER*/}
-                  {data.type_of_business
+                  {data.company.type_of_business
                     .map(i => i.name)
                     .slice(0, 3)
                     .join(' • ')}
@@ -164,11 +165,13 @@ const MyCompany = () => {
                   mt="3"
                   fontSize="14"
                   whiteSpace="unset"
-                  colorScheme={data.less_than_2_years ? 'gray' : 'brand'}
+                  colorScheme={
+                    data.company.less_than_2_years ? 'gray' : 'brand'
+                  }
                 >
-                  {data.less_than_2_years
+                  {data.company.less_than_2_years
                     ? 'Less than 2 years in business'
-                    : `${data.years_in_business} years in business`}
+                    : `${data.company.years_in_business} years in business`}
                 </Badge>
                 <Divider my="4" />
                 <Flex
@@ -187,7 +190,7 @@ const MyCompany = () => {
                       Headquarters Location:{' '}
                     </Text>
                     <Text color="gray.500" display="inline">
-                      {data.headquarters_location.label}
+                      {data.company.headquarters_location.label}
                     </Text>
                   </Box>
                 </Flex>
@@ -205,9 +208,9 @@ const MyCompany = () => {
                     <Text fontWeight="bold" color="gray.500" display="inline">
                       Operating Regions:
                     </Text>
-                    {data.operating_regions.map((i, idx) => (
+                    {data.company.operating_regions.map((i, idx) => (
                       <Text whiteSpace="nowrap" display="inline">
-                        {idx === data.operating_regions.length - 1
+                        {idx === data.company.operating_regions.length - 1
                           ? i
                           : `${i}, `}
                       </Text>
@@ -229,21 +232,21 @@ const MyCompany = () => {
                 <Divider my="4" />
 
                 <Flex flexDirection="column" gap={{base: '4', sm: '1'}}>
-                  <PartnersDataLine partners={data.partners} />
+                  <PartnersDataLine partners={data.company.partners} />
                   <GenerateDataLine
                     icon={FiRadio}
                     title="Market Focus"
-                    arr={data.market_focus}
+                    arr={data.company.market_focus}
                   />
                   <GenerateDataLine
                     icon={FiPackage}
                     title="Services"
-                    arr={data.services}
+                    arr={data.company.services}
                   />
                   <GenerateDataLine
                     icon={FiTool}
                     title="Technologies"
-                    arr={data.technologies}
+                    arr={data.company.technologies}
                   />
                 </Flex>
               </Box>
@@ -288,7 +291,7 @@ const MyCompany = () => {
                             </Tr>
                           </Thead>
                           <Tbody>
-                            {data.team.map(i => (
+                            {data.company.team.map(i => (
                               <Tr>
                                 <Td>
                                   Web Developer {/*REPLACE WITH REAL ROLE*/}
@@ -308,7 +311,7 @@ const MyCompany = () => {
         )}
 
         {/* No company found state */}
-        {data === null && (
+        {data?.status === 'NOT_FOUND' && (
           <Container maxW="container.xl" mb="24">
             <SlideFade in={!isLoading} offsetY="24">
               <VStack px="4" align="center" mt="24">

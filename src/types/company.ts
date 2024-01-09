@@ -24,3 +24,13 @@ export type ViewPartner = Pick<
 export interface ViewCompany extends Omit<Company, 'partners'> {
   partners: Array<ViewPartner>;
 }
+
+export type ViewCompanyResponse =
+  | {
+      status: 'FOUND';
+      company: ViewCompany;
+    }
+  | {
+      status: 'NOT_FOUND';
+      company: null;
+    };
