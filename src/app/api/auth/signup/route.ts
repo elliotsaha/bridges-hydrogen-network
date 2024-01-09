@@ -17,6 +17,7 @@ const signupSchema = z.object({
   password: z
     .string({required_error: 'Password is required'})
     .min(8, {message: 'Password must be at least 8 characters'}),
+  role: z.string({required_error: 'Role is required'}),
 });
 
 export const POST = async (request: NextRequest) => {
@@ -24,7 +25,7 @@ export const POST = async (request: NextRequest) => {
 
   const body = await request.json();
 
-  const {first_name, last_name, password} = structuredClone(body);
+  const {first_name, last_name, password, role} = structuredClone(body);
   let {email_address} = structuredClone(body);
 
   email_address = email_address.toLowerCase();
@@ -34,6 +35,7 @@ export const POST = async (request: NextRequest) => {
     last_name,
     email_address,
     password,
+    role,
   });
 
   if (validation.success) {
@@ -49,6 +51,7 @@ export const POST = async (request: NextRequest) => {
           last_name,
           email_address,
           email_verified: false,
+          role,
         },
       });
 

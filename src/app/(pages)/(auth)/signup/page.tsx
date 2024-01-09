@@ -31,6 +31,9 @@ const schema = z
       .min(8, {message: 'Password must be at least 8 characters'})
       .max(256, {message: 'Password must be less than 256 characters'}),
     confirm_password: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    role: z.string().min(1, ZOD_ERR.INVALID_EMAIL).max(20, {
+      message: 'Your input should be less than 20 characters',
+    }),
   })
   .refine(data => data.password === data.confirm_password, {
     message: 'Does not match password field',
@@ -53,6 +56,7 @@ const Signup = () => {
     last_name,
     email_address,
     password,
+    role,
   }: Form) => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_HOSTNAME}/api/auth/signup`, {
@@ -60,6 +64,7 @@ const Signup = () => {
         last_name,
         email_address,
         password,
+        role,
       });
 
       window.location.href = '/signup/verify-email';
@@ -150,6 +155,17 @@ const Signup = () => {
                 </FormErrorMessage>
               </FormControl>
             </SimpleGrid>
+            <FormControl isInvalid={Boolean(errors.role)}>
+              <Input
+                id="role"
+                placeholder="Role in company (e.g. Web Developer)"
+                disabled={isSubmitting}
+                w={{base: '100%', sm: 'sm'}}
+                size="lg"
+                {...register('role')}
+              />
+              <FormErrorMessage>{errors?.role?.message}</FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={Boolean(errors.email_address)}>
               <Input
                 id="email_address"
