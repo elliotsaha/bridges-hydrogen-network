@@ -1,5 +1,5 @@
 import {connectToDatabase} from '@lib';
-import {NextRequest} from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import {ServerResponse, getSession} from '@helpers';
 import z from 'zod';
 import {ZOD_ERR} from '@constants';
@@ -26,6 +26,14 @@ export const POST = async (request: NextRequest) => {
     try {
       const company = await Company.findById(id).lean<Company>();
 
+      const userCompany = await Company.findOne<Company>({
+        team: {$in: session.user.email_address},
+      }).lean<Company>();
+
+      if (userCompany?._id.toString() === company?._id.toString()) {
+        return ServerResponse.success({status: 'REDIRECT', company: null});
+      }
+
       if (company) {
         const transformedPartners = await Company.find(
           {
@@ -38,6 +46,7 @@ export const POST = async (request: NextRequest) => {
         );
 
         return ServerResponse.success({
+          status: 'FOUND',
           ...company,
           partners: transformedPartners,
         });
