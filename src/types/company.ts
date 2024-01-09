@@ -31,6 +31,6 @@ export type ViewCompanyResponse =
       company: ViewCompany;
     }
   | {
-      status: 'NOT_FOUND';
+      status: 'NOT_FOUND' | 'REDIRECT';
       company: null;
     };

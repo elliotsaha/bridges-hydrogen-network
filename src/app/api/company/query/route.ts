@@ -1,6 +1,6 @@
 import {NextRequest} from 'next/server';
 import {connectToDatabase} from '@lib/mongoose';
-import {ServerResponse} from '@helpers/serverResponse';
+import {getSession, ServerResponse} from '@helpers';
 import {Company} from '@models/Company';
 import {PipelineStage} from 'mongoose';
 import {SearchCompanyRequest} from '@types';
@@ -122,6 +122,24 @@ export const POST = async (request: NextRequest) => {
       ];
 
       arrayFilters.map((i: NameFilterKeys) => arrayAggregator(i));
+
+      const {session} = await getSession(request);
+
+      if (session) {
+        const existingCompany = await Company.findOne<Company>({
+          team: {$in: session.user.email_address},
+        }).lean<Company>();
+
+        if (existingCompany) {
+          aggregation.push({
+            $match: {
+              _id: {
+                $ne: existingCompany._id,
+              },
+            },
+          });
+        }
+      }
 
       let res;
 
