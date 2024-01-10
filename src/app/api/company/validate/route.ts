@@ -37,6 +37,8 @@ const validatePreprocess = (src: FormOptionData[], errmsg: string) =>
 const CompanySchema = z
   .object({
     company_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    profile: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    description: z.string().min(1, ZOD_ERR.REQ_FIELD),
     headquarters_location: z.object({
       label: z.string(),
       value: z.string(),
@@ -96,6 +98,8 @@ export const POST = async (request: NextRequest) => {
     try {
       const {
         company_name,
+        profile,
+        description,
         headquarters_location,
         less_than_2_years,
         market_focus,
@@ -122,6 +126,8 @@ export const POST = async (request: NextRequest) => {
 
       return ServerResponse.success({
         company_name,
+        profile,
+        description,
         headquarters_location: {
           label: res.data.formatted_address,
           value: headquarters_location.value,

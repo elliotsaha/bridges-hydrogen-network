@@ -12,7 +12,6 @@ import {
   Text,
   FormLabel,
   Textarea,
-  Input,
   FormErrorMessage,
   Icon,
 } from '@chakra-ui/react';
@@ -50,26 +49,35 @@ export const BrandDetails = ({
     <form onSubmit={formNavigation.next}>
       <Box w="100%">
         <VStack align="flex-start" minH="lg">
-          <Heading as="h1">What's your company's brand?</Heading>
-          <Text color="gray.500">
-            Please upload an image and provide a description below
-          </Text>
-          <Box
-            {...getRootProps()}
-            w="100"
-            border="1px"
-            borderColor="gray.200"
-            p={20}
-            borderRadius="10"
+          <FormControl
+            isInvalid={Boolean(formControl.formState.errors.profile)}
           >
-            <input {...getInputProps()} />
-            <VStack>
-              <Icon as={FiCamera} color="gray.500" w={20} />
-              <Text color="gray.500">
-                Drag 'n' drop some files here, or click to select files
-              </Text>
-            </VStack>
-          </Box>
+            <Heading as="h1">What's your company's brand?</Heading>
+            <Text color="gray.500" mt="5">
+              Please upload an image and provide a description below
+            </Text>
+            <Box
+              {...getRootProps()}
+              w="100"
+              border="1px"
+              borderColor={
+                formControl.formState.errors.profile ? 'red.500' : 'gray.200'
+              }
+              p={20}
+              borderRadius="10"
+            >
+              <input {...getInputProps()} />
+              <VStack>
+                <Icon as={FiCamera} color="gray.500" w={20} />
+                <Text color="gray.500">
+                  Drag 'n' drop some files here, or click to select files
+                </Text>
+              </VStack>
+            </Box>
+            <FormErrorMessage>
+              {formControl.formState.errors?.profile?.message}
+            </FormErrorMessage>
+          </FormControl>
           <FormControl
             isInvalid={Boolean(formControl.formState.errors.description)}
           >
