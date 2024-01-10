@@ -48,10 +48,13 @@ const Login = () => {
 
   useEffect(() => {
     if (recoveryStatus === 'true') {
-      statusToast({
-        title: 'Password reset successful. Please login',
-        status: 'success',
-      });
+      if (!statusToast.isActive('recovery_status')) {
+        statusToast({
+          id: 'recovery_status',
+          title: 'Password reset successful. Please login',
+          status: 'success',
+        });
+      }
     }
   }, [recoveryStatus]);
 
@@ -59,26 +62,35 @@ const Login = () => {
     // only render statusToast if param is actually set in url
     if (confirmationStatus) {
       if (confirmationStatus === 'true') {
-        statusToast({
-          title: 'Email address successfully confirmed',
-          status: 'success',
-        });
+        if (!statusToast.isActive('email_confirmed')) {
+          statusToast({
+            id: 'email_confirmed',
+            title: 'Email address successfully confirmed',
+            status: 'success',
+          });
+        }
       } else {
-        statusToast({
-          title: 'Invalid email address confirmation token',
-          status: 'error',
-        });
+        if (!statusToast.isActive('email_invalid_token')) {
+          statusToast({
+            id: 'email_invalid_token',
+            title: 'Invalid email address confirmation token',
+            status: 'error',
+          });
+        }
       }
     }
   }, [confirmationStatus, statusToast]);
 
   useEffect(() => {
     if (redirectURL) {
-      statusToast({
-        title: 'Sign in first',
-        description: 'Please sign in before proceeding',
-        status: 'info',
-      });
+      if (!statusToast.isActive('auth_error')) {
+        statusToast({
+          id: 'auth_error',
+          title: 'Sign in first',
+          description: 'Please sign in before proceeding',
+          status: 'info',
+        });
+      }
     }
   }, [redirectURL, statusToast]);
 

@@ -22,38 +22,36 @@ export const POST = async (request: NextRequest) => {
       team: USER_EMAIL,
     });
 
-    if (!COMPANY_FROM) {
-      return ServerResponse.userError('You are not registered in a company');
-    }
-
-    // if accepted
-    if (COMPANY_FROM.partners.includes(id)) {
-      const COMPANY_TO = await Company.findOne<Company>({
-        _id: id,
-      });
-
-      if (COMPANY_TO) {
-        return ServerResponse.success({
-          status: 'ACCEPT',
-          team: COMPANY_TO.team,
+    if (COMPANY_FROM) {
+      // if accepted
+      if (COMPANY_FROM.partners.includes(id)) {
+        const COMPANY_TO = await Company.findOne<Company>({
+          _id: id,
         });
+
+        if (COMPANY_TO) {
+          return ServerResponse.success({
+            status: 'ACCEPT',
+            team: COMPANY_TO.team,
+          });
+        }
+
+        return ServerResponse.serverError('Company not found');
       }
 
-      return ServerResponse.serverError('Company not found');
+      // if pending
+      const validPartnerRequest = await PartnerRequest.findOne({
+        from: COMPANY_FROM._id,
+        to: id,
+        status: 'PENDING',
+      }).lean<PartnerRequest>();
+
+      if (validPartnerRequest) {
+        return ServerResponse.success({status: 'PENDING', team: null});
+      }
     }
 
-    // if pending
-    const validPartnerRequest = await PartnerRequest.findOne({
-      from: COMPANY_FROM._id,
-      to: id,
-      status: 'PENDING',
-    }).lean<PartnerRequest>();
-
-    if (validPartnerRequest) {
-      return ServerResponse.success({status: 'PENDING'});
-    }
-
-    return ServerResponse.success({status: 'NO_REQ'});
+    return ServerResponse.success({status: 'NO_COMPANY', team: null});
   } catch (e) {
     logger.error(e);
     return ServerResponse.serverError();

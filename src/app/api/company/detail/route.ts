@@ -3,7 +3,7 @@ import {NextRequest} from 'next/server';
 import {ServerResponse, getSession} from '@helpers';
 import z from 'zod';
 import {ZOD_ERR} from '@constants';
-import {Company} from '@models';
+import {Company, User} from '@models';
 
 const detailSchema = z.object({
   id: z.string().min(1, ZOD_ERR.REQ_FIELD),
@@ -26,6 +26,14 @@ export const POST = async (request: NextRequest) => {
     try {
       const company = await Company.findById(id).lean<Company>();
 
+      const userCompany = await Company.findOne<Company>({
+        team: {$in: session.user.email_address},
+      }).lean<Company>();
+
+      if (userCompany?._id.toString() === company?._id.toString()) {
+        return ServerResponse.success({status: 'REDIRECT', company: null});
+      }
+
       if (company) {
         const transformedPartners = await Company.find(
           {
@@ -37,9 +45,24 @@ export const POST = async (request: NextRequest) => {
           }
         );
 
+        console.log(company.team);
+        const transformedTeam = await User.find(
+          {email_address: {$in: company.team}},
+          {
+            email_address: 1,
+            role: 1,
+          }
+        );
+
+        console.log(transformedTeam);
+
         return ServerResponse.success({
-          ...company,
-          partners: transformedPartners,
+          status: 'FOUND',
+          company: {
+            ...company,
+            partners: transformedPartners,
+            team: transformedTeam,
+          },
         });
       }
 

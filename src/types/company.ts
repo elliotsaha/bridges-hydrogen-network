@@ -1,4 +1,4 @@
-import {Company} from '@models';
+import {Company, User} from '@models';
 
 export interface SearchCompanyRequest extends SearchCompanyRequestFilters {
   company_name: string;
@@ -21,8 +21,11 @@ export type ViewPartner = Pick<
   '_id' | 'company_name' | 'operating_regions'
 >;
 
-export interface ViewCompany extends Omit<Company, 'partners'> {
+export type ViewTeamMember = Pick<User, '_id' | 'email_address' | 'role'>;
+
+export interface ViewCompany extends Omit<Company, 'partners' | 'team'> {
   partners: Array<ViewPartner>;
+  team: Array<ViewTeamMember>;
 }
 
 export type ViewCompanyResponse =
@@ -31,6 +34,16 @@ export type ViewCompanyResponse =
       company: ViewCompany;
     }
   | {
-      status: 'NOT_FOUND';
+      status: 'NOT_FOUND' | 'REDIRECT';
       company: null;
+    };
+
+export type ViewPartnerResponse =
+  | {
+      status: 'ACCEPT';
+      team: Array<ViewTeamMember>;
+    }
+  | {
+      status: 'PENDING' | 'DENY' | 'NO_COMPANY';
+      team: null;
     };

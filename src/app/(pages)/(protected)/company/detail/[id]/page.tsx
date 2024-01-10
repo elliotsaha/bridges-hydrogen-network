@@ -53,12 +53,19 @@ import {
 } from 'react-icons/fi';
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
-import {FormOptionData, ViewPartner, ViewCompany} from '@types';
+import {
+  FormOptionData,
+  ViewPartner,
+  ViewCompanyResponse,
+  ViewPartnerResponse,
+} from '@types';
 import {IconType} from 'react-icons';
 import {useSearchParams} from 'next/navigation';
 import NextLink from 'next/link';
+import {useRouter} from 'next/navigation';
 
 const CompanyDetail = ({params}: {params: {id: string}}) => {
+  const router = useRouter();
   const statusToast = useToast();
   const searchParams = useSearchParams();
   const status = searchParams.get('status');
@@ -93,7 +100,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
   }, [status]);
 
   const fetchCompany = async () => {
-    const res = await axios.post<ViewCompany>(
+    const res = await axios.post<ViewCompanyResponse>(
       `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/detail`,
       params
     );
@@ -101,10 +108,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
   };
 
   const fetchPartner = async () => {
-    const res = await axios.post<{
-      status: 'ACCEPT' | 'PENDING' | 'NO_REQ';
-      team?: Array<string>; // CHANGE WITH ROLES LATER
-    }>(
+    const res = await axios.post<ViewPartnerResponse>(
       `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/view-request`,
       params
     );
@@ -124,34 +128,40 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
     return {company, partner};
   };
 
-  const {company, partner} = makeQuery();
+  const {company: companyResponse, partner: partnerResponse} = makeQuery();
 
   const {onCopy, hasCopied} = useClipboard(
-    partner?.data?.team?.join(', ') || ' '
+    partnerResponse?.data?.team?.map(i => i.email_address).join(', ') || ' '
   );
 
   const [pendingRequest, setPendingRequest] = useState(false);
 
   const sendPartnershipRequest = async () => {
-    // TODO: add loading state to sending post request
-    setPendingRequest(true);
-    try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/request`,
-        params
-      );
-
-      console.log(res);
-    } catch (e) {
-      console.log(e);
+    if (partnerResponse?.data?.status === 'NO_COMPANY') {
+      router.push('/my-company/?no_company=true');
+    } else {
+      setPendingRequest(true);
+      try {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/partner/request`,
+          params
+        );
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 
+  if (companyResponse?.data?.status === 'REDIRECT') {
+    router.push('/my-company');
+  }
+
+  console.log(partnerResponse.data);
   return (
     <>
       <Container maxW="container.xl" mb="24">
         {/* Loading State */}
-        {company.isLoading && (
+        {companyResponse.isLoading && (
           <Container maxW="container.xl">
             <Box mt="14">
               <VStack
@@ -192,7 +202,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
         )}
 
         {/* Error state */}
-        {company.isError && (
+        {companyResponse.isError && (
           <Container maxW="container.xl" mb="24">
             <VStack mt="8" justifyContent="center" w="100%">
               <Icon as={FiAlertCircle} fontSize="32" color="red.400" />
@@ -204,7 +214,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
         )}
 
         {/* Data State */}
-        {company.data && (
+        {companyResponse.data?.status === 'FOUND' && (
           <Flex
             flexDirection={{base: 'column', lg: 'row'}}
             alignItems="center"
@@ -212,10 +222,12 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
           >
             <Box mt="14" w={{base: '100%', lg: '50%'}}>
               <Img src="/static/images/brand/cha.png" w="16" mb="2" />
-              <Heading as="h1">{company.data.company_name}</Heading>
+              <Heading as="h1">
+                {companyResponse.data.company.company_name}
+              </Heading>
               <Text mt="2" color="brand.400" fontWeight="bold">
                 {/*REMOVE SLICE LATER*/}
-                {company.data.type_of_business
+                {companyResponse.data.company.type_of_business
                   .map(i => i.name)
                   .slice(0, 3)
                   .join(' • ')}
@@ -224,11 +236,15 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                 mt="3"
                 fontSize="14"
                 whiteSpace="unset"
-                colorScheme={company.data.less_than_2_years ? 'gray' : 'brand'}
+                colorScheme={
+                  companyResponse.data.company.less_than_2_years
+                    ? 'gray'
+                    : 'brand'
+                }
               >
-                {company.data.less_than_2_years
+                {companyResponse.data.company.less_than_2_years
                   ? 'Less than 2 years in business'
-                  : `${company.data.years_in_business} years in business`}
+                  : `${companyResponse.data.company.years_in_business} years in business`}
               </Badge>
               <Divider my="4" />
               <Flex
@@ -247,7 +263,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                     Headquarters Location:{' '}
                   </Text>
                   <Text color="gray.500" display="inline">
-                    {company.data.headquarters_location.label}
+                    {companyResponse.data.company.headquarters_location.label}
                   </Text>
                 </Box>
               </Flex>
@@ -265,13 +281,13 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                   <Text fontWeight="bold" color="gray.500" display="inline">
                     Operating Regions:
                   </Text>
-                  {company.data.operating_regions.map((i, idx) => (
-                    <Text whiteSpace="nowrap" display="inline">
-                      {idx === company.data.operating_regions.length - 1
-                        ? i
-                        : `${i}, `}
-                    </Text>
-                  ))}
+                  {companyResponse.data.company.operating_regions.map(
+                    (i, idx, arr) => (
+                      <Text whiteSpace="nowrap" display="inline">
+                        {idx === arr.length - 1 ? i : `${i}, `}
+                      </Text>
+                    )
+                  )}
                 </Flex>
               </Box>
               <Divider my="4" />
@@ -289,31 +305,33 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
               <Divider my="4" />
 
               <Flex flexDirection="column" gap={{base: '4', sm: '1'}}>
-                <PartnersDataLine partners={company.data.partners} />
+                <PartnersDataLine
+                  partners={companyResponse.data.company.partners}
+                />
                 <GenerateDataLine
                   icon={FiRadio}
                   title="Market Focus"
-                  arr={company.data.market_focus}
+                  arr={companyResponse.data.company.market_focus}
                 />
                 <GenerateDataLine
                   icon={FiPackage}
                   title="Services"
-                  arr={company.data.services}
+                  arr={companyResponse.data.company.services}
                 />
                 <GenerateDataLine
                   icon={FiTool}
                   title="Technologies"
-                  arr={company.data.technologies}
+                  arr={companyResponse.data.company.technologies}
                 />
               </Flex>
             </Box>
-            {partner.data && (
+            {partnerResponse.data && (
               <Flex
                 justifyContent={{base: 'flex-start', lg: 'center'}}
                 w={{base: '100%', lg: '50%'}}
                 mb={{base: '0', lg: '44'}}
               >
-                {partner.data.status === 'ACCEPT' ? (
+                {partnerResponse.data.status === 'ACCEPT' ? (
                   <Card variant="outline" p="3" maxW="lg">
                     <CardBody>
                       <Heading size="md" mb="2">
@@ -338,12 +356,10 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                             </Tr>
                           </Thead>
                           <Tbody>
-                            {partner?.data?.team?.map(i => (
+                            {partnerResponse?.data?.team?.map(i => (
                               <Tr>
-                                <Td>
-                                  Web Developer {/*REPLACE WITH REAL ROLE*/}
-                                </Td>
-                                <Td>{i}</Td>
+                                <Td>{i.role}</Td>
+                                <Td>{i.email_address}</Td>
                               </Tr>
                             ))}
                           </Tbody>
@@ -370,11 +386,13 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                         size={{base: 'sm', md: 'md'}}
                         leftIcon={<Icon as={FiPlusCircle} />}
                         isDisabled={
-                          partner.data.status === 'PENDING' || pendingRequest
+                          partnerResponse.data.status === 'PENDING' ||
+                          pendingRequest
                         }
                         onClick={sendPartnershipRequest}
                       >
-                        {partner.data.status === 'PENDING' || pendingRequest
+                        {partnerResponse.data.status === 'PENDING' ||
+                        pendingRequest
                           ? 'Pending Request'
                           : 'Add Partner'}
                       </Button>

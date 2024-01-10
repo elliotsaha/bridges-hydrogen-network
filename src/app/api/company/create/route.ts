@@ -16,9 +16,9 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const existingCompanies = await Company.find({
+    const existingCompanies = await Company.find<Company>({
       team: {$in: session.user.email_address},
-    }).exec();
+    }).lean();
 
     if (existingCompanies.length !== 0) {
       return ServerResponse.userError('You have already registered a company');
