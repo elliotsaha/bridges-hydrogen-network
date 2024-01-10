@@ -166,7 +166,7 @@ const Register = () => {
 const steps = [
   {
     title: 'Brand Details',
-    description: 'Details about your company',
+    description: 'Branding your company',
   },
   {
     title: 'Basic Information',

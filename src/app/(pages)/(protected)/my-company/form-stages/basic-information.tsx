@@ -286,7 +286,7 @@ export const BasicInformation = ({
         justifyContent="flex-end"
         w={{base: '100%', md: '35rem'}}
       >
-        <Button type="button" onClick={formNavigation.back} isDisabled>
+        <Button type="button" onClick={formNavigation.back}>
           Back
         </Button>
         <Button type="submit" colorScheme="brand">

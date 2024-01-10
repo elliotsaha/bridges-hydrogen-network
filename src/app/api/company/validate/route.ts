@@ -5,10 +5,17 @@ import {ZOD_ERR} from '@constants/error-messages';
 import {strictFormOptions} from '@forms/company/register';
 import axios from 'axios';
 import {logger} from '@lib';
+import {UTApi} from 'uploadthing/server';
 
 interface FormOptionData {
   name: string;
   description: string;
+}
+
+async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
+  const res: Response = await fetch(dataUrl);
+  const blob: Blob = await res.blob();
+  return new File([blob], fileName, {type: 'image/png'});
 }
 
 const validatePreprocess = (src: FormOptionData[], errmsg: string) =>
@@ -123,6 +130,21 @@ export const POST = async (request: NextRequest) => {
       const yib_obj = less_than_2_years
         ? {less_than_2_years}
         : {years_in_business: parseInt(years_in_business)};
+
+      const isBase64Profile = profile.match(/^data:(.+);base64/)?.[1];
+
+      if (isBase64Profile) {
+        // uploading image to uploadthing if base64
+        const utapi = new UTApi({
+          apiKey: process.env.NEXT_UPLOADTHING_SECRET,
+        });
+
+        const file = await dataUrlToFile(profile, company_name);
+
+        const uploadRes = await utapi.uploadFiles([file]);
+
+        console.log(uploadRes);
+      }
 
       return ServerResponse.success({
         company_name,

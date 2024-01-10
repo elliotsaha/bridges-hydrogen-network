@@ -14,17 +14,19 @@ import {
   Textarea,
   FormErrorMessage,
   Icon,
+  Image,
 } from '@chakra-ui/react';
 import React, {useCallback} from 'react';
 import {useDropzone} from 'react-dropzone';
 import {FiCamera} from 'react-icons/fi';
+import {MAX_COMPANY_DESCRIPTION_LEN} from '@constants';
 
 export const brandDetailsSchema = z.object({
   description: z
     .string()
-    .nonempty(ZOD_ERR.REQ_FIELD)
+    .min(1, ZOD_ERR.REQ_FIELD)
     .max(300, {message: 'Your description is too long'}),
-  profile: z.string().nonempty(ZOD_ERR.REQ_FIELD),
+  profile: z.string().min(1, ZOD_ERR.REQ_FIELD),
 });
 
 type Form = z.infer<typeof brandDetailsSchema>;
@@ -41,10 +43,14 @@ export const BrandDetails = ({
     reader.onload = () => {
       const binaryStr = reader.result as string;
       formControl.setValue('profile', binaryStr);
+      formControl.clearErrors('profile');
     };
     reader.readAsDataURL(file);
   }, []);
+
   const {getRootProps, getInputProps} = useDropzone({onDrop});
+
+  const watched = formControl.watch();
   return (
     <form onSubmit={formNavigation.next}>
       <Box w="100%">
@@ -53,13 +59,13 @@ export const BrandDetails = ({
             isInvalid={Boolean(formControl.formState.errors.profile)}
           >
             <Heading as="h1">What's your company's brand?</Heading>
-            <Text color="gray.500" mt="5">
-              Please upload an image and provide a description below
+            <Text color="gray.500" mt="5" fontWeight="medium" mb="3">
+              Please upload your company logo
             </Text>
             <Box
               {...getRootProps()}
               w="100"
-              border="1px"
+              borderWidth={formControl.formState.errors.profile ? 2 : 'thin'}
               borderColor={
                 formControl.formState.errors.profile ? 'red.500' : 'gray.200'
               }
@@ -68,9 +74,20 @@ export const BrandDetails = ({
             >
               <input {...getInputProps()} />
               <VStack>
-                <Icon as={FiCamera} color="gray.500" w={20} />
-                <Text color="gray.500">
-                  Drag 'n' drop some files here, or click to select files
+                {watched.profile ? (
+                  <Image
+                    src={watched.profile}
+                    w="auto"
+                    maxW="48"
+                    h="12"
+                    objectFit="fill"
+                    borderRadius="md"
+                  />
+                ) : (
+                  <Icon as={FiCamera} color="gray.500" fontSize="24" />
+                )}
+                <Text color="gray.500" textAlign="center">
+                  Drag 'n' drop your logo here, or click to select files
                 </Text>
               </VStack>
             </Box>
@@ -89,16 +106,35 @@ export const BrandDetails = ({
                 <Textarea
                   id="description"
                   w="100%"
-                  h="50%"
+                  h="36"
                   placeholder="e.g. We are a company who excels in the green energy field..."
                   autoComplete="off"
                   disabled={formControl.formState.isSubmitting}
-                  size="lg"
+                  size="md"
                   {...formControl.register('description')}
                 />
-                <FormErrorMessage>
-                  {formControl.formState.errors?.description?.message}
-                </FormErrorMessage>
+                {formControl.formState.errors?.description ? (
+                  <FormErrorMessage>
+                    {formControl.formState.errors?.description?.message}
+                  </FormErrorMessage>
+                ) : (
+                  <Text
+                    color={
+                      watched?.description?.length > MAX_COMPANY_DESCRIPTION_LEN
+                        ? 'red.500'
+                        : 'gray.500'
+                    }
+                    fontSize="sm"
+                    mt="2"
+                  >
+                    {watched.description
+                      ? `${
+                          MAX_COMPANY_DESCRIPTION_LEN -
+                          watched.description.length
+                        } characters remaining`
+                      : `${MAX_COMPANY_DESCRIPTION_LEN} characters remaining`}
+                  </Text>
+                )}
               </Box>
             </VStack>
           </FormControl>
@@ -110,7 +146,7 @@ export const BrandDetails = ({
         justifyContent="flex-end"
         w={{base: '100%', md: '35rem'}}
       >
-        <Button type="button" onClick={formNavigation.back}>
+        <Button type="button" onClick={formNavigation.back} isDisabled={true}>
           Back
         </Button>
         <Button type="submit" colorScheme="brand">
