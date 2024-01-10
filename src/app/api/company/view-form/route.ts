@@ -28,6 +28,8 @@ export const GET = async (request: NextRequest) => {
 
     if (res) {
       const formBody = {
+        profile: res.profile,
+        description: res.description,
         company_name: res.company_name,
         headquarters_location: res.headquarters_location,
         less_than_2_years: res.less_than_2_years,

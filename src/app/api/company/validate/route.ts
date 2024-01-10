@@ -146,7 +146,7 @@ export const POST = async (request: NextRequest) => {
         );
 
         // bytes -> kb -> mb is greater than 2mb
-        if (file.size / (1000 * 1000) > 2) {
+        if (file.size > 2 * (1024 ^ 2)) {
           return ServerResponse.serverError('Company logo image is too big');
         }
 
