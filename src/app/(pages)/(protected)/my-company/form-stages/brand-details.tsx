@@ -17,9 +17,10 @@ import {
   Image,
 } from '@chakra-ui/react';
 import React, {useCallback} from 'react';
-import {useDropzone} from 'react-dropzone';
+import {FileRejection, useDropzone} from 'react-dropzone';
 import {FiCamera} from 'react-icons/fi';
 import {MAX_COMPANY_DESCRIPTION_LEN} from '@constants';
+import {useState} from 'react';
 
 export const brandDetailsSchema = z.object({
   description: z
@@ -35,20 +36,43 @@ export const BrandDetails = ({
   formControl,
   formNavigation,
 }: FormRegistration<Form>) => {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    const reader = new FileReader();
-    reader.onabort = () => console.log('file reading was aborted');
-    reader.onerror = () => console.log('file reading has failed');
-    reader.onload = () => {
-      const binaryStr = reader.result as string;
-      formControl.setValue('profile', binaryStr);
-      formControl.clearErrors('profile');
-    };
-    reader.readAsDataURL(file);
-  }, []);
+  const MAX_IMG_SIZE: number = 1024 ** 2 * 2;
+  const [dropzoneError, setDropzoneError] = useState<string | boolean>(false);
+  const onDrop = useCallback(
+    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+      console.log(acceptedFiles);
+      console.log(rejectedFiles);
+      if (acceptedFiles.length !== 0) {
+        const file = acceptedFiles[0];
+        const reader = new FileReader();
+        reader.onabort = () => console.log('file reading was aborted');
+        reader.onerror = () => console.log('file reading has failed');
+        reader.onload = () => {
+          const binaryStr = reader.result as string;
+          formControl.setValue('profile', binaryStr);
+          formControl.clearErrors('profile');
+          setDropzoneError(false);
+        };
+        reader.readAsDataURL(file);
+      }
+      if (rejectedFiles.length !== 0) {
+        const fileError = rejectedFiles[0];
+        setDropzoneError(fileError.errors[0].code);
+      }
+    },
+    []
+  );
 
-  const {getRootProps, getInputProps} = useDropzone({onDrop});
+  const {getRootProps, getInputProps} = useDropzone({
+    onDrop,
+    accept: {
+      'image/jpeg': [],
+      'image/png': [],
+      'image/jpg': [],
+      'image/svg': [],
+    },
+    maxSize: MAX_IMG_SIZE,
+  });
 
   const watched = formControl.watch();
   return (
@@ -62,6 +86,14 @@ export const BrandDetails = ({
             <Text color="gray.500" mt="5" fontWeight="medium" mb="3">
               Please upload your company logo
             </Text>
+            {dropzoneError && dropzoneError === 'file-invalid-type' && (
+              <Text color="red">
+                Image must be of either SVG, JPG, JPEG, or PNG format.
+              </Text>
+            )}
+            {dropzoneError && dropzoneError === 'file-too-large' && (
+              <Text color="red">Image must be less than 2 MB in size.</Text>
+            )}
             <Box
               {...getRootProps()}
               w="100"
@@ -72,7 +104,10 @@ export const BrandDetails = ({
               p={20}
               borderRadius="10"
             >
-              <input {...getInputProps()} />
+              <input
+                {...getInputProps()}
+                accept="image/png, image/jpeg, image/jpg"
+              />
               <VStack>
                 {watched.profile ? (
                   <Image
