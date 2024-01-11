@@ -1,7 +1,7 @@
 import {NextRequest} from 'next/server';
 import {connectToDatabase, logger} from '@lib';
 import {ServerResponse, getSession} from '@helpers';
-import {Company} from '@models';
+import {Company, User} from '@models';
 import axios from 'axios';
 import {getDomain} from 'tldts';
 
@@ -30,11 +30,17 @@ export const POST = async (request: NextRequest) => {
       body
     );
 
+    const domain = getDomain(session.user.email_address);
+
+    const users = await User.find({domain}, {email_address: 1}).lean<User[]>();
+
+    const userEmailList = users.map((i: User) => i.email_address);
+
     await Company.create({
       ...res.data,
-      team: [session.user.email_address], // the only team member is the creator when just created
+      team: userEmailList,
       partners: [], // company should have no partners when just created
-      domain: getDomain(session.user.email_address),
+      domain,
     });
 
     return ServerResponse.success('Successfully created company');
