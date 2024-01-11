@@ -1,10 +1,11 @@
 import {z} from 'zod';
 import {NextRequest} from 'next/server';
-import {ServerResponse} from '@helpers/serverResponse';
+import {ServerResponse, dataURLtoFile} from '@helpers';
 import {ZOD_ERR} from '@constants/error-messages';
 import {strictFormOptions} from '@forms/company/register';
 import axios from 'axios';
 import {logger} from '@lib';
+import {UTApi} from 'uploadthing/server';
 
 interface FormOptionData {
   name: string;
@@ -37,6 +38,8 @@ const validatePreprocess = (src: FormOptionData[], errmsg: string) =>
 const CompanySchema = z
   .object({
     company_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    profile: z.string().min(1, ZOD_ERR.REQ_FIELD),
+    description: z.string().min(1, ZOD_ERR.REQ_FIELD),
     headquarters_location: z.object({
       label: z.string(),
       value: z.string(),
@@ -96,6 +99,8 @@ export const POST = async (request: NextRequest) => {
     try {
       const {
         company_name,
+        profile,
+        description,
         headquarters_location,
         less_than_2_years,
         market_focus,
@@ -105,6 +110,8 @@ export const POST = async (request: NextRequest) => {
         type_of_business,
         years_in_business,
       } = body;
+
+      let profileURL = profile;
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_HOSTNAME}/api/maps/validate/city`,
@@ -120,8 +127,44 @@ export const POST = async (request: NextRequest) => {
         ? {less_than_2_years}
         : {years_in_business: parseInt(years_in_business)};
 
+      const base64ImageType = profile.match(/^data:(.+);base64/)?.[1];
+
+      if (base64ImageType?.split('/')[0] !== 'image' && !profileURL) {
+        return ServerResponse.userError('Invalid company image');
+      }
+
+      if (base64ImageType?.split('/')[0] === 'image') {
+        // uploading image to uploadthing if base64
+        const utapi = new UTApi({
+          apiKey: process.env.NEXT_UPLOADTHING_SECRET,
+        });
+
+        const file = await dataURLtoFile(
+          profile,
+          company_name,
+          base64ImageType
+        );
+
+        // bytes -> kb -> mb is greater than 2mb
+        if (file.size > 1024 ** 2 * 2) {
+          return ServerResponse.serverError('Company logo image is too big');
+        }
+
+        const uploadRes = await utapi.uploadFiles([file]);
+
+        if (uploadRes[0].error) {
+          return ServerResponse.serverError(
+            'Could not process company logo image'
+          );
+        }
+
+        profileURL = uploadRes[0].data.url;
+      }
+
       return ServerResponse.success({
         company_name,
+        profile: profileURL,
+        description,
         headquarters_location: {
           label: res.data.formatted_address,
           value: headquarters_location.value,
@@ -135,9 +178,10 @@ export const POST = async (request: NextRequest) => {
       });
     } catch (e) {
       logger.error(e);
-      return ServerResponse.userError('Invalid city name and place ID');
+      return ServerResponse.serverError();
     }
   } else {
+    console.log(validation.error);
     return ServerResponse.validationError(validation);
   }
 };

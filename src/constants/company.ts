@@ -1,0 +1,1 @@
+export const MAX_COMPANY_DESCRIPTION_LEN = 300;

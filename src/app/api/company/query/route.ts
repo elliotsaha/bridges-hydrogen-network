@@ -52,6 +52,7 @@ export const POST = async (request: NextRequest) => {
         operating_regions: 1,
         team: 1,
         partners: 1,
+        profile: 1,
       };
 
       aggregation.push({$project: filterProjection});

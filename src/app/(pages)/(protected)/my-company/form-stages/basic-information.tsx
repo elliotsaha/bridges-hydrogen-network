@@ -2,7 +2,6 @@
 import {
   FormControl,
   FormErrorMessage,
-  Input,
   Button,
   VStack,
   Heading,
@@ -31,7 +30,6 @@ import {operatingRegions} from '@forms/company/register';
 
 export const basicInformationSchema = z
   .object({
-    company_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
     operating_regions: z
       .string()
       .array()
@@ -115,30 +113,6 @@ export const BasicInformation = ({
           <Heading as="h1" mb="2">
             Let&apos;s get to know your company
           </Heading>
-          {/*Company Name Field*/}
-          <FormControl
-            isInvalid={Boolean(formControl.formState.errors.company_name)}
-          >
-            <VStack w="100%" align="flex-start" mb="4" mt="2">
-              <FormLabel color="gray.500" htmlFor="company_name" mb="0">
-                Company name
-              </FormLabel>
-              <Box w="64" position="relative">
-                <Input
-                  id="company_name"
-                  w="64"
-                  placeholder="e.g. Acme Corporation"
-                  autoComplete="off"
-                  disabled={formControl.formState.isSubmitting}
-                  size="md"
-                  {...formControl.register('company_name')}
-                />
-                <FormErrorMessage>
-                  {formControl.formState.errors?.company_name?.message}
-                </FormErrorMessage>
-              </Box>
-            </VStack>
-          </FormControl>
 
           <Stack
             align="flex-start"
@@ -286,7 +260,7 @@ export const BasicInformation = ({
         justifyContent="flex-end"
         w={{base: '100%', md: '35rem'}}
       >
-        <Button type="button" onClick={formNavigation.back} isDisabled>
+        <Button type="button" onClick={formNavigation.back}>
           Back
         </Button>
         <Button type="submit" colorScheme="brand">

@@ -1,4 +1,5 @@
 'use client';
+import {useContext} from 'react';
 import z from 'zod';
 import {
   VStack,
@@ -17,6 +18,7 @@ import {
 import {ZOD_ERR} from '@constants';
 import {FormRegistration} from '@types';
 import {marketFocuses} from '@forms/company/register';
+import {FormContext} from '@contexts';
 
 export const marketFocusSchema = z
   .object({
@@ -46,8 +48,10 @@ export const MarketFocus = ({
     market_focus: formControl.watch('market_focus') as string[],
   };
 
+  const {submitting} = useContext(FormContext);
+
   return (
-    <form onSubmit={formControl.handleSubmit(formNavigation.submit)}>
+    <form onSubmit={formNavigation.submit}>
       <Box w="100%">
         {/*Market Focus Field*/}
         <FormControl
@@ -62,7 +66,11 @@ export const MarketFocus = ({
               {formControl.formState.errors?.market_focus?.message}
             </FormErrorMessage>
             <Flex flexDir="column" wrap="wrap" h={{base: '100%', lg: 'sm'}}>
-              <CheckboxGroup colorScheme="brand" value={watched.market_focus}>
+              <CheckboxGroup
+                colorScheme="brand"
+                value={watched.market_focus}
+                isDisabled={submitting}
+              >
                 {marketFocuses.map((i, idx) => (
                   <Checkbox
                     key={`${i}-${idx}`}
@@ -90,10 +98,19 @@ export const MarketFocus = ({
         justifyContent="flex-end"
         w={{base: '100%', md: '35rem'}}
       >
-        <Button type="button" onClick={formNavigation.back}>
+        <Button
+          type="button"
+          onClick={formNavigation.back}
+          isDisabled={submitting}
+        >
           Back
         </Button>
-        <Button type="submit" colorScheme="brand">
+        <Button
+          type="submit"
+          colorScheme="brand"
+          isLoading={submitting}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </HStack>

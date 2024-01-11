@@ -2,6 +2,8 @@ import mongoose, {Schema} from 'mongoose';
 
 export interface Company {
   _id: string;
+  description: string;
+  profile: string;
   company_name: string;
   headquarters_location: {
     label: string;
@@ -33,6 +35,8 @@ export interface Company {
 mongoose.Promise = global.Promise;
 
 const schema = new Schema<Company>({
+  description: {type: String, required: true},
+  profile: {type: String, required: true},
   company_name: {type: String, required: true},
   headquarters_location: {
     label: {type: String, required: true},

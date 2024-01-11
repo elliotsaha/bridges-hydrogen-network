@@ -29,6 +29,7 @@ const badgeText = (company: Company) => {
 };
 
 export const CompanyCard = (company: Company) => {
+  console.log(company);
   return (
     <LinkBox
       as={Card}
@@ -42,7 +43,7 @@ export const CompanyCard = (company: Company) => {
       }}
     >
       <CardBody>
-        <Img src="/static/images/brand/cha.png" w="10" mb="4" />
+        <Img src={company.profile} w="auto" h="8" mb="4" objectFit="fill" />
         <Heading as="h3" size="md" mb="2">
           <LinkOverlay as={NextLink} href={`/company/detail/${company._id}`}>
             {company.company_name}

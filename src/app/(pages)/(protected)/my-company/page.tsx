@@ -170,7 +170,13 @@ const MyCompany = () => {
               gap="12"
             >
               <Box mt="14" w={{base: '100%', lg: '50%'}}>
-                <Img src="/static/images/brand/cha.png" w="16" mb="2" />
+                <Img
+                  src={data.company.profile}
+                  maxW={{base: 'auto', sm: '48'}}
+                  h="12"
+                  mb="2"
+                  objectFit="fill"
+                />
                 <Heading as="h1">{data.company.company_name}</Heading>
                 <Text mt="2" color="brand.400" fontWeight="bold">
                   {/*REMOVE SLICE LATER*/}
@@ -236,17 +242,7 @@ const MyCompany = () => {
                   </Flex>
                 </Box>
                 <Divider my="4" />
-                <Text color="gray.600">
-                  {/* REPLACE WITH COMPANY DESCRIPTION LATER */}
-                  IHYDRO is an Online Hydrological Telemetry System developed to
-                  provide platform for real-time flood and drought monitoring.
-                  It is also a public domain for Hydrological Telemetry System
-                  (HTS) under Centralized Information Telemetry Networks (CITN).
-                  The displayed of real time rainfall and water level data
-                  enables the occurrence of flooding in Sarawak be monitored and
-                  assessed at the earlier stage to minimize damage on property
-                  and loss of life.
-                </Text>
+                <Text color="gray.600">{data.company.description}</Text>
                 <Divider my="4" />
 
                 <Flex flexDirection="column" gap={{base: '4', sm: '1'}}>
