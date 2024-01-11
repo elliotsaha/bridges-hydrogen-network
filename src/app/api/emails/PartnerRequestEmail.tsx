@@ -9,6 +9,7 @@ import {
   Section,
   Tailwind,
   Text,
+  Img,
 } from '@react-email/components';
 import * as React from 'react';
 
@@ -31,6 +32,12 @@ export const PartnerRequestEmail = ({
       <Tailwind>
         <Body className="mx-auto my-auto font-sans bg-white">
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[465px]">
+            <Img
+              src={`${process.env.NEXT_BRIDGES_LOGO_URI}`}
+              alt="Bridges"
+              height="40"
+              className="mx-auto mt-4 object-fill"
+            />
             <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
               Partnership request from <b>{company_name}</b>
             </Heading>

@@ -5,3 +5,4 @@ export * from './ResetEmail';
 export * from './PartnerRequestEmail';
 export * from './PartnerAcceptEmail';
 export * from './PartnerDenyEmail';
+export * from './CompanyDeletionEmail';
