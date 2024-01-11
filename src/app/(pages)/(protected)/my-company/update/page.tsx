@@ -4,7 +4,7 @@ import {FieldValues, useForm, DefaultValues} from 'react-hook-form';
 import {Container, Stack, Box, Text} from '@chakra-ui/react';
 import {FormRegistration, FormEvent, StepForm} from '@types';
 import z, {ZodType} from 'zod';
-import stages from '../form-stages';
+import stages, {steps} from '../form-stages';
 // stepper components & hooks
 import {
   useSteps,
@@ -180,28 +180,5 @@ const Register = () => {
     </Container>
   );
 };
-
-const steps = [
-  {
-    title: 'Basic Information',
-    description: 'Standard information about your company',
-  },
-  {
-    title: 'Type of Business',
-    description: 'What type of business do you operate?',
-  },
-  {
-    title: 'Provided Services',
-    description: 'What services / products do you provide?',
-  },
-  {
-    title: 'Technologies Used',
-    description: 'What technologies does your company use?',
-  },
-  {
-    title: 'Market Segment Focus',
-    description: 'What market does your company cater towards?',
-  },
-];
 
 export default Register;

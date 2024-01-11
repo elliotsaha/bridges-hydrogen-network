@@ -129,7 +129,7 @@ export const BasicInformation = ({
                   w="64"
                   placeholder="e.g. Acme Corporation"
                   autoComplete="off"
-                  disabled={formControl.formState.isSubmitting}
+                  isDisabled={formControl.formState.isSubmitting}
                   size="md"
                   {...formControl.register('company_name')}
                 />

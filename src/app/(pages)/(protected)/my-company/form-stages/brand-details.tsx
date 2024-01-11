@@ -4,6 +4,7 @@ import {ZOD_ERR} from '@constants';
 import z from 'zod';
 import {
   HStack,
+  Spinner,
   Button,
   Heading,
   Box,
@@ -36,6 +37,7 @@ export const BrandDetails = ({
   formControl,
   formNavigation,
 }: FormRegistration<Form>) => {
+  console.log(formControl.formState.disabled);
   const MAX_IMG_SIZE: number = 1024 ** 2 * 2;
   const [dropzoneError, setDropzoneError] = useState<string | boolean>(false);
   const onDrop = useCallback(
@@ -69,9 +71,10 @@ export const BrandDetails = ({
       'image/jpeg': [],
       'image/png': [],
       'image/jpg': [],
-      'image/svg': [],
+      'image/svg+xml': [],
     },
     maxSize: MAX_IMG_SIZE,
+    disabled: formControl.formState.disabled,
   });
 
   const watched = formControl.watch();
@@ -83,17 +86,21 @@ export const BrandDetails = ({
             isInvalid={Boolean(formControl.formState.errors.profile)}
           >
             <Heading as="h1">What's your company's brand?</Heading>
-            <Text color="gray.500" mt="5" fontWeight="medium" mb="3">
-              Please upload your company logo
-            </Text>
-            {dropzoneError && dropzoneError === 'file-invalid-type' && (
-              <Text color="red">
-                Image must be of either SVG, JPG, JPEG, or PNG format.
+            <Box mb="3">
+              <Text color="gray.500" mt="5" fontWeight="medium">
+                Please upload your company logo
               </Text>
-            )}
-            {dropzoneError && dropzoneError === 'file-too-large' && (
-              <Text color="red">Image must be less than 2 MB in size.</Text>
-            )}
+              {dropzoneError === 'file-invalid-type' && (
+                <Text color="red.500" fontSize="sm">
+                  Image must be of either SVG, JPG, JPEG, or PNG format.
+                </Text>
+              )}
+              {dropzoneError === 'file-too-large' && (
+                <Text color="red.500" fontSize="sm">
+                  Image must be less than 2 MB in size.
+                </Text>
+              )}
+            </Box>
             <Box
               {...getRootProps()}
               w="100"
@@ -118,11 +125,15 @@ export const BrandDetails = ({
                     objectFit="fill"
                     borderRadius="md"
                   />
+                ) : formControl.formState.disabled ? (
+                  <Spinner />
                 ) : (
                   <Icon as={FiCamera} color="gray.500" fontSize="24" />
                 )}
                 <Text color="gray.500" textAlign="center">
-                  Drag 'n' drop your logo here, or click to select files
+                  {formControl.formState.disabled
+                    ? 'Loading set company logo'
+                    : "Drag 'n' drop your logo here, or click to select files"}
                 </Text>
               </VStack>
             </Box>
@@ -181,7 +192,7 @@ export const BrandDetails = ({
         justifyContent="flex-end"
         w={{base: '100%', md: '35rem'}}
       >
-        <Button type="button" onClick={formNavigation.back} isDisabled={true}>
+        <Button type="button" onClick={formNavigation.back} isDisabled>
           Back
         </Button>
         <Button type="submit" colorScheme="brand">
