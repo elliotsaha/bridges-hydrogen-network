@@ -70,6 +70,13 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
   const searchParams = useSearchParams();
   const status = searchParams.get('status');
 
+  // for team modal
+  const {
+    isOpen: isOpenTeam,
+    onOpen: onOpenTeam,
+    onClose: onCloseTeam,
+  } = useDisclosure();
+
   useEffect(() => {
     switch (status) {
       case 'ACCEPT':
@@ -119,10 +126,12 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
     const company = useQuery({
       queryKey: [`company/${params.id}`],
       queryFn: fetchCompany,
+      cacheTime: 0,
     });
     const partner = useQuery({
       queryKey: [`company/${params.id}/partner`],
       queryFn: fetchPartner,
+      cacheTime: 0,
     });
 
     return {company, partner};
@@ -157,6 +166,8 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
   }
 
   console.log(partnerResponse.data);
+
+  const TEAM_LIMIT = 4;
   return (
     <>
       <Container maxW="container.xl" mb="24">
@@ -217,10 +228,12 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
         {companyResponse.data?.status === 'FOUND' && (
           <Flex
             flexDirection={{base: 'column', lg: 'row'}}
-            alignItems="center"
+            alignItems="flex-start"
             gap="12"
+            mt="14"
+            pb="14"
           >
-            <Box mt="14" w={{base: '100%', lg: '50%'}}>
+            <Box w={{base: '100%', lg: '50%'}}>
               <Img
                 src={companyResponse.data.company.profile}
                 maxW={{base: 'auto', sm: '48'}}
@@ -362,15 +375,65 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                             </Tr>
                           </Thead>
                           <Tbody>
-                            {partnerResponse?.data?.team?.map(i => (
-                              <Tr>
-                                <Td>{i.role}</Td>
-                                <Td>{i.email_address}</Td>
-                              </Tr>
-                            ))}
+                            {partnerResponse?.data?.team
+                              ?.slice(0, TEAM_LIMIT)
+                              .map(i => (
+                                <Tr>
+                                  <Td>{i.role}</Td>
+                                  <Td>{i.email_address}</Td>
+                                </Tr>
+                              ))}
                           </Tbody>
                         </Table>
                       </TableContainer>
+                      {partnerResponse.data.team.length - TEAM_LIMIT > 0 && (
+                        <>
+                          <Button
+                            variant="outline"
+                            colorScheme="blue"
+                            size="xs"
+                            mt="4"
+                            leftIcon={<Icon as={FiUsers} />}
+                            onClick={onOpenTeam}
+                          >
+                            View {partnerResponse.data.team.length - TEAM_LIMIT}{' '}
+                            more
+                          </Button>
+                          <Modal
+                            isOpen={isOpenTeam}
+                            onClose={onCloseTeam}
+                            scrollBehavior="inside"
+                          >
+                            <ModalOverlay />
+                            <ModalContent>
+                              <ModalHeader display="flex" alignItems="center">
+                                All team members
+                              </ModalHeader>
+                              <ModalCloseButton />
+                              <ModalBody>
+                                <TableContainer>
+                                  <Table variant="striped" size="sm">
+                                    <Thead>
+                                      <Tr>
+                                        <Th>Role</Th>
+                                        <Th>Email</Th>
+                                      </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                      {partnerResponse.data.team.map(i => (
+                                        <Tr>
+                                          <Td>{i.role}</Td>
+                                          <Td>{i.email_address}</Td>
+                                        </Tr>
+                                      ))}
+                                    </Tbody>
+                                  </Table>
+                                </TableContainer>
+                              </ModalBody>
+                            </ModalContent>
+                          </Modal>
+                        </>
+                      )}
                     </CardBody>
                   </Card>
                 ) : (
