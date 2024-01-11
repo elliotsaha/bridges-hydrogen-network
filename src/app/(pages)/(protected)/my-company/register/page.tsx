@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import {FieldValues, useForm, DefaultValues} from 'react-hook-form';
-import {Container, Stack, Box, Text} from '@chakra-ui/react';
+import {Container, Stack, Box, Text, useToast, ToastId} from '@chakra-ui/react';
 import {FormRegistration, FormEvent, StepForm} from '@types';
 import z, {ZodType} from 'zod';
 import stages, {steps} from '../form-stages';
@@ -20,12 +20,16 @@ import {
 } from '@chakra-ui/react';
 import {zodResolver} from '@hookform/resolvers/zod';
 import axios from 'axios';
+import {FormContext} from '@contexts';
 
 const Register = () => {
   // registration consists of a 5 part multi-stage form
   const {activeStep, setActiveStep} = useSteps({index: 0, count: steps.length});
   const [globalFormState, setGlobalFormState] = useState({});
   const [completedForm, setCompletedForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const statusToast = useToast();
+  const statusToastRef = React.useRef<ToastId>();
 
   function mergeWithGlobalForm<T extends FieldValues>(values: T) {
     // shallow merge values to global form state
@@ -61,6 +65,9 @@ const Register = () => {
         )
         .then(() => {
           window.location.href = '/my-company';
+          if (statusToastRef.current) {
+            statusToast.close(statusToastRef.current);
+          }
         })
         .catch(e => console.log(e));
     }
@@ -82,7 +89,10 @@ const Register = () => {
         e.preventDefault();
         formControl.handleSubmit(nextFormState)();
       },
-      submit: () => formControl.handleSubmit(onSubmit)(),
+      submit: () => {
+        setSubmitting(true);
+        formControl.handleSubmit(onSubmit)();
+      },
     };
     return {formControl, formNavigation};
   }
@@ -92,7 +102,28 @@ const Register = () => {
     React.useEffect(() => {
       stageForm.formControl.reset({...(globalFormState as DefaultValues<T>)}); // set local form to global form values on reset.
     }, [activeStep]);
-    return React.createElement(stage.component, stageForm);
+
+    // have to pass in global form context because react-hook-form
+    // fails to provide isSubmitting state on such a complex multi-step
+    // form
+    React.useEffect(() => {
+      if (submitting && !statusToast.isActive('update-toast')) {
+        statusToastRef.current = statusToast({
+          title: 'Please be patient while we register your company',
+          status: 'info',
+          colorScheme: 'brand',
+          position: 'bottom',
+          isClosable: false,
+          id: 'update-toast',
+          variant: 'subtle',
+        });
+      }
+    }, [submitting]);
+    return (
+      <FormContext.Provider value={{submitting}}>
+        {React.createElement(stage.component, stageForm)}
+      </FormContext.Provider>
+    );
   }
 
   const GlobalFormRender = () => {

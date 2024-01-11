@@ -39,18 +39,15 @@ export const BrandDetails = ({
   formControl,
   formNavigation,
 }: FormRegistration<Form>) => {
-  console.log(formControl.formState.disabled);
   const MAX_IMG_SIZE: number = 1024 ** 2 * 2;
   const [dropzoneError, setDropzoneError] = useState<string | boolean>(false);
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-      console.log(acceptedFiles);
-      console.log(rejectedFiles);
       if (acceptedFiles.length !== 0) {
         const file = acceptedFiles[0];
         const reader = new FileReader();
-        reader.onabort = () => console.log('file reading was aborted');
-        reader.onerror = () => console.log('file reading has failed');
+        reader.onabort = () => console.error('file reading was aborted');
+        reader.onerror = () => console.error('file reading has failed');
         reader.onload = () => {
           const binaryStr = reader.result as string;
           formControl.setValue('profile', binaryStr);
@@ -116,7 +113,7 @@ export const BrandDetails = ({
           >
             <Box mb="3">
               <Text color="gray.500" fontWeight="medium">
-                Please upload your company logo
+                Company logo
               </Text>
               {dropzoneError === 'file-invalid-type' && (
                 <Text color="red.500" fontSize="sm">
@@ -161,7 +158,7 @@ export const BrandDetails = ({
                 <Text color="gray.500" textAlign="center">
                   {formControl.formState.disabled
                     ? 'Loading set company logo'
-                    : "Drag 'n' drop your logo here, or click to select files"}
+                    : "Drag 'n' drop your logo here, or click to select a file"}
                 </Text>
               </VStack>
             </Box>
@@ -174,7 +171,7 @@ export const BrandDetails = ({
           >
             <VStack w="100%" align="flex-start" mb="4" mt="2">
               <FormLabel color="gray.500" htmlFor="description" mb="0">
-                Company Description
+                Company description
               </FormLabel>
               <Box w="100%" position="relative">
                 <Textarea
