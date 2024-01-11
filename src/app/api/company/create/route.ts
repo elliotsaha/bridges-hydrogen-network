@@ -32,7 +32,10 @@ export const POST = async (request: NextRequest) => {
 
     const domain = getDomain(session.user.email_address);
 
-    const users = await User.find({domain}, {email_address: 1}).lean<User[]>();
+    const users = await User.find(
+      {domain, email_verified: true},
+      {email_address: 1}
+    ).lean<User[]>();
 
     const userEmailList = users.map((i: User) => i.email_address);
 
