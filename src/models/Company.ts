@@ -107,3 +107,7 @@ schema.pre('save', function (next) {
 
 export const Company =
   mongoose.models?.Company || mongoose.model<Company>('Company', schema);
+
+export const DeletedCompany =
+  mongoose.models?.DeletedCompany ||
+  mongoose.model<Company>('DeletedCompany', schema);

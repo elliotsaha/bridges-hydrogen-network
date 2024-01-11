@@ -1,10 +1,11 @@
 'use client';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   useToast,
   SlideFade,
   Modal,
   ModalOverlay,
+  ModalFooter,
   Container,
   Text,
   Box,
@@ -37,6 +38,7 @@ import {
   Tbody,
   Td,
   Link,
+  ToastId,
   useClipboard,
 } from '@chakra-ui/react';
 import {
@@ -50,6 +52,7 @@ import {
   FiCheck,
   FiArrowRight,
   FiUsers,
+  FiTrash,
 } from 'react-icons/fi';
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
@@ -64,6 +67,12 @@ const MyCompany = () => {
   const searchParams = useSearchParams();
   const statusError = searchParams.get('status');
   const noCompanyError = searchParams.get('no_company');
+
+  const statusToastRef = React.useRef<ToastId>();
+
+  // for delete modal
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (statusError === 'ERR') {
@@ -89,6 +98,20 @@ const MyCompany = () => {
     }
   }, [noCompanyError]);
 
+  React.useEffect(() => {
+    if (isDeleting && !statusToast.isActive('delete-toast')) {
+      statusToastRef.current = statusToast({
+        title: 'Please be patient while we delete your company',
+        status: 'info',
+        colorScheme: 'brand',
+        position: 'bottom',
+        isClosable: false,
+        id: 'delete-toast',
+        variant: 'subtle',
+      });
+    }
+  }, [isDeleting]);
+
   const fetchCompany = async () => {
     const res = await axios.get<ViewCompanyResponse>(
       `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/view`
@@ -104,6 +127,21 @@ const MyCompany = () => {
   const {onCopy, hasCopied} = useClipboard(
     data?.company?.team?.map(i => i.email_address).join(', ') || ' '
   );
+
+  const deleteCompany = () => {
+    setIsDeleting(true);
+    axios
+      .get(`${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/delete`)
+      .then(() => {
+        window.location.href = '/my-company';
+        if (statusToastRef.current) {
+          statusToast.close(statusToastRef.current);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
 
   return (
     <>
@@ -271,16 +309,90 @@ const MyCompany = () => {
               >
                 <Flex flexDirection="column">
                   <Box mb="4">
-                    <Button
-                      size="md"
-                      colorScheme="brand"
-                      rightIcon={<Icon as={FiArrowRight} />}
-                      as={NextLink}
-                      href="/my-company/update"
-                    >
-                      Update Page
-                    </Button>
+                    <Flex flexDirection="row">
+                      <Button
+                        size="md"
+                        colorScheme="brand"
+                        rightIcon={<Icon as={FiArrowRight} />}
+                        as={NextLink}
+                        href="/my-company/update"
+                      >
+                        Update Page
+                      </Button>
+                      <Button
+                        size="md"
+                        colorScheme="red"
+                        rightIcon={<Icon as={FiTrash} />}
+                        ml="2"
+                        onClick={onOpen}
+                        variant="outline"
+                      >
+                        Delete Company
+                      </Button>
+                    </Flex>
                   </Box>
+                  <Modal isOpen={isOpen} onClose={onClose}>
+                    <ModalOverlay />
+                    <ModalContent textAlign="center">
+                      <ModalCloseButton />
+                      <Flex
+                        position="relative"
+                        justifyContent="center"
+                        alignItems="center"
+                        mt="12"
+                      >
+                        <Box
+                          w="12"
+                          h="12"
+                          position="absolute"
+                          bg="red.500"
+                          borderRadius="full"
+                        />
+                        <Icon
+                          as={FiTrash}
+                          fontSize="24"
+                          color="white"
+                          zIndex={2}
+                        />
+                      </Flex>
+
+                      <ModalHeader fontSize="24">Are you sure?</ModalHeader>
+                      <ModalBody color="gray.500">
+                        This action cannot be undone and will notify everyone on
+                        your team and permenantly remove all partnerships you
+                        have with other companies.
+                      </ModalBody>
+
+                      <ModalFooter mb="8">
+                        <Flex
+                          justifyContent="center"
+                          alignItems="center"
+                          w="100%"
+                        >
+                          <Button
+                            size="md"
+                            colorScheme="gray"
+                            ml="2"
+                            onClick={onClose}
+                            disabled={isDeleting}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            size="md"
+                            colorScheme="red"
+                            ml="2"
+                            variant="outline"
+                            onClick={deleteCompany}
+                            loadingText="Deleting Company"
+                            isLoading={isDeleting}
+                          >
+                            Delete Company
+                          </Button>
+                        </Flex>
+                      </ModalFooter>
+                    </ModalContent>
+                  </Modal>
                   <Card variant="outline" p="3" maxW="lg">
                     <CardBody>
                       <Heading size="md" mb="2">
