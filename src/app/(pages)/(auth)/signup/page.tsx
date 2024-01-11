@@ -1,4 +1,5 @@
 'use client';
+import {useState} from 'react';
 import {
   Container,
   VStack,
@@ -12,8 +13,16 @@ import {
   Box,
   FormControl,
   FormErrorMessage,
+  useDisclosure,
+  Flex,
+  Modal,
+  ModalOverlay,
+  ModalHeader,
+  ModalContent,
+  ModalCloseButton,
+  ModalBody,
 } from '@chakra-ui/react';
-import {FiArrowRight} from 'react-icons/fi';
+import {FiArrowRight, FiMail} from 'react-icons/fi';
 import {Subheader} from '@components';
 import {useForm} from 'react-hook-form';
 import z from 'zod';
@@ -45,10 +54,15 @@ type Form = z.infer<typeof schema>;
 const Signup = () => {
   const statusToast = useToast();
 
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const [sentTo, setSentTo] = useState('');
+
   const {
     handleSubmit,
     register,
     formState: {errors, isSubmitting},
+    getValues,
+    reset,
   } = useForm<Form>({resolver: zodResolver(schema)});
 
   const onSubmit = async ({
@@ -67,7 +81,12 @@ const Signup = () => {
         role,
       });
 
-      window.location.href = '/signup/verify-email';
+      const formValues = getValues();
+      setSentTo(formValues.email_address);
+
+      onOpen();
+
+      reset();
     } catch (e) {
       if (axios.isAxiosError(e)) {
         statusToast({
@@ -220,6 +239,35 @@ const Signup = () => {
           </VStack>
         </form>
       </SimpleGrid>
+
+      {/* Verify Email Modal*/}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent textAlign="center">
+          <ModalCloseButton />
+          <Flex
+            position="relative"
+            justifyContent="center"
+            alignItems="center"
+            mt="12"
+          >
+            <Box
+              w="12"
+              h="12"
+              position="absolute"
+              bg="blue.500"
+              borderRadius="full"
+            />
+            <Icon as={FiMail} fontSize="24" color="white" zIndex={2} />
+          </Flex>
+
+          <ModalHeader fontSize="24">Verify your email address</ModalHeader>
+          <ModalBody color="gray.500" mb="12" mt="-4">
+            We have sent a verification link to <b>{sentTo}</b>. Please verify
+            your account before logging in.
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Container>
   );
 };
