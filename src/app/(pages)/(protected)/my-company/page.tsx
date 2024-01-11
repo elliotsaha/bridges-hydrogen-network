@@ -172,7 +172,7 @@ const MyCompany = () => {
               <Box mt="14" w={{base: '100%', lg: '50%'}}>
                 <Img
                   src={data.company.profile}
-                  maxW="48"
+                  maxW={{base: 'auto', sm: '48'}}
                   h="12"
                   mb="2"
                   objectFit="fill"

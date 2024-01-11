@@ -221,7 +221,13 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
             gap="12"
           >
             <Box mt="14" w={{base: '100%', lg: '50%'}}>
-              <Img src="/static/images/brand/cha.png" w="16" mb="2" />
+              <Img
+                src={companyResponse.data.company.profile}
+                maxW={{base: 'auto', sm: '48'}}
+                h="12"
+                mb="2"
+                objectFit="fill"
+              />
               <Heading as="h1">
                 {companyResponse.data.company.company_name}
               </Heading>
