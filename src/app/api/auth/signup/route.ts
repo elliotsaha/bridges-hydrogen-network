@@ -7,6 +7,7 @@ import {logger, sendMail} from '@lib';
 import {ServerResponse} from '@helpers';
 import {ConfirmEmail} from '@emails';
 import {User} from '@models';
+import {getDomain} from 'tldts';
 
 const signupSchema = z.object({
   first_name: z.string({required_error: 'First name is required'}),
@@ -18,6 +19,7 @@ const signupSchema = z.object({
     .string({required_error: 'Password is required'})
     .min(8, {message: 'Password must be at least 8 characters'}),
   role: z.string({required_error: 'Role is required'}),
+  domain: z.string({required_error: 'Domain is required'}),
 });
 
 export const POST = async (request: NextRequest) => {
@@ -30,12 +32,15 @@ export const POST = async (request: NextRequest) => {
 
   email_address = email_address.toLowerCase();
 
+  const domain = getDomain(email_address);
+
   const validation = signupSchema.safeParse({
     first_name,
     last_name,
     email_address,
     password,
     role,
+    domain,
   });
 
   if (validation.success) {
@@ -52,6 +57,7 @@ export const POST = async (request: NextRequest) => {
           email_address,
           email_verified: false,
           role,
+          domain,
         },
       });
 
@@ -80,9 +86,7 @@ export const POST = async (request: NextRequest) => {
 
       return ServerResponse.success(user);
     } catch (e) {
-      console.log(e);
       logger.error(e);
-      console.log(e);
       if (e instanceof LuciaError && e.message === 'AUTH_DUPLICATE_KEY_ID') {
         return ServerResponse.userError(
           'A user with this email address already exists'
