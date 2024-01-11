@@ -245,10 +245,8 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
                 {companyResponse.data.company.company_name}
               </Heading>
               <Text mt="2" color="brand.400" fontWeight="bold">
-                {/*REMOVE SLICE LATER*/}
                 {companyResponse.data.company.type_of_business
                   .map(i => i.name)
-                  .slice(0, 3)
                   .join(' • ')}
               </Text>
               <Badge
@@ -311,15 +309,7 @@ const CompanyDetail = ({params}: {params: {id: string}}) => {
               </Box>
               <Divider my="4" />
               <Text color="gray.600">
-                {/* REPLACE WITH COMPANY DESCRIPTION LATER */}
-                IHYDRO is an Online Hydrological Telemetry System developed to
-                provide platform for real-time flood and drought monitoring. It
-                is also a public domain for Hydrological Telemetry System (HTS)
-                under Centralized Information Telemetry Networks (CITN). The
-                displayed of real time rainfall and water level data enables the
-                occurrence of flooding in Sarawak be monitored and assessed at
-                the earlier stage to minimize damage on property and loss of
-                life.
+                {companyResponse.data.company.description}
               </Text>
               <Divider my="4" />
 
