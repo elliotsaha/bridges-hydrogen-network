@@ -33,9 +33,8 @@ const Register = () => {
         `${process.env.NEXT_PUBLIC_HOSTNAME}/api/company/view-form`
       );
       setGlobalFormState(res.data);
-      console.log(res.data);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 

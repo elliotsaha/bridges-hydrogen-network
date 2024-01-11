@@ -3,6 +3,7 @@ import {FormRegistration} from '@types';
 import {ZOD_ERR} from '@constants';
 import z from 'zod';
 import {
+  Input,
   HStack,
   Spinner,
   Button,
@@ -24,6 +25,7 @@ import {MAX_COMPANY_DESCRIPTION_LEN} from '@constants';
 import {useState} from 'react';
 
 export const brandDetailsSchema = z.object({
+  company_name: z.string().min(1, ZOD_ERR.REQ_FIELD),
   description: z
     .string()
     .min(1, ZOD_ERR.REQ_FIELD)
@@ -82,12 +84,38 @@ export const BrandDetails = ({
     <form onSubmit={formNavigation.next}>
       <Box w="100%">
         <VStack align="flex-start" minH="lg">
+          <Heading as="h1">What's your company's brand?</Heading>
+
+          {/*Company Name Field*/}
+          <FormControl
+            isInvalid={Boolean(formControl.formState.errors.company_name)}
+          >
+            <VStack w="100%" align="flex-start" mt="2" mb="3">
+              <FormLabel color="gray.500" htmlFor="company_name" mb="0">
+                Company name
+              </FormLabel>
+              <Box w="64" position="relative">
+                <Input
+                  id="company_name"
+                  w="64"
+                  placeholder="e.g. Acme Corporation"
+                  autoComplete="off"
+                  isDisabled={formControl.formState.isSubmitting}
+                  size="md"
+                  {...formControl.register('company_name')}
+                />
+                <FormErrorMessage>
+                  {formControl.formState.errors?.company_name?.message}
+                </FormErrorMessage>
+              </Box>
+            </VStack>
+          </FormControl>
+
           <FormControl
             isInvalid={Boolean(formControl.formState.errors.profile)}
           >
-            <Heading as="h1">What's your company's brand?</Heading>
             <Box mb="3">
-              <Text color="gray.500" mt="5" fontWeight="medium">
+              <Text color="gray.500" fontWeight="medium">
                 Please upload your company logo
               </Text>
               {dropzoneError === 'file-invalid-type' && (

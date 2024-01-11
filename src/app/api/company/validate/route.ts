@@ -178,9 +178,10 @@ export const POST = async (request: NextRequest) => {
       });
     } catch (e) {
       logger.error(e);
-      return ServerResponse.userError('Invalid city name and place ID');
+      return ServerResponse.serverError();
     }
   } else {
+    console.log(validation.error);
     return ServerResponse.validationError(validation);
   }
 };

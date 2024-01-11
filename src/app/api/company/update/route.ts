@@ -40,6 +40,7 @@ export const PUT = async (request: NextRequest) => {
     }
     return ServerResponse.serverError();
   } catch (e) {
+    console.log(e);
     logger.error(e);
     return ServerResponse.serverError();
   }
