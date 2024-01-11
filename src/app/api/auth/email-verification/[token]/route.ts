@@ -1,7 +1,7 @@
 import {NextRequest} from 'next/server';
 import {redirect} from 'next/navigation';
 import {connectToDatabase, logger} from '@lib';
-import {User} from '@models';
+import {Company, User} from '@models';
 
 export const GET = async (
   _: NextRequest,
@@ -12,7 +12,9 @@ export const GET = async (
   let success = false;
 
   try {
-    const user = await User.findOne({'email_verification_token.id': token});
+    const user = await User.findOne({
+      'email_verification_token.id': token,
+    }).lean<User>();
     if (user) {
       await User.updateOne(
         {'email_verification_token.id': token},
@@ -21,6 +23,16 @@ export const GET = async (
           $unset: {email_verification_token: 1},
         }
       );
+
+      const domain = user.domain;
+
+      await Company.findOneAndUpdate(
+        {domain},
+        {
+          $push: {team: user.email_address},
+        }
+      );
+
       success = true;
     }
   } catch (e) {
