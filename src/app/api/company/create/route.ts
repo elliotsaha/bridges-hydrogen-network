@@ -3,6 +3,7 @@ import {connectToDatabase, logger} from '@lib';
 import {ServerResponse, getSession} from '@helpers';
 import {Company} from '@models';
 import axios from 'axios';
+import {getDomain} from 'tldts';
 
 export const POST = async (request: NextRequest) => {
   await connectToDatabase();
@@ -33,6 +34,7 @@ export const POST = async (request: NextRequest) => {
       ...res.data,
       team: [session.user.email_address], // the only team member is the creator when just created
       partners: [], // company should have no partners when just created
+      domain: getDomain(session.user.email_address),
     });
 
     return ServerResponse.success('Successfully created company');

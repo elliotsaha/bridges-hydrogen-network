@@ -4,7 +4,7 @@ import {ServerResponse, dataURLtoFile} from '@helpers';
 import {ZOD_ERR} from '@constants/error-messages';
 import {strictFormOptions} from '@forms/company/register';
 import axios from 'axios';
-import {logger} from '@lib';
+import {connectToDatabase, logger} from '@lib';
 import {UTApi} from 'uploadthing/server';
 
 interface FormOptionData {
@@ -101,6 +101,7 @@ const CompanySchema = z
 const parseJSONArray = (arr: Array<string>) => arr.map(i => JSON.parse(i));
 
 export const POST = async (request: NextRequest) => {
+  await connectToDatabase();
   const body = await request.json();
 
   const validation = CompanySchema.safeParse(body);
