@@ -10,6 +10,7 @@ export interface User {
     id: string;
   };
   role: string;
+  domain: string;
 }
 
 mongoose.Promise = global.Promise;
@@ -26,6 +27,7 @@ const schema = new Schema<User>(
       // TODO: Add token expiration
     },
     role: {type: String, required: true},
+    domain: {type: String, required: true},
   },
   {_id: false}
 );
