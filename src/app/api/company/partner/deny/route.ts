@@ -29,14 +29,14 @@ export const GET = async (request: NextRequest) => {
       case 'ACCEPT':
         return NextResponse.redirect(
           new URL(
-            `/company/detail/${recievingCompany._id}?status=ALR_ACCEPT`,
+            `/company/detail/${originCompany._id}?status=ALR_ACCEPT`,
             request.url
           )
         );
       case 'DENY':
         return NextResponse.redirect(
           new URL(
-            `/company/detail/${recievingCompany._id}?status=ALR_DENY`,
+            `/company/detail/${originCompany._id}?status=ALR_DENY`,
             request.url
           )
         );
@@ -62,7 +62,7 @@ export const GET = async (request: NextRequest) => {
     };
 
     [...originCompany.team].forEach((email: string) =>
-      sendDenyEmail(recievingCompany.company_name, email, recievingCompany._id)
+      sendDenyEmail(recievingCompany.company_name, email, originCompany._id)
     );
 
     return NextResponse.redirect(

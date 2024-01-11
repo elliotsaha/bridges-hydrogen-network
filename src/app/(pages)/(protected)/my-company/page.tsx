@@ -71,9 +71,22 @@ const MyCompany = () => {
   const statusToastRef = React.useRef<ToastId>();
 
   // for delete modal
-  const {isOpen, onOpen, onClose} = useDisclosure();
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure();
+
+  // for team modal
+  const {
+    isOpen: isOpenTeam,
+    onOpen: onOpenTeam,
+    onClose: onCloseTeam,
+  } = useDisclosure();
+
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const TEAM_LIMIT = 4;
   useEffect(() => {
     if (statusError === 'ERR') {
       if (!statusToast.isActive('status_error')) {
@@ -201,13 +214,15 @@ const MyCompany = () => {
 
         {/* Data State */}
         {data?.status === 'FOUND' && (
-          <Container maxW="container.xl" mb="24">
+          <Container maxW="container.xl">
             <Flex
               flexDirection={{base: 'column', lg: 'row'}}
-              alignItems="center"
+              alignItems="flex-start"
               gap="12"
+              mt="14"
+              pb="14"
             >
-              <Box mt="14" w={{base: '100%', lg: '50%'}}>
+              <Box w={{base: '100%', lg: '50%'}}>
                 <Img
                   src={data.company.profile}
                   maxW={{base: 'auto', sm: '48'}}
@@ -217,11 +232,7 @@ const MyCompany = () => {
                 />
                 <Heading as="h1">{data.company.company_name}</Heading>
                 <Text mt="2" color="brand.400" fontWeight="bold">
-                  {/*REMOVE SLICE LATER*/}
-                  {data.company.type_of_business
-                    .map(i => i.name)
-                    .slice(0, 3)
-                    .join(' • ')}
+                  {data.company.type_of_business.map(i => i.name).join(' • ')}
                 </Text>
                 <Badge
                   mt="3"
@@ -324,14 +335,14 @@ const MyCompany = () => {
                         colorScheme="red"
                         rightIcon={<Icon as={FiTrash} />}
                         ml="2"
-                        onClick={onOpen}
+                        onClick={onOpenDelete}
                         variant="outline"
                       >
                         Delete Company
                       </Button>
                     </Flex>
                   </Box>
-                  <Modal isOpen={isOpen} onClose={onClose}>
+                  <Modal isOpen={isOpenDelete} onClose={onCloseDelete}>
                     <ModalOverlay />
                     <ModalContent textAlign="center">
                       <ModalCloseButton />
@@ -373,7 +384,7 @@ const MyCompany = () => {
                             size="md"
                             colorScheme="gray"
                             ml="2"
-                            onClick={onClose}
+                            onClick={onCloseDelete}
                             disabled={isDeleting}
                           >
                             Cancel
@@ -417,7 +428,7 @@ const MyCompany = () => {
                             </Tr>
                           </Thead>
                           <Tbody>
-                            {data.company.team.map(i => (
+                            {data.company.team.slice(0, TEAM_LIMIT).map(i => (
                               <Tr>
                                 <Td>{i.role}</Td>
                                 <Td>{i.email_address}</Td>
@@ -426,6 +437,53 @@ const MyCompany = () => {
                           </Tbody>
                         </Table>
                       </TableContainer>
+                      {data.company.team.length - TEAM_LIMIT > 0 && (
+                        <>
+                          <Button
+                            variant="outline"
+                            colorScheme="blue"
+                            size="xs"
+                            mt="4"
+                            leftIcon={<Icon as={FiUsers} />}
+                            onClick={onOpenTeam}
+                          >
+                            View {data.company.team.length - TEAM_LIMIT} more
+                          </Button>
+                          <Modal
+                            isOpen={isOpenTeam}
+                            onClose={onCloseTeam}
+                            scrollBehavior="inside"
+                          >
+                            <ModalOverlay />
+                            <ModalContent>
+                              <ModalHeader display="flex" alignItems="center">
+                                All team members
+                              </ModalHeader>
+                              <ModalCloseButton />
+                              <ModalBody>
+                                <TableContainer>
+                                  <Table variant="striped" size="sm">
+                                    <Thead>
+                                      <Tr>
+                                        <Th>Role</Th>
+                                        <Th>Email</Th>
+                                      </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                      {data.company.team.map(i => (
+                                        <Tr>
+                                          <Td>{i.role}</Td>
+                                          <Td>{i.email_address}</Td>
+                                        </Tr>
+                                      ))}
+                                    </Tbody>
+                                  </Table>
+                                </TableContainer>
+                              </ModalBody>
+                            </ModalContent>
+                          </Modal>
+                        </>
+                      )}
                     </CardBody>
                   </Card>
                 </Flex>

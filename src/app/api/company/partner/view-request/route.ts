@@ -2,7 +2,7 @@ import {getSession} from '@helpers/getSession';
 import {ServerResponse} from '@helpers';
 import {NextRequest} from 'next/server';
 import {logger, connectToDatabase} from '@lib';
-import {Company, PartnerRequest} from '@models';
+import {Company, PartnerRequest, User} from '@models';
 
 export const POST = async (request: NextRequest) => {
   await connectToDatabase();
@@ -20,7 +20,7 @@ export const POST = async (request: NextRequest) => {
 
     const COMPANY_FROM = await Company.findOne<Company>({
       team: USER_EMAIL,
-    });
+    }).lean<Company>();
 
     if (COMPANY_FROM) {
       // if accepted
@@ -30,9 +30,17 @@ export const POST = async (request: NextRequest) => {
         });
 
         if (COMPANY_TO) {
+          const transformedTeam = await User.find(
+            {email_address: {$in: COMPANY_TO.team}},
+            {
+              email_address: 1,
+              role: 1,
+            }
+          );
+
           return ServerResponse.success({
             status: 'ACCEPT',
-            team: COMPANY_TO.team,
+            team: transformedTeam,
           });
         }
 
@@ -49,6 +57,8 @@ export const POST = async (request: NextRequest) => {
       if (validPartnerRequest) {
         return ServerResponse.success({status: 'PENDING', team: null});
       }
+
+      return ServerResponse.success({status: 'REQUEST_AVAILABLE', team: null});
     }
 
     return ServerResponse.success({status: 'NO_COMPANY', team: null});
