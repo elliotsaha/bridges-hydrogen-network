@@ -12,7 +12,11 @@ interface FormOptionData {
   description: string;
 }
 
-const validatePreprocess = (src: FormOptionData[], errmsg: string) =>
+const validatePreprocess = (
+  src: FormOptionData[],
+  errmsg: string,
+  max?: number
+) =>
   z.preprocess(
     (arr, ctx) => {
       try {
@@ -27,9 +31,13 @@ const validatePreprocess = (src: FormOptionData[], errmsg: string) =>
       .array()
       .refine(
         val => {
-          return val.every(i =>
+          const CHECK_CONDITION = val.every(i =>
             src.some(j => j.name === i.name && j.description === i.description)
           );
+          if (max) {
+            return CHECK_CONDITION && val.length <= max;
+          }
+          return CHECK_CONDITION;
         },
         {message: errmsg}
       )
@@ -67,7 +75,8 @@ const CompanySchema = z
     ),
     type_of_business: validatePreprocess(
       strictFormOptions.typesOfBusinesses,
-      'Invalid type of business'
+      'Invalid type of business or you have more than 3 types',
+      3
     ),
     years_in_business: z.string(),
   })

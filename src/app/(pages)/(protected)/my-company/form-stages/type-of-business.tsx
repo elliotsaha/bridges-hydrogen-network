@@ -23,6 +23,9 @@ export const typeOfBusinessSchema = z
     type_of_business: z
       .string()
       .array()
+      .max(3, {
+        message: 'Only select 1 to 3 types of businesses',
+      })
       .nonempty(ZOD_ERR.REQ_FIELD)
       .or(z.boolean()),
   })
@@ -55,7 +58,7 @@ export const TypeOfBusiness = ({
         >
           <VStack align="flex-start" minH="lg">
             <Heading as="h1">What type of business do you run?</Heading>
-            <Text color="gray.500">Select all that apply</Text>
+            <Text color="gray.500">Select all that apply (Max 3)</Text>
             <FormErrorMessage m="0">
               {formControl.formState.errors?.type_of_business?.message}
             </FormErrorMessage>
