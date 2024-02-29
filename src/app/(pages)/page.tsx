@@ -108,7 +108,7 @@ const Home = () => {
         >
           <VStack alignItems="flex-start">
             <HStack>
-              <Subheader>A CHA Project</Subheader>
+              <Subheader>form corporate bonds</Subheader>
               <Badge colorScheme="orange">Beta</Badge>
             </HStack>
             <Heading as="h1" size="3xl" mb="3">
@@ -193,9 +193,9 @@ const Home = () => {
         >
           <Card overflow="hidden" variant="outline" p="6">
             <CardHeader>
-              <Img src="/static/images/brand/cha.png" w="16" mb="4" />
+              <Box w="16" h="16" borderRadius="100" bg="brand.200" mb="4" />
               <Heading as="h4" mb="4" size="xl">
-                Canadian Hydrogen Association
+                ACME Hydrogen Corporation
               </Heading>
               <Subheader>A Non-profit Organization</Subheader>
             </CardHeader>
@@ -217,9 +217,9 @@ const Home = () => {
                 ))}
               </Wrap>
               <Text>
-                The Canadian Hydrogen and Fuel Cell Association (CHFCA) is a
-                national, non-profit sector association comprising industry,
-                academia, research agencies and other stakeholders focused on...
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam
+                sed urna quis lectus semper facilisis. Nam pharetra mauris in
+                ante suscipit laoreet...
               </Text>
               <Text fontWeight="bold" mt="8">
                 Are you partnered with this company?{' '}
