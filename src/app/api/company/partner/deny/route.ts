@@ -4,6 +4,9 @@ import {NextRequest, NextResponse} from 'next/server';
 import {sendMail} from '@lib';
 import {PartnerDenyEmail} from '@emails';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const GET = async (request: NextRequest) => {
   await connectToDatabase();
 
@@ -21,24 +24,18 @@ export const GET = async (request: NextRequest) => {
       .orFail();
     if (!PARTNER_REQUEST) {
       return NextResponse.redirect(
-        new URL('/my-company?status=ERR', request.url)
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/my-company?status=ERR`
       );
     }
 
     switch (PARTNER_REQUEST.status) {
       case 'ACCEPT':
         return NextResponse.redirect(
-          new URL(
-            `/company/detail/${originCompany._id}?status=ALR_ACCEPT`,
-            request.url
-          )
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/company/detail/${originCompany._id}?status=ALR_ACCEPT`
         );
       case 'DENY':
         return NextResponse.redirect(
-          new URL(
-            `/company/detail/${originCompany._id}?status=ALR_DENY`,
-            request.url
-          )
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/company/detail/${originCompany._id}?status=ALR_DENY`
         );
     }
 
@@ -66,12 +63,12 @@ export const GET = async (request: NextRequest) => {
     );
 
     return NextResponse.redirect(
-      new URL(`/company/detail/${originCompany._id}?status=DENY`, request.url)
+      `${process.env.NEXT_PUBLIC_HOSTNAME}/company/detail/${originCompany._id}?status=DENY`
     );
   } catch (e) {
     logger.error(e);
     return NextResponse.redirect(
-      new URL('/my-company?status=ERR', request.url)
+      `${process.env.NEXT_PUBLIC_HOSTNAME}/my-company?status=ERR`
     );
   }
 };
