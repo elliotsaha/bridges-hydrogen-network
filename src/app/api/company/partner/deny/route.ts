@@ -4,6 +4,9 @@ import {NextRequest, NextResponse} from 'next/server';
 import {sendMail} from '@lib';
 import {PartnerDenyEmail} from '@emails';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const GET = async (request: NextRequest) => {
   await connectToDatabase();
 

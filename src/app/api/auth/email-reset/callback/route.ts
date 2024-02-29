@@ -9,6 +9,9 @@ import {NextRequest, NextResponse} from 'next/server';
 import {createKeyId} from 'lucia';
 import {Key} from '@models';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export const GET = async (request: NextRequest) => {
   await connectToDatabase();
 
