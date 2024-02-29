@@ -22,24 +22,18 @@ export const GET = async (request: NextRequest) => {
 
     if (!PARTNER_REQUEST) {
       return NextResponse.redirect(
-        new URL('/my-company?status=ERR', request.url)
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/my-company?status=ERR`
       );
     }
 
     switch (PARTNER_REQUEST.status) {
       case 'ACCEPT':
         return NextResponse.redirect(
-          new URL(
-            `/company/detail/${originCompany._id}?status=ALR_ACCEPT`,
-            request.url
-          )
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/company/detail/${originCompany._id}?status=ALR_ACCEPT`
         );
       case 'DENY':
         return NextResponse.redirect(
-          new URL(
-            `/company/detail/${originCompany._id}?status=ALR_DENY`,
-            request.url
-          )
+          `${process.env.NEXT_PUBLIC_HOSTNAME}/company/detail/${originCompany._id}?status=ALR_DENY`
         );
     }
 
@@ -79,12 +73,12 @@ export const GET = async (request: NextRequest) => {
     );
 
     return NextResponse.redirect(
-      new URL(`/company/detail/${originCompany._id}?status=ACCEPT`, request.url)
+      `${process.env.NEXT_PUBLIC_HOSTNAME}/company/detail/${originCompany._id}?status=ACCEPT`
     );
   } catch (e) {
     logger.error(e);
     return NextResponse.redirect(
-      new URL('/my-company?status=ERR', request.url)
+      `${process.env.NEXT_PUBLIC_HOSTNAME}/my-company?status=ERR`
     );
   }
 };

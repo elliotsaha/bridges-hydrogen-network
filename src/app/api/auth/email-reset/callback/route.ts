@@ -21,7 +21,7 @@ export const GET = async (request: NextRequest) => {
 
     if (!storedToken) {
       return NextResponse.redirect(
-        new URL('/login?confirmation-status=false', request.url)
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/login?confirmation-status=false`
       );
     }
 
@@ -29,7 +29,7 @@ export const GET = async (request: NextRequest) => {
 
     if (!isWithinExpiration(tokenExpires)) {
       return NextResponse.redirect(
-        new URL('/login?confirmation-status=false', request.url)
+        `${process.env.NEXT_PUBLIC_HOSTNAME}/login?confirmation-status=false`
       );
     }
 
@@ -75,12 +75,12 @@ export const GET = async (request: NextRequest) => {
     }
 
     return NextResponse.redirect(
-      new URL('/login?confirmation-status=true&invalidate=true', request.url)
+      `${process.env.NEXT_PUBLIC_HOSTNAME}/login?confirmation-status=true&invalidate=true`
     );
   } catch (e) {
     logger.error(e);
     return NextResponse.redirect(
-      new URL('/login?confirmation-status=false', request.url)
+      `${process.env.NEXT_PUBLIC_HOSTNAME}/login?confirmation-status=false`
     );
   }
 };
