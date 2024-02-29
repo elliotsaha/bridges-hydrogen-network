@@ -3,7 +3,7 @@ import {Providers, Navbar, Footer, PageWrapper} from '@components';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'Bridges by CHA',
+  title: 'Bridges',
   description:
     'Bridges is a B2B platform aimed to connect hydrogen and clean energy companies around the world to achieve net zero carbon emissions before 2050',
 };

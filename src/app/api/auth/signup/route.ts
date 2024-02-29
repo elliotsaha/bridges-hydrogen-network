@@ -45,6 +45,12 @@ export const POST = async (request: NextRequest) => {
 
   if (validation.success) {
     try {
+      // TODO: write better validation to check for gmail accounts
+      if (email_address.split('@')[1] === 'gmail.com') {
+        return ServerResponse.userError(
+          'Please sign up with your company email address'
+        );
+      }
       const user = await auth.createUser({
         key: {
           providerId: 'email_address',

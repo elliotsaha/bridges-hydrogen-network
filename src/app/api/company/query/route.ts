@@ -153,6 +153,7 @@ export const POST = async (request: NextRequest) => {
 
       return ServerResponse.success(res);
     } catch (e) {
+      console.log(e);
       logger.error(e);
       return ServerResponse.serverError();
     }
